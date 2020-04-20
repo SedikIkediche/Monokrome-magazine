@@ -2,7 +2,7 @@ package com.ssquare.myapplication.monokrome.main.data
 
 import com.google.firebase.database.FirebaseDatabase
 
-class Repository(private val database: FirebaseDatabase) {
+class Repository private constructor(private val database: FirebaseDatabase) {
 
     companion object {
         var INSTANCE: Repository? = null

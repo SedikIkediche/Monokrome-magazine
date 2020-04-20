@@ -19,10 +19,11 @@ class MagazineLiveData(private val reference: DatabaseReference) : LiveData<Maga
 
 
     override fun onCancelled(p0: DatabaseError) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        //handleError
     }
 
-    override fun onDataChange(p0: DataSnapshot) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onDataChange(dataSnapshot: DataSnapshot) {
+        val magazine = dataSnapshot.getValue(Magazine::class.java)
+        postValue(magazine)
     }
 }

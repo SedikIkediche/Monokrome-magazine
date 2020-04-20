@@ -5,7 +5,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
-import java.util.*
 
 class MagazineListLiveData(private val reference: DatabaseReference) : LiveData<List<Magazine>>(),
     ValueEventListener {
@@ -24,10 +23,9 @@ class MagazineListLiveData(private val reference: DatabaseReference) : LiveData<
         //handle databaseError
     }
 
-    override fun onDataChange(p0: DataSnapshot) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        //retrieve data as dataModel
-        // setValue(dataModel) or PostValue  i guess
+    override fun onDataChange(dataSnapshot: DataSnapshot) {
+        val magazines = dataSnapshot.children.mapNotNull { it.getValue(Magazine::class.java) }
+        postValue(magazines)
     }
 
 

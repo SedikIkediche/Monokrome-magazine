@@ -22,8 +22,8 @@ class Repository private constructor(private val database: FirebaseDatabase) {
         return MagazineListLiveData(reference)
     }
 
-    fun getMagazine(id: Long): MagazineLiveData {
-        val reference = database.reference.child("magazines").child(id.toString())
+    fun getMagazine(path: String): MagazineLiveData {
+        val reference = database.reference.child(path)
         //get MagazineReference by id
 
         return MagazineLiveData(reference)

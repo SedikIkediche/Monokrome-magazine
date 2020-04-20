@@ -105,8 +105,8 @@ class MagazineAdapter(private val magazineListener: MagazineListener, private va
         }
     }
 
-    class MagazineListener(val clickListener: (magazineId: Long, action: ClickAction) -> Unit) {
-        fun onClick(magazine: Magazine, action: ClickAction) = clickListener(magazine.id, action)
+    class MagazineListener(val clickListener: (magazinePath: String, action: ClickAction) -> Unit) {
+        fun onClick(magazine: Magazine, action: ClickAction) = clickListener(magazine.path, action)
     }
 
     class HeaderListener(val clickListener: () -> Unit) {

@@ -20,6 +20,7 @@ class ListFragment : Fragment() {
     lateinit var binding: FragmentListBinding
     private lateinit var viewModel: ListViewModel
     private lateinit var adapter: MagazineAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -43,26 +44,28 @@ class ListFragment : Fragment() {
         val headerListener = MagazineAdapter.HeaderListener {
             Toast.makeText(requireContext(), "Header Clicked", Toast.LENGTH_SHORT).show()
         }
-        adapter = MagazineAdapter(MagazineAdapter.MagazineListener { id, action ->
+
+        val magazineListener = MagazineAdapter.MagazineListener { path, action ->
             when (action) {
                 ClickAction.PREVIEW -> Toast.makeText(
                     context,
-                    "item $id clicked, PREVIEW",
+                    "item $path clicked, PREVIEW",
                     Toast.LENGTH_SHORT
                 ).show()
                 ClickAction.DOWNLOAD -> Toast.makeText(
                     context,
-                    "item $id clicked action is DOWNLOAD",
+                    "item $path clicked action is DOWNLOAD",
                     Toast.LENGTH_SHORT
                 ).show()
                 ClickAction.READ -> Toast.makeText(
                     context,
-                    "item $id clicked action is READ",
+                    "item $path clicked action is READ",
                     Toast.LENGTH_SHORT
                 ).show()
             }
 
-        }, headerListener)
+        }
+        adapter = MagazineAdapter(magazineListener, headerListener)
     }
 
 }

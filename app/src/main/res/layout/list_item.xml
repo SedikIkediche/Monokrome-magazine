@@ -1,88 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/list_item_container_background">
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="magazine"
+            type="com.ssquare.myapplication.monokrome.main.data.Magazine" />
+
+        <variable
+            name="clickListener"
+            type="com.ssquare.myapplication.monokrome.main.list.MagazineAdapter.MagazineListener" />
+
+        <import type="com.ssquare.myapplication.monokrome.main.util.ClickAction" />
+    </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/inner_container"
-        style="@style/rectangleConstraintStyle"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/inner_container"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="wrap_content"
+        android:background="@color/list_item_container_background"
+        android:onClick="@{() -> clickListener.onClick(magazine,ClickAction.PREVIEW)}">
 
-        <TextView
-            android:id="@+id/text_title"
-            style="@style/listItemTitleStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="KROMA 11/Spring '20"
-            app:layout_constraintEnd_toStartOf="@+id/guideline"
-            app:layout_constraintStart_toEndOf="@+id/guideline2"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/text_description"
-            style="@style/listItemDescriptionStyle"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:text="Welcome to the 1st issue of KROMA art magazin! Artists featured: Pistonis, Chadoulou, Cacao Rocks, Euangelia, Dreyk #Eros, Selimas, Velisioti and more"
-            app:layout_constraintBottom_toTopOf="@+id/button_preview"
-            app:layout_constraintEnd_toStartOf="@+id/guideline"
-            app:layout_constraintStart_toStartOf="@+id/guideline2"
-            app:layout_constraintTop_toBottomOf="@+id/text_title"
-            app:layout_constraintVertical_bias="1.0" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_end="112dp" />
-
-        <TextView
-            android:id="@+id/button_download"
-            style="@style/CustomTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="@string/download"
-            app:layout_constraintBaseline_toBaselineOf="@+id/button_preview"
-            app:layout_constraintStart_toEndOf="@+id/guideline2" />
-
-        <TextView
-            android:id="@+id/button_preview"
-            style="@style/CustomTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="@string/preview"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/inner_container"
+            style="@style/rectangleConstraintStyle"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/button_download" />
+            app:layout_constraintEnd_toEndOf="@id/inner_container"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="16dp" />
+            <TextView
+                android:id="@+id/text_title"
+                style="@style/listItemTitleStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{magazine.title}"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
+                app:layout_constraintStart_toEndOf="@+id/guideline2"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="KROMA 11/Spring '20" />
 
+            <TextView
+                android:id="@+id/text_description"
+                style="@style/listItemDescriptionStyle"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:text="@{magazine.description}"
+                app:layout_constraintBottom_toTopOf="@+id/button_preview"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
+                app:layout_constraintStart_toStartOf="@+id/guideline2"
+                app:layout_constraintTop_toBottomOf="@+id/text_title"
+                app:layout_constraintVertical_bias="1.0"
+                tools:text="Welcome to the 1st issue of KROMA art magazin! Artists featured: Pistonis, Chadoulou, Cacao Rocks, Euangelia, Dreyk #Eros, Selimas, Velisioti and more" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="112dp" />
+
+            <TextView
+                android:id="@+id/button_download"
+                style="@style/CustomTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:onClick="@{() -> clickListener.onClick(magazine,ClickAction.DOWNLOAD)}"
+                android:text="@string/download"
+                app:layout_constraintBaseline_toBaselineOf="@+id/button_preview"
+                app:layout_constraintStart_toEndOf="@+id/guideline2" />
+
+            <TextView
+                android:id="@+id/button_preview"
+                style="@style/CustomTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:onClick="@{() -> clickListener.onClick(magazine,ClickAction.PREVIEW)}"
+                android:text="@string/preview"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/button_download" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="16dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/image_magazine"
+            style="@style/listItemImageStyle"
+            android:layout_width="112dp"
+            android:layout_height="150dp"
+            app:imageUrl="@{magazine.imageUrl}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="h,1:1.5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:riv_corner_radius="4dp"
+            tools:src="@drawable/list_item_picture_test" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <com.makeramen.roundedimageview.RoundedImageView
-        android:id="@+id/image_magazine"
-        style="@style/listItemImageStyle"
-        android:layout_width="112dp"
-        android:layout_height="150dp"
-        android:src="@drawable/list_item_picture_test"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="h,1:1.5"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:riv_corner_radius="4dp" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

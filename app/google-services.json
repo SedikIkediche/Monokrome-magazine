@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "617309289867",
-    "firebase_url": "https://monokrome-97452.firebaseio.com",
-    "project_id": "monokrome-97452",
-    "storage_bucket": "monokrome-97452.appspot.com"
+    "project_number": "821981044625",
+    "firebase_url": "https://monokrome-264fa.firebaseio.com",
+    "project_id": "monokrome-264fa",
+    "storage_bucket": "monokrome-264fa.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:617309289867:android:cc6d52c3c4165b11c3838e",
+        "mobilesdk_app_id": "1:821981044625:android:ccbf7c8386b0c845920430",
         "android_client_info": {
           "package_name": "com.ssquare.myapplication.monokrome"
         }
       },
       "oauth_client": [
         {
-          "client_id": "617309289867-nni44o1picqfsloldp09f6g22n2jes28.apps.googleusercontent.com",
+          "client_id": "821981044625-thhojdn72553fh71mdi0plvpdkf43d1l.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.ssquare.myapplication.monokrome",
@@ -23,20 +23,20 @@
           }
         },
         {
-          "client_id": "617309289867-l27ast29r1fqmj7uem8rukuiru8i7p06.apps.googleusercontent.com",
+          "client_id": "821981044625-78khk9vjp06klt3g0sipbj3fg44uq1uh.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyA05m5FHIK_AvLO-4M0aMuJOosi8cg1wPs"
+          "current_key": "AIzaSyBQTAxR3RwMVQec8bVWBsiLToDabkvHdi0"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "617309289867-l27ast29r1fqmj7uem8rukuiru8i7p06.apps.googleusercontent.com",
+              "client_id": "821981044625-78khk9vjp06klt3g0sipbj3fg44uq1uh.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

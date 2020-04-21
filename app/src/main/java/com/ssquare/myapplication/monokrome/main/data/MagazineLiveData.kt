@@ -6,7 +6,10 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 
-class MagazineLiveData(private val reference: DatabaseReference) : LiveData<Magazine>(),
+
+typealias MagazineOrException = DataOrException<Magazine, Exception>
+
+class MagazineLiveData(private val reference: DatabaseReference) : LiveData<MagazineOrException>(),
     ValueEventListener {
 
     override fun onActive() {
@@ -18,12 +21,15 @@ class MagazineLiveData(private val reference: DatabaseReference) : LiveData<Maga
     }
 
 
-    override fun onCancelled(p0: DatabaseError) {
-        //handleError
+    override fun onCancelled(error: DatabaseError) {
+        val exception = error.toException()
+        val magazineException = MagazineOrException(null, exception)
+        postValue(magazineException)
     }
 
     override fun onDataChange(dataSnapshot: DataSnapshot) {
-        val magazine = dataSnapshot.getValue(Magazine::class.java)
+        val data = dataSnapshot.getValue(Magazine::class.java)
+        val magazine = MagazineOrException(data, null)
         postValue(magazine)
     }
 }

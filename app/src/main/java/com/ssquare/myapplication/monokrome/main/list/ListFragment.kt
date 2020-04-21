@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.firebase.database.FirebaseDatabase
 import com.ssquare.myapplication.monokrome.databinding.FragmentListBinding
-import com.ssquare.myapplication.monokrome.main.data.MagazineDataOrException
+import com.ssquare.myapplication.monokrome.main.data.MagazineListOrException
 import com.ssquare.myapplication.monokrome.main.data.Repository
 import com.ssquare.myapplication.monokrome.main.util.ClickAction
 
@@ -41,8 +41,8 @@ class ListFragment : Fragment() {
         return binding.root
     }
 
-    private fun setupUi(response: MagazineDataOrException) {
-        hideShimmerLayout()
+    private fun setupUi(response: MagazineListOrException) {
+        hideLoadingLayout()
         if (!response.data.isNullOrEmpty() && response.exception == null) {
             adapter.addHeaderAndSubmitList(response.data)
             hideError()
@@ -53,7 +53,7 @@ class ListFragment : Fragment() {
     }
 
     private fun initRecyclerView() {
-        showShimmerLayout()
+        showLoadingLayout()
         val headerListener = MagazineAdapter.HeaderListener {
             Toast.makeText(requireContext(), "Header Clicked", Toast.LENGTH_SHORT).show()
         }
@@ -83,12 +83,12 @@ class ListFragment : Fragment() {
 
     }
 
-    private fun showShimmerLayout() {
+    private fun showLoadingLayout() {
         binding.shimmerLayout.startShimmer()
         binding.recyclerview.visibility = View.GONE
     }
 
-    private fun hideShimmerLayout() {
+    private fun hideLoadingLayout() {
         binding.shimmerLayout.hideShimmer()
         binding.recyclerview.visibility = View.VISIBLE
     }

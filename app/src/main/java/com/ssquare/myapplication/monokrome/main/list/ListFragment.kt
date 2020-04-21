@@ -27,7 +27,7 @@ class ListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentListBinding.inflate(inflater)
-        val database = FirebaseDatabase.getInstance()
+        val database = FirebaseDatabase.getInstance().apply { setPersistenceEnabled(true) }
         val repository = Repository.getInstance(database)
         val factory = ListViewModelFactory(repository)
         viewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
@@ -80,7 +80,6 @@ class ListFragment : Fragment() {
         }
         adapter = MagazineAdapter(magazineListener, headerListener)
         binding.recyclerview.adapter = adapter
-
     }
 
     private fun showLoadingLayout() {
@@ -96,7 +95,6 @@ class ListFragment : Fragment() {
     private fun showError(errorText: String) {
         binding.textError.visibility = View.VISIBLE
         binding.textError.text = errorText
-
     }
 
     private fun hideError() {

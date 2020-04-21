@@ -7,4 +7,6 @@
     <color name="list_item_buttons_text_color">#01579b</color>
     <color name="list_item_description_text_color">#616161</color>
     <color name="list_item_buttons_selected_state_background">#E0E0E0</color>
+    <color name="shimmer_background">#dddddd</color>
+    <color name="shimmer_transparent">#00000000</color>
 </resources>

@@ -31,16 +31,18 @@ class ListFragment : Fragment() {
         val factory = ListViewModelFactory(repository)
         viewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
 
-        initAdapter()
-        binding.recyclerview.adapter = adapter
+        initRecyclerView()
+
         viewModel.magazines.observe(viewLifecycleOwner, Observer {
             adapter.addHeaderAndSubmitList(it)
+            hideShimmerLayout()
         })
 
         return binding.root
     }
 
-    private fun initAdapter() {
+    private fun initRecyclerView() {
+        showShimmerLayout()
         val headerListener = MagazineAdapter.HeaderListener {
             Toast.makeText(requireContext(), "Header Clicked", Toast.LENGTH_SHORT).show()
         }
@@ -66,6 +68,19 @@ class ListFragment : Fragment() {
 
         }
         adapter = MagazineAdapter(magazineListener, headerListener)
+        binding.recyclerview.adapter = adapter
+
     }
+
+    private fun showShimmerLayout() {
+        binding.shimmerLayout.startShimmer()
+        binding.recyclerview.visibility = View.GONE
+    }
+
+    private fun hideShimmerLayout() {
+        binding.shimmerLayout.hideShimmer()
+        binding.recyclerview.visibility = View.VISIBLE
+    }
+
 
 }

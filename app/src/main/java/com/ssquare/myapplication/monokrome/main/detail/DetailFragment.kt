@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.databinding.FragmentDetailBinding
 import com.ssquare.myapplication.monokrome.main.data.Repository
 import com.ssquare.myapplication.monokrome.main.util.MAGAZINE_PATH
@@ -16,14 +17,15 @@ import com.ssquare.myapplication.monokrome.main.util.MAGAZINE_PATH
  */
 class DetailFragment : Fragment() {
     lateinit var binding: FragmentDetailBinding
-    lateinit var viewModel: DetailViewModel
+    private lateinit var viewModel: DetailViewModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentDetailBinding.inflate(inflater)
         val database = FirebaseDatabase.getInstance()
-        val repository = Repository.getInstance(database)
+        val storage = FirebaseStorage.getInstance()
+        val repository = Repository.getInstance(database, storage)
         val magazinePath = requireArguments().getString(MAGAZINE_PATH, "")
         val factory = DetailViewModelFactory(repository, magazinePath)
         viewModel = ViewModelProviders.of(this, factory).get(DetailViewModel::class.java)

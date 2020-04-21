@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentListBinding
 import com.ssquare.myapplication.monokrome.main.data.MagazineListOrException
@@ -30,7 +31,8 @@ class ListFragment : Fragment() {
     ): View? {
         binding = FragmentListBinding.inflate(inflater)
         val database = FirebaseDatabase.getInstance()
-        val repository = Repository.getInstance(database)
+        val storage = FirebaseStorage.getInstance()
+        val repository = Repository.getInstance(database, storage)
         val factory = ListViewModelFactory(repository)
         viewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
 
@@ -45,11 +47,11 @@ class ListFragment : Fragment() {
 
     private fun setupUi(response: MagazineListOrException) {
         hideLoadingLayout()
-        if (!response.data.isNullOrEmpty() && response.exception == null) {
-            adapter.addHeaderAndSubmitList(response.data)
+        if (!response.magazineList.isNullOrEmpty() && response.headerUrl != null && response.exception == null) {
+            adapter.addHeaderAndSubmitList(response.magazineList, response.headerUrl)
             hideError()
-        } else if (response.exception != null) {
-            showError(response.exception.message!!)
+        } else {
+            showError(response.exception!!.message!!)
         }
 
     }
@@ -75,7 +77,6 @@ class ListFragment : Fragment() {
         adapter = MagazineAdapter(magazineListener, headerListener)
         binding.recyclerview.adapter = adapter
     }
-
 
     private fun navigateToDetail(path: String) {
         val pathBundle = Bundle().apply { putString(MAGAZINE_PATH, path) }

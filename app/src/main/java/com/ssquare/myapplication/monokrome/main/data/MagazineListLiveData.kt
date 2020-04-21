@@ -6,38 +6,61 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.StorageReference
+import com.ssquare.myapplication.monokrome.main.util.HEADER_PATH
 
-typealias MagazineListOrException = DataOrException<List<Magazine>, Exception>
 
-class MagazineListLiveData(private val reference: DatabaseReference) :
+class MagazineListLiveData(
+    private val databaseReference: DatabaseReference,
+    storageReference: StorageReference
+) :
     LiveData<MagazineListOrException>(),
     ValueEventListener, OnFailureListener {
+    lateinit var headerUrl: String
+
+    init {
+        storageReference.child(HEADER_PATH).downloadUrl.addOnSuccessListener {
+            headerUrl = it.toString()
+        }.addOnFailureListener { exception ->
+            headerUrl = "Failed Getting Header Url"
+            postValue(MagazineListOrException(null, null, exception))
+        }
+    }
 
     override fun onActive() {
         //add snapshotListener to listenerRegistration
-        reference.addValueEventListener(this)
+        databaseReference.addValueEventListener(this)
     }
 
     override fun onInactive() {
-        reference.removeEventListener(this)
+        databaseReference.removeEventListener(this)
     }
 
     override fun onCancelled(error: DatabaseError) {
-        val exception = error.toException()
-        val dataError = MagazineListOrException(null, exception)
-        postValue(dataError)
+        if (this::headerUrl.isInitialized) {
+            val exception = error.toException()
+            val dataError = MagazineListOrException(null, null, exception)
+            postValue(dataError)
+        }
     }
 
 
     override fun onDataChange(dataSnapshot: DataSnapshot) {
+
         val magazines = dataSnapshot.children.mapNotNull { it.getValue(Magazine::class.java) }
-        val magazineList = MagazineListOrException(magazines, null)
-        postValue(magazineList)
+        if (this::headerUrl.isInitialized) {
+            val magazineList = MagazineListOrException(magazines, headerUrl, null)
+            postValue(magazineList)
+        }
+
     }
 
     override fun onFailure(exception: Exception) {
-        val magazineException = MagazineListOrException(null, exception)
-        postValue(magazineException)
+        if (this::headerUrl.isInitialized) {
+            val magazineException = MagazineListOrException(null, null, exception)
+            postValue(magazineException)
+        }
+
     }
 
 

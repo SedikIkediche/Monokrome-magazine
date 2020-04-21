@@ -1,15 +1,22 @@
 package com.ssquare.myapplication.monokrome.main.data
 
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
 
-class Repository private constructor(private val database: FirebaseDatabase) {
+class Repository private constructor(
+    private val database: FirebaseDatabase,
+    private val storage: FirebaseStorage
+) {
 
     companion object {
         var INSTANCE: Repository? = null
-        fun getInstance(firebaseDatabase: FirebaseDatabase): Repository {
+        fun getInstance(
+            firebaseDatabase: FirebaseDatabase,
+            firebaseStorage: FirebaseStorage
+        ): Repository {
             var instance = INSTANCE
             if (instance == null) {
-                instance = Repository(firebaseDatabase)
+                instance = Repository(firebaseDatabase, firebaseStorage)
                 INSTANCE = instance
             }
             return instance
@@ -18,13 +25,13 @@ class Repository private constructor(private val database: FirebaseDatabase) {
 
     fun getMagazineList(): MagazineListLiveData {
         //assuming this is the is  the reference related to the list of magazines
-        val reference = database.reference.child("magazines")
-        return MagazineListLiveData(reference)
+        val databaseReference = database.reference.child("magazines")
+        val storageReference = storage.reference
+        return MagazineListLiveData(databaseReference, storageReference)
     }
 
     fun getMagazine(path: String): MagazineLiveData {
         val reference = database.reference.child(path)
-        //get MagazineReference by id
 
         return MagazineLiveData(reference)
     }

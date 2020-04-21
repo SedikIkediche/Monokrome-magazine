@@ -3,10 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
         <variable
             name="header"
-            type="com.ssquare.myapplication.monokrome.main.list.MagazineAdapter.DataItem.Header" />
+            type="com.ssquare.myapplication.monokrome.main.data.Header" />
 
         <variable
             name="clickListener"
@@ -16,15 +15,14 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="@{() -> clickListener.onClick()}"
-        android:padding="8dp">
+        android:onClick="@{() -> clickListener.onClick()}">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/header_image"
             android:layout_width="0dp"
             android:layout_height="200dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_launcher_background"
+            app:imageUrl="@{header.imageUrl}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

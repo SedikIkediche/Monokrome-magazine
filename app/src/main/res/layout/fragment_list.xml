@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <!-- Here you loading layout -->
         <com.facebook.shimmer.ShimmerFrameLayout
             android:id="@+id/shimmer_layout"
             android:layout_width="match_parent"
@@ -29,7 +30,20 @@
                 <include layout="@layout/list_item_place_holder" />
             </LinearLayout>
         </com.facebook.shimmer.ShimmerFrameLayout>
+        <!-- Here you loading layout -->
 
+
+        <!-- Here you error layout -->
+        <TextView
+            android:id="@+id/text_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <!-- Here you error layout -->
 
         <!-- Here you write your complex vieww -->
         <androidx.recyclerview.widget.RecyclerView

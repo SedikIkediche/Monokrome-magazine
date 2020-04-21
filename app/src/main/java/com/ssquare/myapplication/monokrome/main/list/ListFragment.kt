@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.firebase.database.FirebaseDatabase
 import com.ssquare.myapplication.monokrome.databinding.FragmentListBinding
+import com.ssquare.myapplication.monokrome.main.data.MagazineDataOrException
 import com.ssquare.myapplication.monokrome.main.data.Repository
 import com.ssquare.myapplication.monokrome.main.util.ClickAction
 
@@ -34,11 +35,21 @@ class ListFragment : Fragment() {
         initRecyclerView()
 
         viewModel.magazines.observe(viewLifecycleOwner, Observer {
-            adapter.addHeaderAndSubmitList(it)
-            hideShimmerLayout()
+            setupUi(it)
         })
 
         return binding.root
+    }
+
+    private fun setupUi(response: MagazineDataOrException) {
+        hideShimmerLayout()
+        if (!response.data.isNullOrEmpty() && response.exception == null) {
+            adapter.addHeaderAndSubmitList(response.data)
+            hideError()
+        } else {
+            showError(response.exception!!.message!!)
+        }
+
     }
 
     private fun initRecyclerView() {
@@ -80,6 +91,16 @@ class ListFragment : Fragment() {
     private fun hideShimmerLayout() {
         binding.shimmerLayout.hideShimmer()
         binding.recyclerview.visibility = View.VISIBLE
+    }
+
+    private fun showError(errorText: String) {
+        binding.textError.visibility = View.VISIBLE
+        binding.textError.text = errorText
+
+    }
+
+    private fun hideError() {
+        binding.textError.visibility = View.GONE
     }
 
 

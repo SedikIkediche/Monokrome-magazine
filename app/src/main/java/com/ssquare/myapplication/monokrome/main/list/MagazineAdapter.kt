@@ -25,8 +25,8 @@ class MagazineAdapter(private val magazineListener: MagazineListener, private va
     fun addHeaderAndSubmitList(list: List<Magazine>?) {
         adapterScope.launch {
             val items = when (list) {
-                null -> listOf(DataItem.Header)
-                else -> listOf(DataItem.Header) + list.map { DataItem.MagazineItem(it) }
+                null -> listOf(DataItem.Header(""))
+                else -> listOf(DataItem.Header("")) + list.map { DataItem.MagazineItem(it) }
             }
             withContext(Dispatchers.Main) {
                 submitList(items)
@@ -105,8 +105,8 @@ class MagazineAdapter(private val magazineListener: MagazineListener, private va
         }
     }
 
-    class MagazineListener(val clickListener: (magazinePath: String, action: ClickAction) -> Unit) {
-        fun onClick(magazine: Magazine, action: ClickAction) = clickListener(magazine.path, action)
+    class MagazineListener(val clickListener: (magazine: Magazine, action: ClickAction) -> Unit) {
+        fun onClick(magazine: Magazine, action: ClickAction) = clickListener(magazine, action)
     }
 
     class HeaderListener(val clickListener: () -> Unit) {
@@ -118,7 +118,7 @@ class MagazineAdapter(private val magazineListener: MagazineListener, private va
             override val id = magazine.id
         }
 
-        object Header : DataItem() {
+        class Header(val imageUrl: String) : DataItem() {
             override val id = Long.MIN_VALUE
         }
 

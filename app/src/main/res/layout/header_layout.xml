@@ -5,6 +5,10 @@
     <data>
 
         <variable
+            name="header"
+            type="com.ssquare.myapplication.monokrome.main.list.MagazineAdapter.DataItem.Header" />
+
+        <variable
             name="clickListener"
             type="com.ssquare.myapplication.monokrome.main.list.MagazineAdapter.HeaderListener" />
     </data>

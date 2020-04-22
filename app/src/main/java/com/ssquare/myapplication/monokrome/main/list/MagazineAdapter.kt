@@ -29,7 +29,11 @@ class MagazineAdapter(
     fun addHeaderAndSubmitList(list: List<Magazine>, headerUrl: String) {
         adapterScope.launch {
             val items =
-                listOf(DataItem.HeaderItem(Header(headerUrl))) + list.map { DataItem.MagazineItem(it) }
+                listOf(DataItem.HeaderItem(Header(imageUrl = headerUrl))) + list.map {
+                    DataItem.MagazineItem(
+                        it
+                    )
+                }
 
             withContext(Dispatchers.Main) {
                 submitList(items)

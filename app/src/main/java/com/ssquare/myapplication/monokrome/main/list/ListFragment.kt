@@ -12,6 +12,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentListBinding
+import com.ssquare.myapplication.monokrome.main.data.Magazine
 import com.ssquare.myapplication.monokrome.main.data.MagazineListOrException
 import com.ssquare.myapplication.monokrome.main.data.Repository
 import com.ssquare.myapplication.monokrome.main.util.ClickAction
@@ -45,7 +46,7 @@ class ListFragment : Fragment() {
                 setupUi(it)
             })
         } else {
-            showError("Network Not Available")
+            showError(getString(R.string.network_down))
         }
 
 
@@ -72,7 +73,8 @@ class ListFragment : Fragment() {
                     navigateToDetail(magazine.path)
                 }
                 ClickAction.DOWNLOAD -> {
-                    viewModel.downloadFile(magazine, requireContext())
+                    downloadMagazine(magazine)
+
                 }
                 ClickAction.READ -> { /*Handle Read click */
                 }
@@ -81,6 +83,14 @@ class ListFragment : Fragment() {
         }
         adapter = MagazineAdapter(magazineListener, headerListener)
         binding.recyclerview.adapter = adapter
+    }
+
+    private fun downloadMagazine(magazine: Magazine) {
+        if (isConnected(requireContext())) {
+            viewModel.downloadFile(magazine, requireContext())
+        } else {
+            showErrorLayout(getString(R.string.network_down))
+        }
     }
 
     private fun navigateToDetail(path: String) {
@@ -104,9 +114,8 @@ class ListFragment : Fragment() {
             shimmerLayout.hideShimmer()
             shimmerLayout.visibility = View.GONE
             recyclerview.visibility = View.GONE
-            textError.visibility = View.VISIBLE
-            textError.text = errorText
         }
+        showErrorLayout(errorText)
     }
 
     private fun showData() {
@@ -115,6 +124,13 @@ class ListFragment : Fragment() {
             shimmerLayout.visibility = View.GONE
             textError.visibility = View.GONE
             recyclerview.visibility = View.VISIBLE
+        }
+    }
+
+    private fun showErrorLayout(errorText: String) {
+        binding.run {
+            textError.visibility = View.VISIBLE
+            textError.text = errorText
         }
     }
 

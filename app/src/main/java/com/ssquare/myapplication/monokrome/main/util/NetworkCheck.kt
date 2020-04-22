@@ -53,7 +53,6 @@ class NetworkCheck(private val context: Context) {
             isConnected
         }
 
-
     }
 
 

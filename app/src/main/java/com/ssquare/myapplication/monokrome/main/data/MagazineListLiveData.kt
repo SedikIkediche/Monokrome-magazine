@@ -52,7 +52,6 @@ class MagazineListLiveData(
             val magazineList = MagazineListOrException(magazines, headerUrl, null)
             postValue(magazineList)
         }
-
     }
 
     override fun onFailure(exception: Exception) {
@@ -60,7 +59,6 @@ class MagazineListLiveData(
             val magazineException = MagazineListOrException(null, null, exception)
             postValue(magazineException)
         }
-
     }
 
 

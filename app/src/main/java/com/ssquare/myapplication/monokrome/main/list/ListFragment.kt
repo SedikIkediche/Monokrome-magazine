@@ -27,7 +27,7 @@ class ListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentListBinding.inflate(inflater)
-        val database = FirebaseDatabase.getInstance().apply { setPersistenceEnabled(true) }
+        val database = FirebaseDatabase.getInstance()
         val repository = Repository.getInstance(database)
         val factory = ListViewModelFactory(repository)
         viewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
@@ -100,6 +100,4 @@ class ListFragment : Fragment() {
     private fun hideError() {
         binding.textError.visibility = View.GONE
     }
-
-
 }

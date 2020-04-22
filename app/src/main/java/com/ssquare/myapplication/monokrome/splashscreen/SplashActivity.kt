@@ -3,6 +3,7 @@ package com.ssquare.myapplication.monokrome.splashscreen
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.ssquare.myapplication.monokrome.auth.AuthActivity
 import com.ssquare.myapplication.monokrome.main.MainActivity
 
 class SplashActivity : AppCompatActivity() {
@@ -10,7 +11,7 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val intent =  Intent(this,MainActivity::class.java)
+        val intent =  Intent(this,AuthActivity::class.java)
         startActivity(intent)
         finish()
 

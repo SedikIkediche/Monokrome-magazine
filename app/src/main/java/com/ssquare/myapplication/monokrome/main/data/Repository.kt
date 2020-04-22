@@ -16,6 +16,10 @@ class Repository private constructor(private val database: FirebaseDatabase) {
         }
     }
 
+    init {
+        database.apply { setPersistenceEnabled(true) }
+    }
+
     fun getMagazineList(): MagazineListLiveData {
         //assuming this is the is  the reference related to the list of magazines
         val reference = database.reference.child("magazines")

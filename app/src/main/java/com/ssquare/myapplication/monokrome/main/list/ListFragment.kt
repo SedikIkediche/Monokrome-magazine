@@ -16,6 +16,7 @@ import com.ssquare.myapplication.monokrome.main.data.MagazineListOrException
 import com.ssquare.myapplication.monokrome.main.data.Repository
 import com.ssquare.myapplication.monokrome.main.util.ClickAction
 import com.ssquare.myapplication.monokrome.main.util.MAGAZINE_PATH
+import com.ssquare.myapplication.monokrome.main.util.isConnected
 
 /**
  * A simple [Fragment] subclass.
@@ -38,18 +39,23 @@ class ListFragment : Fragment() {
 
         initRecyclerView()
 
-        viewModel.magazines.observe(viewLifecycleOwner, Observer {
-            setupUi(it)
-        })
+        if (isConnected(requireContext())) {
+            showLoading()
+            viewModel.magazines.observe(viewLifecycleOwner, Observer {
+                setupUi(it)
+            })
+        } else {
+            showError("Network Not Available")
+        }
+
 
         return binding.root
     }
 
     private fun setupUi(response: MagazineListOrException) {
-        hideLoadingLayout()
         if (!response.magazineList.isNullOrEmpty() && response.headerUrl != null && response.exception == null) {
             adapter.addHeaderAndSubmitList(response.magazineList, response.headerUrl)
-            hideError()
+            showData()
         } else {
             showError(response.exception!!.message!!)
         }
@@ -57,8 +63,7 @@ class ListFragment : Fragment() {
     }
 
     private fun initRecyclerView() {
-        showLoadingLayout()
-        //check connectivity
+
         val headerListener = MagazineAdapter.HeaderListener { /*Handle header click */ }
 
         val magazineListener = MagazineAdapter.MagazineListener { magazine, action ->
@@ -83,24 +88,34 @@ class ListFragment : Fragment() {
         findNavController().navigate(R.id.action_listFragment_to_detailFragment, pathBundle)
     }
 
-    private fun showLoadingLayout() {
-        binding.shimmerLayout.startShimmer()
-        binding.recyclerview.visibility = View.GONE
+    private fun showLoading() {
+        binding.run {
+            recyclerview.visibility = View.GONE
+            textError.visibility = View.GONE
+            shimmerLayout.visibility = View.VISIBLE
+            shimmerLayout.startShimmer()
+        }
+
     }
 
-    private fun hideLoadingLayout() {
-        binding.shimmerLayout.hideShimmer()
-        binding.recyclerview.visibility = View.VISIBLE
-    }
 
     private fun showError(errorText: String) {
-        binding.textError.visibility = View.VISIBLE
-        binding.textError.text = errorText
+        binding.run {
+            shimmerLayout.hideShimmer()
+            shimmerLayout.visibility = View.GONE
+            recyclerview.visibility = View.GONE
+            textError.visibility = View.VISIBLE
+            textError.text = errorText
+        }
     }
 
-    private fun hideError() {
-        binding.textError.visibility = View.GONE
+    private fun showData() {
+        binding.run {
+            shimmerLayout.hideShimmer()
+            shimmerLayout.visibility = View.GONE
+            textError.visibility = View.GONE
+            recyclerview.visibility = View.VISIBLE
+        }
     }
-
 
 }

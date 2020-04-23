@@ -5,11 +5,11 @@
     <data>
         <variable
             name="header"
-            type="com.ssquare.myapplication.monokrome.main.data.Header" />
+            type="com.ssquare.myapplication.monokrome.data.Header" />
 
         <variable
             name="clickListener"
-            type="com.ssquare.myapplication.monokrome.main.list.MagazineAdapter.HeaderListener" />
+            type="com.ssquare.myapplication.monokrome.ui.main.list.MagazineAdapter.HeaderListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

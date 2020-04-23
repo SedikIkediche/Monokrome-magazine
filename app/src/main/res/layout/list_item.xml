@@ -7,13 +7,13 @@
 
         <variable
             name="magazine"
-            type="com.ssquare.myapplication.monokrome.main.data.Magazine" />
+            type="com.ssquare.myapplication.monokrome.data.Magazine" />
 
         <variable
             name="clickListener"
-            type="com.ssquare.myapplication.monokrome.main.list.MagazineAdapter.MagazineListener" />
+            type="com.ssquare.myapplication.monokrome.ui.main.list.MagazineAdapter.MagazineListener" />
 
-        <import type="com.ssquare.myapplication.monokrome.main.util.ClickAction" />
+        <import type="com.ssquare.myapplication.monokrome.ui.main.util.ClickAction" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

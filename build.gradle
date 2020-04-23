@@ -10,6 +10,7 @@ buildscript {
         room_version = '2.2.5'
         nav_version = '2.2.2'
         preference_version = '1.1.1'
+        version_timber = '4.7.1'
     }
     repositories {
         google()

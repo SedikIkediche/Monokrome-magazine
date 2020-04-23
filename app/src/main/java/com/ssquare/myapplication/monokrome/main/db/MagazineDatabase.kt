@@ -1,4 +1,4 @@
-package com.ssquare.myapplication.monokrome.db
+package com.ssquare.myapplication.monokrome.main.db
 
 import android.content.Context
 import androidx.room.Database
@@ -8,7 +8,7 @@ import com.ssquare.myapplication.monokrome.main.data.Header
 import com.ssquare.myapplication.monokrome.main.data.Magazine
 
 @Database(entities = [Header::class, Magazine::class], version = 1, exportSchema = false)
-abstract class MagazineDatabase(context: Context) : RoomDatabase() {
+abstract class MagazineDatabase : RoomDatabase() {
 
     abstract val headerDao: HeaderDao
     abstract val magazineDao: MagazineDao

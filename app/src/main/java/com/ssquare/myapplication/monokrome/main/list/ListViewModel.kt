@@ -10,13 +10,12 @@ import com.ssquare.myapplication.monokrome.main.data.Repository
 
 class ListViewModel(private val repository: Repository) : ViewModel() {
 
-
+    val loadAndRefreshData = repository.loadAndRefreshData()
     val magazines = repository.getMagazineList()
 
     fun downloadFile(magazine: Magazine, context: Context) {
         //ask for storage permission
         //check internet connectivity
-
         val fileUrl = Uri.parse(magazine.editionUrl)
         val request = DownloadManager.Request(fileUrl)
             .setTitle(magazine.title)

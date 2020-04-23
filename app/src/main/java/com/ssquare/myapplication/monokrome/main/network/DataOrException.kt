@@ -1,4 +1,7 @@
-package com.ssquare.myapplication.monokrome.main.data
+package com.ssquare.myapplication.monokrome.main.network
+
+import com.ssquare.myapplication.monokrome.main.data.Header
+import com.ssquare.myapplication.monokrome.main.data.Magazine
 
 data class DataOrException<out T, out E : Exception?>(val data: T?, val exception: E?) {
     init {
@@ -12,13 +15,13 @@ data class DataOrException<out T, out E : Exception?>(val data: T?, val exceptio
 
 data class MagazineListOrException(
     val magazineList: List<Magazine>?,
-    val headerUrl: String?,
+    val header: Header?,
     val exception: Exception?
 ) {
     init {
-        if (magazineList == null && headerUrl == null && exception == null) {
+        if (magazineList == null && header == null && exception == null) {
             throw IllegalArgumentException("Both data and exception can't be null")
-        } else if (magazineList != null && headerUrl == null && exception != null) {
+        } else if (magazineList != null && header == null && exception != null) {
             throw IllegalArgumentException("Both data and exception can't be non-null")
         }
     }

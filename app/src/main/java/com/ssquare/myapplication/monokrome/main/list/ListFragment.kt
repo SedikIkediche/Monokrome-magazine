@@ -7,17 +7,22 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentListBinding
+import com.ssquare.myapplication.monokrome.main.data.Header
 import com.ssquare.myapplication.monokrome.main.data.Magazine
-import com.ssquare.myapplication.monokrome.main.data.MagazineListOrException
 import com.ssquare.myapplication.monokrome.main.data.Repository
+import com.ssquare.myapplication.monokrome.main.db.LocalCache
+import com.ssquare.myapplication.monokrome.main.db.MagazineDatabase
+import com.ssquare.myapplication.monokrome.main.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.main.util.ClickAction
 import com.ssquare.myapplication.monokrome.main.util.MAGAZINE_PATH
 import com.ssquare.myapplication.monokrome.main.util.isConnected
+import timber.log.Timber
 
 /**
  * A simple [Fragment] subclass.
@@ -31,10 +36,16 @@ class ListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Timber.d("soheib: onViewCreated()")
         binding = FragmentListBinding.inflate(inflater)
         val database = FirebaseDatabase.getInstance()
         val storage = FirebaseStorage.getInstance()
-        val repository = Repository.getInstance(database, storage)
+        val network = FirebaseServer(database, storage)
+        val magazineDao = MagazineDatabase.getInstance(requireContext()).magazineDao
+        val headerDao = MagazineDatabase.getInstance(requireContext()).headerDao
+        val cache = LocalCache(magazineDao, headerDao, lifecycleScope)
+
+        val repository = Repository.getInstance(cache, network)
         val factory = ListViewModelFactory(repository)
         viewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
 
@@ -43,7 +54,7 @@ class ListFragment : Fragment() {
         if (isConnected(requireContext())) {
             showLoading()
             viewModel.magazines.observe(viewLifecycleOwner, Observer {
-                setupUi(it)
+                setupUi(it.first, it.second)
             })
         } else {
             showError(getString(R.string.network_down))
@@ -53,13 +64,9 @@ class ListFragment : Fragment() {
         return binding.root
     }
 
-    private fun setupUi(response: MagazineListOrException) {
-        if (!response.magazineList.isNullOrEmpty() && response.headerUrl != null && response.exception == null) {
-            adapter.addHeaderAndSubmitList(response.magazineList, response.headerUrl)
-            showData()
-        } else {
-            showError(response.exception!!.message!!)
-        }
+    private fun setupUi(header: Header?, magazines: List<Magazine>?) {
+        adapter.addHeaderAndSubmitList(magazines, header)
+        showData()
 
     }
 

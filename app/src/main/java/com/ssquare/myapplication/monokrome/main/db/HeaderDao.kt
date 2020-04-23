@@ -1,5 +1,6 @@
-package com.ssquare.myapplication.monokrome.db
+package com.ssquare.myapplication.monokrome.main.db
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -10,7 +11,7 @@ import com.ssquare.myapplication.monokrome.main.data.Header
 interface HeaderDao {
 
     @Query("SELECT * FROM header ORDER BY id  LIMIT 1")
-    fun get(): Header
+    fun get(): LiveData<Header>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(header: Header)

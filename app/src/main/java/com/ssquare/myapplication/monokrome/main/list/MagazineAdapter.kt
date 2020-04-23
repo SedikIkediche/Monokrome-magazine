@@ -26,15 +26,15 @@ class MagazineAdapter(
 
     private val adapterScope = CoroutineScope(Dispatchers.Default)
 
-    fun addHeaderAndSubmitList(list: List<Magazine>, headerUrl: String) {
+    fun addHeaderAndSubmitList(list: List<Magazine>?, header: Header?) {
         adapterScope.launch {
-            val items =
-                listOf(DataItem.HeaderItem(Header(imageUrl = headerUrl))) + list.map {
-                    DataItem.MagazineItem(
-                        it
-                    )
-                }
-
+            val items = if (header != null && list != null)
+                listOf(DataItem.HeaderItem(header)) + list.map { DataItem.MagazineItem(it) }
+            else if (header == null && list != null) {
+                list.map { DataItem.MagazineItem(it) }
+            } else if (header != null && list == null) {
+                listOf(DataItem.HeaderItem(header))
+            } else emptyList()
             withContext(Dispatchers.Main) {
                 submitList(items)
             }

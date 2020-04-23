@@ -1,4 +1,4 @@
-package com.ssquare.myapplication.monokrome.db
+package com.ssquare.myapplication.monokrome.main.db
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
@@ -17,5 +17,8 @@ interface MagazineDao {
     fun get(id: Int): LiveData<Magazine>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(vararg magazine: Magazine)
+    suspend fun insertAll(magazines: List<Magazine>)
+
+    @Query("DELETE FROM magazines")
+    suspend fun clear()
 }

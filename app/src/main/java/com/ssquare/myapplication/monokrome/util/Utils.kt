@@ -21,16 +21,10 @@ fun isConnected(context: Context): Boolean {
     return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting
 }
 
-fun commitCacheData(context: Context, isCached: Boolean) {
-    PreferenceManager.getDefaultSharedPreferences(context).edit().apply {
-        putBoolean(DATA_CACHED, isCached)
-        apply()
-    }
-}
-
-fun commitUpToDateData(context: Context, isUpToDate: Boolean) {
+fun commitCacheData(context: Context, isUpToDate: Boolean, isCached: Boolean) {
     PreferenceManager.getDefaultSharedPreferences(context).edit().apply {
         putBoolean(DATA_UP_TO_DATE, isUpToDate)
+        if (!isCached) putBoolean(DATA_CACHED, isCached)
         apply()
     }
 }

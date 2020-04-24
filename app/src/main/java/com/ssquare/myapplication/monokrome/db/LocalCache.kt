@@ -18,13 +18,12 @@ class LocalCache(
 ) {
 
 
-    fun refresh(magazines: List<Magazine>, header: Header, insertFinished: () -> Unit) {
+    fun refresh(magazines: List<Magazine>, header: Header) {
         scope.launch {
             withContext(Dispatchers.IO) {
                 refreshMagazines(magazines)
                 refreshHeader(header)
             }
-            insertFinished()
         }
     }
 

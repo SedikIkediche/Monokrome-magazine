@@ -28,13 +28,13 @@ class MagazineAdapter(
 
     fun addHeaderAndSubmitList(list: List<Magazine>?, header: Header?) {
         adapterScope.launch {
-            val items = if (header != null && list != null)
-                listOf(DataItem.HeaderItem(header)) + list.map { DataItem.MagazineItem(it) }
-            else if (header == null && list != null) {
-                list.map { DataItem.MagazineItem(it) }
-            } else if (header != null && list == null) {
-                listOf(DataItem.HeaderItem(header))
-            } else emptyList()
+            val items = when {
+                (header != null && list != null) ->
+                    listOf(DataItem.HeaderItem(header)) + list.map { DataItem.MagazineItem(it) }
+                (header == null && list != null) -> list.map { DataItem.MagazineItem(it) }
+                (header != null && list == null) -> listOf(DataItem.HeaderItem(header))
+                else -> emptyList()
+            }
             withContext(Dispatchers.Main) {
                 submitList(items)
             }

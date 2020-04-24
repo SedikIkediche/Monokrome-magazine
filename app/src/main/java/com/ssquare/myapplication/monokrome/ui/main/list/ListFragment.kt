@@ -51,46 +51,34 @@ class ListFragment : Fragment() {
         val magazineDao = MagazineDatabase.getInstance(requireContext()).magazineDao
         val headerDao = MagazineDatabase.getInstance(requireContext()).headerDao
         val cache = LocalCache(magazineDao, headerDao, lifecycleScope)
-
         val repository = Repository.getInstance(cache, network)
         val factory = ListViewModelFactory(repository)
         viewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
 
         initRecyclerView()
 
-
-        if (isUpToDate) {
-            viewModel.cachedData.observe(viewLifecycleOwner, Observer {
-                setupUi(it.first, it.second, null)
-            })
-        } else {
-            if (isConnected(requireContext())) {
+        when {
+            isUpToDate || (!isUpToDate && !isConnected(requireContext()) && isDataCached) -> {
+                viewModel.cachedData.observe(viewLifecycleOwner, Observer {
+                    setupUi(it.first, it.second)
+                })
+            }
+            !isUpToDate && isConnected(requireContext()) -> {
                 showLoading()
                 viewModel.networkResponse.observe(viewLifecycleOwner, Observer {
+                    viewModel.cacheData(it.header, it.magazineList)
+                    commitCacheData(requireContext(), true, true)
                     setupUi(it.header, it.magazineList, it.exception)
-                    viewModel.cacheData(it.header, it.magazineList) {
-                        commitUpToDateData(requireContext(), true)
-                        if (!isDataCached) commitCacheData(requireContext(), true)
-                    }
                 })
-            } else {
-                if (isDataCached) {
-                    viewModel.cachedData.observe(viewLifecycleOwner, Observer {
-                        setupUi(it.first, it.second, null)
-                    })
-                } else {
-                    showError("Please connect to the internet")
-                }
             }
-
-
+            !isUpToDate && !isConnected(requireContext()) && !isDataCached -> {
+                showError("Please connect to the internet")
+            }
         }
-
-
         return binding.root
     }
 
-    private fun setupUi(header: Header?, magazines: List<Magazine>?, exception: Exception?) {
+    private fun setupUi(header: Header?, magazines: List<Magazine>?, exception: Exception? = null) {
         if (header != null && magazines != null && exception == null) {
             adapter.addHeaderAndSubmitList(magazines, header)
             showData()
@@ -110,7 +98,6 @@ class ListFragment : Fragment() {
                 }
                 ClickAction.DOWNLOAD -> {
                     downloadMagazine(magazine)
-
                 }
                 ClickAction.READ -> { /*Handle Read click */
                 }

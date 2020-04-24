@@ -9,11 +9,11 @@ import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
 
+
 class ListViewModel(private val repository: Repository) : ViewModel() {
 
     val networkResponse = repository.networkResponse()
-    val cachedData = repository.getMagazineList()
-
+    val cachedData = repository.getCacheData()
 
     fun downloadFile(magazine: Magazine, context: Context) {
         //ask for storage permission
@@ -31,9 +31,9 @@ class ListViewModel(private val repository: Repository) : ViewModel() {
         val downloadId = downloadManager.enqueue(request)
     }
 
-    fun cacheData(header: Header?, magazines: List<Magazine>?, commitCache: () -> Unit) {
+    fun cacheData(header: Header?, magazines: List<Magazine>?) {
         if (header != null && magazines != null) {
-            repository.cacheData(header, magazines, commitCache)
+            repository.cacheData(header, magazines)
         }
     }
 

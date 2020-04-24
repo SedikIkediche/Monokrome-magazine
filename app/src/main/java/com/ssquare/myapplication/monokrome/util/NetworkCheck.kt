@@ -7,10 +7,18 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 
 class NetworkCheck(private val context: Context) {
 
-    private var isConnected: Boolean? = null
+    private val _isConnected = MutableLiveData<Boolean>()
+    val isConnected: LiveData<Boolean>
+        get() = _isConnected
+
+    init {
+        _isConnected.value = false
+    }
 
     private val connectivityManager: ConnectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -19,11 +27,11 @@ class NetworkCheck(private val context: Context) {
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
-                isConnected = true
+                _isConnected.postValue(true)
             }
 
             override fun onLost(network: Network) {
-                isConnected = false
+                _isConnected.postValue(false)
             }
         }
 
@@ -50,7 +58,7 @@ class NetworkCheck(private val context: Context) {
             val activeNetworkInfo = cm.activeNetworkInfo
             activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting
         } else {
-            isConnected
+            _isConnected.value
         }
 
     }

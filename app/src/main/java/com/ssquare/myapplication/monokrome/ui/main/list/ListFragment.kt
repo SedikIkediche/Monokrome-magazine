@@ -9,7 +9,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.preference.PreferenceManager
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.R
@@ -21,7 +20,6 @@ import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.util.*
-import timber.log.Timber
 
 /**
  * A simple [Fragment] subclass.
@@ -31,19 +29,13 @@ class ListFragment : Fragment() {
     private lateinit var viewModel: ListViewModel
     private lateinit var adapter: MagazineAdapter
 
+    private val networkCheck: NetworkCheck by lazy { NetworkCheck(requireContext()).apply { registerNetworkCallback() } }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
-        val isDataCached = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-            DATA_CACHED, false
-        )
-        val isUpToDate = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-            DATA_UP_TO_DATE, false
-        )
-
-        Timber.d("soheib: onViewCreated()")
         binding = FragmentListBinding.inflate(inflater)
         val database = FirebaseDatabase.getInstance()
         val storage = FirebaseStorage.getInstance()
@@ -57,26 +49,42 @@ class ListFragment : Fragment() {
 
         initRecyclerView()
 
-        when {
-            isUpToDate || (!isUpToDate && !isConnected(requireContext()) && isDataCached) -> {
-                viewModel.cachedData.observe(viewLifecycleOwner, Observer {
-                    setupUi(it.first, it.second)
-                })
+        networkCheck.isConnected.observe(viewLifecycleOwner, Observer { isConnected ->
+            when {
+                isUpToDate(requireContext()) || (!isUpToDate(requireContext()) && !isConnected && isDataCached(
+                    requireContext()
+                )) -> {
+                    viewModel.cachedData.observe(viewLifecycleOwner, Observer {
+                        setupUi(it.first, it.second)
+                    })
+                }
+                !isUpToDate(requireContext()) && isConnected -> {
+                    showLoading()
+                    viewModel.networkResponse.observe(viewLifecycleOwner, Observer {
+                        viewModel.cacheData(it.header, it.magazineList)
+                        commitCacheData(requireContext(), isUpToDate = true, isCached = true)
+                        setupUi(it.header, it.magazineList, it.exception)
+                    })
+                }
+                !isUpToDate(requireContext()) && !isConnected && !isDataCached(requireContext()) -> {
+                    showError("Please connect to the internet")
+                }
             }
-            !isUpToDate && isConnected(requireContext()) -> {
-                showLoading()
-                viewModel.networkResponse.observe(viewLifecycleOwner, Observer {
-                    viewModel.cacheData(it.header, it.magazineList)
-                    commitCacheData(requireContext(), true, true)
-                    setupUi(it.header, it.magazineList, it.exception)
-                })
-            }
-            !isUpToDate && !isConnected(requireContext()) && !isDataCached -> {
-                showError("Please connect to the internet")
-            }
-        }
+        })
+
         return binding.root
     }
+
+    override fun onStop() {
+        networkCheck.unregisterNetworkCallback()
+        super.onStop()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        networkCheck.registerNetworkCallback()
+    }
+
 
     private fun setupUi(header: Header?, magazines: List<Magazine>?, exception: Exception? = null) {
         if (header != null && magazines != null && exception == null) {
@@ -110,7 +118,7 @@ class ListFragment : Fragment() {
 
     private fun downloadMagazine(magazine: Magazine) {
         if (isConnected(requireContext())) {
-            viewModel.downloadFile(magazine, requireContext())
+            downloadFile(magazine, requireContext())
         } else {
             showErrorLayout(getString(R.string.network_down))
         }
@@ -130,7 +138,6 @@ class ListFragment : Fragment() {
         }
 
     }
-
 
     private fun showError(errorText: String) {
         binding.run {

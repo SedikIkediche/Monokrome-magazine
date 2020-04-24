@@ -10,7 +10,6 @@ import com.google.firebase.storage.StorageReference
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.util.HEADER_PATH
-import timber.log.Timber
 
 
 class NetworkResponse(
@@ -22,12 +21,9 @@ class NetworkResponse(
     private lateinit var headerUrl: String
 
     init {
-        Timber.d("soheib: created NetworkResponse")
         storageReference.child(HEADER_PATH).downloadUrl.addOnSuccessListener {
             headerUrl = it.toString()
         }.addOnFailureListener { exception ->
-            Timber.d("soheib: addOnFailureListener() called magazines = $exception")
-
             headerUrl = "Failed Getting Header Url"
             postValue(
                 MagazineListOrException(
@@ -51,7 +47,6 @@ class NetworkResponse(
     override fun onCancelled(error: DatabaseError) {
         if (this::headerUrl.isInitialized) {
             val exception = error.toException()
-            Timber.d("soheib: onCancelled() called magazines = $exception")
             val dataError =
                 MagazineListOrException(
                     null,
@@ -68,7 +63,6 @@ class NetworkResponse(
         val magazines = dataSnapshot.children.mapNotNull { it.getValue(Magazine::class.java) }
         if (this::headerUrl.isInitialized) {
             val header = Header(imageUrl = headerUrl)
-            Timber.d("soheib: onDataChange() called magazines = $magazines")
             val magazineList =
                 MagazineListOrException(
                     magazines,
@@ -81,7 +75,6 @@ class NetworkResponse(
 
     override fun onFailure(exception: Exception) {
         if (this::headerUrl.isInitialized) {
-            Timber.d("soheib: onFailure() called magazines = $exception")
             val magazineException =
                 MagazineListOrException(
                     null,

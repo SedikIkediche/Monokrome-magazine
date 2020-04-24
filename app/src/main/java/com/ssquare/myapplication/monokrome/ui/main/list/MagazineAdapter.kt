@@ -9,7 +9,7 @@ import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.databinding.HeaderLayoutBinding
 import com.ssquare.myapplication.monokrome.databinding.ListItemBinding
-import com.ssquare.myapplication.monokrome.ui.main.util.ClickAction
+import com.ssquare.myapplication.monokrome.util.ClickAction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

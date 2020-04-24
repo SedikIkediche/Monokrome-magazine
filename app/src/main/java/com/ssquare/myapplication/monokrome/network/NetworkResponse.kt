@@ -9,7 +9,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.StorageReference
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
-import com.ssquare.myapplication.monokrome.ui.main.util.HEADER_PATH
+import com.ssquare.myapplication.monokrome.util.HEADER_PATH
 import timber.log.Timber
 
 

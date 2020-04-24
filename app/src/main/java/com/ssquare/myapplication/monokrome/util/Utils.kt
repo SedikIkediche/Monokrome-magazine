@@ -1,8 +1,9 @@
-package com.ssquare.myapplication.monokrome.ui.main.util
+package com.ssquare.myapplication.monokrome.util
 
 import android.content.Context
 import android.content.Context.CONNECTIVITY_SERVICE
 import android.net.ConnectivityManager
+import androidx.preference.PreferenceManager
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -10,13 +11,30 @@ import com.google.firebase.database.ValueEventListener
 
 const val MAGAZINE_PATH = "magazine_path"
 const val HEADER_PATH = "header/header.png"
-
+const val DATA_CACHED = "data_cached"
+const val DATA_UP_TO_DATE = "data_outdated"
+const val PREFERENCE_FILE = "preference_file"
 
 fun isConnected(context: Context): Boolean {
     val cm = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
     val activeNetworkInfo = cm.activeNetworkInfo
     return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting
 }
+
+fun commitCacheData(context: Context, isCached: Boolean) {
+    PreferenceManager.getDefaultSharedPreferences(context).edit().apply {
+        putBoolean(DATA_CACHED, isCached)
+        apply()
+    }
+}
+
+fun commitUpToDateData(context: Context, isUpToDate: Boolean) {
+    PreferenceManager.getDefaultSharedPreferences(context).edit().apply {
+        putBoolean(DATA_UP_TO_DATE, isUpToDate)
+        apply()
+    }
+}
+
 
 fun FirebaseDatabase.networkOrCache(error: () -> Unit): DataSourceType {
     var type = DataSourceType.NETWORK

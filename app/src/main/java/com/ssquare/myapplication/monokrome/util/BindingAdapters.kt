@@ -1,4 +1,4 @@
-package com.ssquare.myapplication.monokrome.ui.main.util
+package com.ssquare.myapplication.monokrome.util
 
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter

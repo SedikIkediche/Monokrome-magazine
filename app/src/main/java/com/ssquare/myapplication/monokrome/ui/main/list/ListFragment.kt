@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.R
@@ -19,9 +20,7 @@ import com.ssquare.myapplication.monokrome.databinding.FragmentListBinding
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
-import com.ssquare.myapplication.monokrome.ui.main.util.ClickAction
-import com.ssquare.myapplication.monokrome.ui.main.util.MAGAZINE_PATH
-import com.ssquare.myapplication.monokrome.ui.main.util.isConnected
+import com.ssquare.myapplication.monokrome.util.*
 import timber.log.Timber
 
 /**
@@ -36,6 +35,14 @@ class ListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        val isDataCached = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+            DATA_CACHED, false
+        )
+        val isUpToDate = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+            DATA_UP_TO_DATE, false
+        )
+
         Timber.d("soheib: onViewCreated()")
         binding = FragmentListBinding.inflate(inflater)
         val database = FirebaseDatabase.getInstance()
@@ -51,23 +58,45 @@ class ListFragment : Fragment() {
 
         initRecyclerView()
 
-        if (isConnected(requireContext())) {
-            showLoading()
-            viewModel.networkResponse.observe(viewLifecycleOwner, Observer {
-                setupUi(it.header, it.magazineList)
+
+        if (isUpToDate) {
+            viewModel.cachedData.observe(viewLifecycleOwner, Observer {
+                setupUi(it.first, it.second, null)
             })
         } else {
-            showError(getString(R.string.network_down))
+            if (isConnected(requireContext())) {
+                showLoading()
+                viewModel.networkResponse.observe(viewLifecycleOwner, Observer {
+                    setupUi(it.header, it.magazineList, it.exception)
+                    viewModel.cacheData(it.header, it.magazineList) {
+                        commitUpToDateData(requireContext(), true)
+                        if (!isDataCached) commitCacheData(requireContext(), true)
+                    }
+                })
+            } else {
+                if (isDataCached) {
+                    viewModel.cachedData.observe(viewLifecycleOwner, Observer {
+                        setupUi(it.first, it.second, null)
+                    })
+                } else {
+                    showError("Please connect to the internet")
+                }
+            }
+
+
         }
 
 
         return binding.root
     }
 
-    private fun setupUi(header: Header?, magazines: List<Magazine>?) {
-        adapter.addHeaderAndSubmitList(magazines, header)
-        showData()
-
+    private fun setupUi(header: Header?, magazines: List<Magazine>?, exception: Exception?) {
+        if (header != null && magazines != null && exception == null) {
+            adapter.addHeaderAndSubmitList(magazines, header)
+            showData()
+        } else {
+            showError("Something wrong happened: $exception")
+        }
     }
 
     private fun initRecyclerView() {

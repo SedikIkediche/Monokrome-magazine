@@ -5,13 +5,14 @@ import android.content.Context
 import android.content.Context.DOWNLOAD_SERVICE
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
 
 class ListViewModel(private val repository: Repository) : ViewModel() {
 
     val networkResponse = repository.networkResponse()
-    val magazines = repository.getMagazineList()
+    val cachedData = repository.getMagazineList()
 
 
     fun downloadFile(magazine: Magazine, context: Context) {
@@ -29,5 +30,12 @@ class ListViewModel(private val repository: Repository) : ViewModel() {
         val downloadManager = context.getSystemService(DOWNLOAD_SERVICE) as DownloadManager
         val downloadId = downloadManager.enqueue(request)
     }
+
+    fun cacheData(header: Header?, magazines: List<Magazine>?, commitCache: () -> Unit) {
+        if (header != null && magazines != null) {
+            repository.cacheData(header, magazines, commitCache)
+        }
+    }
+
 }
 

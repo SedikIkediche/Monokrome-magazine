@@ -1,4 +1,4 @@
-package com.ssquare.myapplication.monokrome.ui.main.util
+package com.ssquare.myapplication.monokrome.util
 
 import android.content.Context
 import android.net.ConnectivityManager

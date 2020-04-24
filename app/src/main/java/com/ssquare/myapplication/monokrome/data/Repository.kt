@@ -39,5 +39,6 @@ class Repository private constructor(
 
     fun getMagazine(id: Int) = cache.getMagazine(id)
 
-
+    fun cacheData(header: Header, magazines: List<Magazine>, block: () -> Unit) =
+        cache.refresh(magazines, header, block)
 }

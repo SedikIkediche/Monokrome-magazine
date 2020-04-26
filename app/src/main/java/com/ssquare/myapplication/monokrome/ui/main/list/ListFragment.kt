@@ -9,6 +9,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.R
@@ -20,6 +22,8 @@ import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.util.*
+import com.ssquare.myapplication.monokrome.work.CacheWorker
+import java.util.concurrent.TimeUnit
 
 /**
  * A simple [Fragment] subclass.
@@ -53,7 +57,8 @@ class ListFragment : Fragment() {
             when {
                 isUpToDate(requireContext()) || (!isUpToDate(requireContext()) && !isConnected && isDataCached(
                     requireContext()
-                )) -> {
+                ))
+                -> {
                     viewModel.cachedData.observe(viewLifecycleOwner, Observer {
                         setupUi(it.first, it.second)
                     })
@@ -62,7 +67,8 @@ class ListFragment : Fragment() {
                     showLoading()
                     viewModel.networkResponse.observe(viewLifecycleOwner, Observer {
                         viewModel.cacheData(it.header, it.magazineList)
-                        commitCacheData(requireContext(), isUpToDate = true, isCached = true)
+                        commitCacheData(requireContext(), isUpToDate = true)
+                        launchUpdateWorker()
                         setupUi(it.header, it.magazineList, it.exception)
                     })
                 }
@@ -74,6 +80,7 @@ class ListFragment : Fragment() {
 
         return binding.root
     }
+
 
     override fun onStop() {
         networkCheck.unregisterNetworkCallback()
@@ -122,6 +129,14 @@ class ListFragment : Fragment() {
         } else {
             showErrorLayout(getString(R.string.network_down))
         }
+    }
+
+    private fun launchUpdateWorker() {
+        //launch work
+        val cacheWorkRequest = OneTimeWorkRequest.Builder(CacheWorker::class.java)
+            .setInitialDelay(REFRESH_TIME, TimeUnit.DAYS).build()
+        WorkManager.getInstance(requireContext().applicationContext)
+            .enqueue(cacheWorkRequest)
     }
 
     private fun navigateToDetail(path: String) {

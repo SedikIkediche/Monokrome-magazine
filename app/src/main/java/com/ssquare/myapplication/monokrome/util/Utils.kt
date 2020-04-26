@@ -13,7 +13,7 @@ const val MAGAZINE_PATH = "magazine_path"
 const val HEADER_PATH = "header/header.png"
 const val DATA_CACHED = "data_cached"
 const val DATA_UP_TO_DATE = "data_outdated"
-
+const val REFRESH_TIME = 1L
 fun toast(context: Context, text: String) {
     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
 }
@@ -26,6 +26,14 @@ fun isDataCached(context: Context): Boolean =
 fun isUpToDate(context: Context) = PreferenceManager.getDefaultSharedPreferences(context)
     .getBoolean(DATA_UP_TO_DATE, false)
 
+fun commitCacheData(context: Context, isUpToDate: Boolean) {
+    PreferenceManager.getDefaultSharedPreferences(context).edit().apply {
+        putBoolean(DATA_UP_TO_DATE, isUpToDate)
+        if (!isDataCached(context)) putBoolean(DATA_CACHED, true)
+        apply()
+    }
+}
+
 
 fun isConnected(context: Context): Boolean {
     val cm = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -33,13 +41,6 @@ fun isConnected(context: Context): Boolean {
     return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting
 }
 
-fun commitCacheData(context: Context, isUpToDate: Boolean, isCached: Boolean) {
-    PreferenceManager.getDefaultSharedPreferences(context).edit().apply {
-        putBoolean(DATA_UP_TO_DATE, isUpToDate)
-        putBoolean(DATA_CACHED, isCached)
-        apply()
-    }
-}
 
 fun downloadFile(magazine: Magazine, context: Context) {
     //ask for storage permission

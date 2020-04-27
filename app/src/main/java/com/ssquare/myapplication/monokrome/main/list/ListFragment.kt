@@ -1,5 +1,4 @@
 package com.ssquare.myapplication.monokrome.main.list
-
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -14,7 +13,6 @@ import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import br.com.mauker.materialsearchview.MaterialSearchView

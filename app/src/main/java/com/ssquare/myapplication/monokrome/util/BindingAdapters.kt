@@ -1,8 +1,12 @@
 package com.ssquare.myapplication.monokrome.util
 
+import android.graphics.drawable.ColorDrawable
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
+import com.bumptech.glide.GenericTransitionOptions
 import com.bumptech.glide.Glide
+import com.ssquare.myapplication.monokrome.R
 
 
 @BindingAdapter("imageUrl")

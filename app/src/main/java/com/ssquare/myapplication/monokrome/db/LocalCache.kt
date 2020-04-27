@@ -1,12 +1,10 @@
 package com.ssquare.myapplication.monokrome.db
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.MagazineListLiveData
 
-typealias MagazineListLiveData = LiveData<Pair<Header, List<Magazine>>>
 
 class LocalCache(
     private val magazineDao: MagazineDao,

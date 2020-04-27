@@ -6,7 +6,6 @@ import com.ssquare.myapplication.monokrome.data.Repository
 class DetailViewModel(private val repository: Repository, private val magazinePath: String) :
     ViewModel() {
 
-    val magazine = repository.getMagazine(magazinePath)
 
 
 }

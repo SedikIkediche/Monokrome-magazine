@@ -1,31 +1,24 @@
 package com.ssquare.myapplication.monokrome.db
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.MagazineListLiveData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 typealias MagazineListLiveData = LiveData<Pair<Header, List<Magazine>>>
 
 class LocalCache(
     private val magazineDao: MagazineDao,
-    private val headerDao: HeaderDao,
-    private val scope: CoroutineScope
+    private val headerDao: HeaderDao
 ) {
 
 
-    fun refresh(magazines: List<Magazine>, header: Header) {
-        scope.launch {
-            withContext(Dispatchers.IO) {
-                refreshMagazines(magazines)
-                refreshHeader(header)
-            }
-        }
+    suspend fun refresh(magazines: List<Magazine>, header: Header) {
+        refreshMagazines(magazines)
+        refreshHeader(header)
     }
+
 
     private suspend fun refreshHeader(header: Header) {
         headerDao.clear()
@@ -34,7 +27,8 @@ class LocalCache(
 
     private suspend fun refreshMagazines(magazines: List<Magazine>) {
         magazineDao.clear()
-        magazineDao.insertAll(magazines)
+        Log.d("LocalCache", "dataSize = ${magazineDao.insertAll(magazines)}")
+
     }
 
     fun getMagazine(id: Int) = magazineDao.get(id)
@@ -44,4 +38,6 @@ class LocalCache(
         val magazines = magazineDao.getAll()
         return MagazineListLiveData(header, magazines)
     }
+
 }
+

@@ -26,10 +26,9 @@ fun isDataCached(context: Context): Boolean =
 fun isUpToDate(context: Context) = PreferenceManager.getDefaultSharedPreferences(context)
     .getBoolean(DATA_UP_TO_DATE, false)
 
-fun commitCacheData(context: Context, isUpToDate: Boolean) {
+fun commitCacheData(context: Context) {
     PreferenceManager.getDefaultSharedPreferences(context).edit().apply {
-        putBoolean(DATA_UP_TO_DATE, isUpToDate)
-        if (!isDataCached(context)) putBoolean(DATA_CACHED, true)
+        putBoolean(DATA_CACHED, true)
         apply()
     }
 }

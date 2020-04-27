@@ -17,7 +17,7 @@ interface MagazineDao {
     fun get(id: Int): LiveData<Magazine>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(magazines: List<Magazine>)
+    suspend fun insertAll(magazines: List<Magazine>): List<Long>
 
     @Query("DELETE FROM magazines")
     suspend fun clear()

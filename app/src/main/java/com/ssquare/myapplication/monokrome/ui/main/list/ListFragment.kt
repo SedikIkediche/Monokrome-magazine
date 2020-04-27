@@ -22,7 +22,7 @@ import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.util.*
-import com.ssquare.myapplication.monokrome.work.CacheWorker
+import com.ssquare.myapplication.monokrome.work.RefreshDataWorker
 import java.util.concurrent.TimeUnit
 
 /**
@@ -46,37 +46,30 @@ class ListFragment : Fragment() {
         val network = FirebaseServer(database, storage)
         val magazineDao = MagazineDatabase.getInstance(requireContext()).magazineDao
         val headerDao = MagazineDatabase.getInstance(requireContext()).headerDao
-        val cache = LocalCache(magazineDao, headerDao, lifecycleScope)
-        val repository = Repository.getInstance(cache, network)
+        val cache = LocalCache(magazineDao, headerDao)
+        val repository = Repository.getInstance(lifecycleScope, cache, network)
         val factory = ListViewModelFactory(repository)
         viewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
 
         initRecyclerView()
 
         networkCheck.isConnected.observe(viewLifecycleOwner, Observer { isConnected ->
-            when {
-                isUpToDate(requireContext()) || (!isUpToDate(requireContext()) && !isConnected && isDataCached(
-                    requireContext()
-                ))
-                -> {
-                    viewModel.cachedData.observe(viewLifecycleOwner, Observer {
-                        setupUi(it.first, it.second)
-                    })
-                }
-                !isUpToDate(requireContext()) && isConnected -> {
+            if (!isDataCached(requireContext())) {
+                if (isConnected) {
                     showLoading()
-                    viewModel.networkResponse.observe(viewLifecycleOwner, Observer {
-                        viewModel.cacheData(it.header, it.magazineList)
-                        commitCacheData(requireContext(), isUpToDate = true)
-                        launchUpdateWorker()
-                        setupUi(it.header, it.magazineList, it.exception)
-                    })
-                }
-                !isUpToDate(requireContext()) && !isConnected && !isDataCached(requireContext()) -> {
-                    showError("Please connect to the internet")
-                }
+                    viewModel.loadAndCacheData()
+                    commitCacheData(requireContext())
+                } else
+                    showError("Please Connect To The Internet!")
             }
         })
+
+
+        viewModel.cachedData.observe(viewLifecycleOwner, Observer {
+            if (isDataCached(requireContext()))
+                setupUi(it.first, it.second)
+        })
+
 
         return binding.root
     }
@@ -94,6 +87,9 @@ class ListFragment : Fragment() {
 
 
     private fun setupUi(header: Header?, magazines: List<Magazine>?, exception: Exception? = null) {
+        if (header == null && magazines.isNullOrEmpty() && exception == null) {
+            return
+        }
         if (header != null && magazines != null && exception == null) {
             adapter.addHeaderAndSubmitList(magazines, header)
             showData()
@@ -133,7 +129,7 @@ class ListFragment : Fragment() {
 
     private fun launchUpdateWorker() {
         //launch work
-        val cacheWorkRequest = OneTimeWorkRequest.Builder(CacheWorker::class.java)
+        val cacheWorkRequest = OneTimeWorkRequest.Builder(RefreshDataWorker::class.java)
             .setInitialDelay(REFRESH_TIME, TimeUnit.DAYS).build()
         WorkManager.getInstance(requireContext().applicationContext)
             .enqueue(cacheWorkRequest)

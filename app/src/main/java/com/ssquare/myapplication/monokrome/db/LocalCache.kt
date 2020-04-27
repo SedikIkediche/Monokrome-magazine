@@ -33,7 +33,7 @@ class LocalCache(
 
     fun getMagazine(id: Int) = magazineDao.get(id)
 
-    fun getMagazines(): MagazineListLiveData {
+    fun getCachedData(): MagazineListLiveData {
         val header = headerDao.get()
         val magazines = magazineDao.getAll()
         return MagazineListLiveData(header, magazines)

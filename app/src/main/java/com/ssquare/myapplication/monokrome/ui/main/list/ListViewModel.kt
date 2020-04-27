@@ -6,7 +6,7 @@ import com.ssquare.myapplication.monokrome.data.Repository
 
 class ListViewModel(private val repository: Repository) : ViewModel() {
 
-    val cachedData = repository.getCachedData()
+    val data = repository.getCachedData()
     val networkError = repository.networkError
 
     fun loadAndCacheData() = repository.loadAndCacheData()

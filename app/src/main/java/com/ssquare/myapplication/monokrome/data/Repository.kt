@@ -16,8 +16,8 @@ class Repository private constructor(
     private val cache: LocalCache,
     private val network: FirebaseServer
 ) {
-    private val _networkError = MutableLiveData<String>()
-    val networkError: LiveData<String>
+    private val _networkError = MutableLiveData<Exception>()
+    val networkError: LiveData<Exception>
         get() = _networkError
 
     companion object {
@@ -37,7 +37,7 @@ class Repository private constructor(
     }
 
 
-    fun getCachedData(): MagazineListLiveData = cache.getMagazines()
+    fun getCachedData(): MagazineListLiveData = cache.getCachedData()
 
     fun getMagazine(id: Int) = cache.getMagazine(id)
 
@@ -54,7 +54,7 @@ class Repository private constructor(
                         true
                     } else {
                         _networkError.postValue(
-                            result.exception?.message ?: "Unknown Server Error!"
+                            result.exception
                         )
                         false
                     }

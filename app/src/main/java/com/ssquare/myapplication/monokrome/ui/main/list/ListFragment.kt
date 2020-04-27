@@ -9,6 +9,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.work.Constraints
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.google.firebase.database.FirebaseDatabase
@@ -33,7 +35,12 @@ class ListFragment : Fragment() {
     private lateinit var viewModel: ListViewModel
     private lateinit var adapter: MagazineAdapter
 
-    private val networkCheck: NetworkCheck by lazy { NetworkCheck(requireContext()).apply { registerNetworkCallback() } }
+    private val networkCheck: NetworkCheck by lazy {
+        NetworkCheck(
+            requireContext(),
+            lifecycleScope
+        ).apply { registerNetworkCallback() }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,19 +60,26 @@ class ListFragment : Fragment() {
 
         initRecyclerView()
 
+
         networkCheck.isConnected.observe(viewLifecycleOwner, Observer { isConnected ->
             if (!isDataCached(requireContext())) {
-                if (isConnected) {
-                    showLoading()
-                    viewModel.loadAndCacheData()
-                    commitCacheData(requireContext())
-                } else
-                    showError("Please Connect To The Internet!")
+                showLoading()
+                when (isConnected) {
+                    true -> {
+                        cacheData()
+                    }
+                    false -> {
+                        showError("Please Connect To The Internet!")
+                    }
+                }
             }
         })
 
+        viewModel.networkError.observe(viewLifecycleOwner, Observer {
+            setupUi(null, null, it)
+        })
 
-        viewModel.cachedData.observe(viewLifecycleOwner, Observer {
+        viewModel.data.observe(viewLifecycleOwner, Observer {
             if (isDataCached(requireContext()))
                 setupUi(it.first, it.second)
         })
@@ -74,28 +88,38 @@ class ListFragment : Fragment() {
         return binding.root
     }
 
-
-    override fun onStop() {
-        networkCheck.unregisterNetworkCallback()
-        super.onStop()
+    private fun cacheData() {
+        viewModel.loadAndCacheData()
+        commitCacheData(requireContext())
+        launchUpdateWorker()
     }
 
-    override fun onStart() {
-        super.onStart()
+
+    override fun onPause() {
+        networkCheck.unregisterNetworkCallback()
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
         networkCheck.registerNetworkCallback()
     }
 
 
     private fun setupUi(header: Header?, magazines: List<Magazine>?, exception: Exception? = null) {
-        if (header == null && magazines.isNullOrEmpty() && exception == null) {
-            return
+        when {
+            header == null && magazines.isNullOrEmpty() && exception == null -> {
+                return
+            }
+            header != null && magazines != null && exception == null -> {
+                adapter.addHeaderAndSubmitList(magazines, header)
+                showData()
+            }
+            exception != null -> {
+                showError("Something wrong happened: $exception")
+            }
         }
-        if (header != null && magazines != null && exception == null) {
-            adapter.addHeaderAndSubmitList(magazines, header)
-            showData()
-        } else {
-            showError("Something wrong happened: $exception")
-        }
+
     }
 
     private fun initRecyclerView() {
@@ -129,8 +153,13 @@ class ListFragment : Fragment() {
 
     private fun launchUpdateWorker() {
         //launch work
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED).build()
+
         val cacheWorkRequest = OneTimeWorkRequest.Builder(RefreshDataWorker::class.java)
-            .setInitialDelay(REFRESH_TIME, TimeUnit.DAYS).build()
+            .setInitialDelay(REFRESH_TIME, TimeUnit.DAYS)
+            .setConstraints(constraints)
+            .build()
         WorkManager.getInstance(requireContext().applicationContext)
             .enqueue(cacheWorkRequest)
     }

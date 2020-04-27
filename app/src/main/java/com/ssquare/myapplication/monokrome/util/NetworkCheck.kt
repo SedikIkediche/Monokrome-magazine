@@ -9,15 +9,22 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-class NetworkCheck(private val context: Context) {
+class NetworkCheck(private val context: Context, scope: CoroutineScope) {
 
     private val _isConnected = MutableLiveData<Boolean>()
     val isConnected: LiveData<Boolean>
         get() = _isConnected
 
     init {
-        _isConnected.value = false
+        scope.launch {
+            delay(1000)
+            if (_isConnected.value != true)
+                _isConnected.value = false
+        }
     }
 
     private val connectivityManager: ConnectivityManager =

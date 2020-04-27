@@ -3,6 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <variable
+            name="header"
+            type="com.ssquare.myapplication.monokrome.data.Header" />
 
         <variable
             name="clickListener"
@@ -19,6 +22,7 @@
             android:layout_width="0dp"
             android:layout_height="220dp"
             android:scaleType="centerCrop"
+            app:imageUrl="@{header.imageUrl}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

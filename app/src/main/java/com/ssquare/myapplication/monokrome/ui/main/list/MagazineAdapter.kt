@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.databinding.HeaderLayoutBinding
 import com.ssquare.myapplication.monokrome.databinding.ListItemBinding
@@ -17,16 +18,22 @@ import kotlinx.coroutines.withContext
 private const val ITEM_VIEW_TYPE_HEADER = 0
 private const val ITEM_VIEW_TYPE_ITEM = 1
 
-class MagazineAdapter(private val magazineListener: MagazineListener, private val headerListener: HeaderListener) :
+class MagazineAdapter(
+    private val magazineListener: MagazineListener,
+    private val headerListener: HeaderListener
+) :
     ListAdapter<MagazineAdapter.DataItem, RecyclerView.ViewHolder>(MagazineDiffCallback()) {
 
     private val adapterScope = CoroutineScope(Dispatchers.Default)
 
-    fun addHeaderAndSubmitList(list: List<Magazine>?) {
+    fun addHeaderAndSubmitList(list: List<Magazine>?, header: Header?) {
         adapterScope.launch {
-            val items = when (list) {
-                null -> listOf(DataItem.Header)
-                else -> listOf(DataItem.Header) + list.map { DataItem.MagazineItem(it) }
+            val items = when {
+                (header != null && list != null) ->
+                    listOf(DataItem.HeaderItem(header)) + list.map { DataItem.MagazineItem(it) }
+                (header == null && list != null) -> list.map { DataItem.MagazineItem(it) }
+                (header != null && list == null) -> listOf(DataItem.HeaderItem(header))
+                else -> emptyList()
             }
             withContext(Dispatchers.Main) {
                 submitList(items)
@@ -49,14 +56,15 @@ class MagazineAdapter(private val magazineListener: MagazineListener, private va
                 holder.bind(magazineItem.magazine, magazineListener)
             }
             is HeaderViewHolder -> {
-                holder.bind(headerListener)
+                val headerItem = getItem(position) as DataItem.HeaderItem
+                holder.bind(headerListener, headerItem.header)
             }
         }
     }
 
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
-            is DataItem.Header -> ITEM_VIEW_TYPE_HEADER
+            is DataItem.HeaderItem -> ITEM_VIEW_TYPE_HEADER
             is DataItem.MagazineItem -> ITEM_VIEW_TYPE_ITEM
         }
     }
@@ -71,8 +79,9 @@ class MagazineAdapter(private val magazineListener: MagazineListener, private va
             }
         }
 
-        fun bind(clickListener: HeaderListener) {
+        fun bind(clickListener: HeaderListener, header: Header) {
             binding.clickListener = clickListener
+            binding.header = header
         }
     }
 
@@ -105,8 +114,8 @@ class MagazineAdapter(private val magazineListener: MagazineListener, private va
         }
     }
 
-    class MagazineListener(val clickListener: (magazinePath: String, action: ClickAction) -> Unit) {
-        fun onClick(magazine: Magazine, action: ClickAction) = clickListener(magazine.path, action)
+    class MagazineListener(val clickListener: (magazine: Magazine, action: ClickAction) -> Unit) {
+        fun onClick(magazine: Magazine, action: ClickAction) = clickListener(magazine, action)
     }
 
     class HeaderListener(val clickListener: () -> Unit) {
@@ -118,7 +127,7 @@ class MagazineAdapter(private val magazineListener: MagazineListener, private va
             override val id = magazine.id
         }
 
-        object Header : DataItem() {
+        data class HeaderItem(val header: Header) : DataItem() {
             override val id = Long.MIN_VALUE
         }
 

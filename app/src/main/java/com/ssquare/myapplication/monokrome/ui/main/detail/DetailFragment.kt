@@ -1,10 +1,10 @@
-package com.ssquare.myapplication.monokrome.main.detail
+package com.ssquare.myapplication.monokrome.ui.main.detail
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.ssquare.myapplication.monokrome.R
 
 /**

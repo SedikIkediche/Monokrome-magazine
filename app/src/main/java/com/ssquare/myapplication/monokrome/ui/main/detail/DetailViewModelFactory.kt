@@ -1,8 +1,8 @@
-package com.ssquare.myapplication.monokrome.main.detail
+package com.ssquare.myapplication.monokrome.ui.main.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.ssquare.myapplication.monokrome.main.data.Repository
+import com.ssquare.myapplication.monokrome.data.Repository
 
 @Suppress("UNCHECKED_CAST")
 class DetailViewModelFactory(private val repository: Repository, private val path: String) :

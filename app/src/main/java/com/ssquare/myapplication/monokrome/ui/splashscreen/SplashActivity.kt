@@ -1,10 +1,9 @@
-package com.ssquare.myapplication.monokrome.splashscreen
+package com.ssquare.myapplication.monokrome.ui.splashscreen
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.ssquare.myapplication.monokrome.auth.AuthActivity
-import com.ssquare.myapplication.monokrome.main.MainActivity
+import androidx.appcompat.app.AppCompatActivity
+import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 
 class SplashActivity : AppCompatActivity() {
 

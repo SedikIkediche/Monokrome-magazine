@@ -11,10 +11,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".auth.AuthActivity"
+        <activity
+            android:name="com.ssquare.myapplication.monokrome.ui.auth.AuthActivity"
                   android:theme="@style/AuthStyle"/>
         <activity
-            android:name=".splashscreen.SplashActivity"
+            android:name="com.ssquare.myapplication.monokrome.ui.splashscreen.SplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,11 +23,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".login.LoginActivity" />
-        <activity android:name=".main.MainActivity"/>
+        <activity android:name="com.ssquare.myapplication.monokrome.ui.main.MainActivity" />
         <provider
             android:name="br.com.mauker.materialsearchview.db.HistoryProvider"
-            android:authorities="om.ssquare.myapplication.monokrome"
+            android:authorities="br.com.mauker.materialsearchview.searchhistorydatabase"
             android:exported="false"
             android:protectionLevel="signature"
             android:syncable="true"/>

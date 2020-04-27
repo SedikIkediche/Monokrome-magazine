@@ -1,9 +1,8 @@
-package com.ssquare.myapplication.monokrome.main.list
+package com.ssquare.myapplication.monokrome.ui.main.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
-import com.ssquare.myapplication.monokrome.main.data.Repository
+import com.ssquare.myapplication.monokrome.data.Repository
 
 @Suppress("UNCHECKED_CAST")
 class ListViewModelFactory(private val reposiroty: Repository) : ViewModelProvider.Factory {

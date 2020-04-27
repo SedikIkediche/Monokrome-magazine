@@ -1,14 +1,14 @@
-package com.ssquare.myapplication.monokrome.main.list
+package com.ssquare.myapplication.monokrome.ui.main.list
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.databinding.HeaderLayoutBinding
 import com.ssquare.myapplication.monokrome.databinding.ListItemBinding
-import com.ssquare.myapplication.monokrome.main.data.Magazine
-import com.ssquare.myapplication.monokrome.main.util.ClickAction
+import com.ssquare.myapplication.monokrome.util.ClickAction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

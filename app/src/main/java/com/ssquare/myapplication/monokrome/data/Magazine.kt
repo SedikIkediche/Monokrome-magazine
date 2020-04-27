@@ -1,4 +1,4 @@
-package com.ssquare.myapplication.monokrome.main.data
+package com.ssquare.myapplication.monokrome.data
 
 data class Magazine(
     val id: Long = 0,

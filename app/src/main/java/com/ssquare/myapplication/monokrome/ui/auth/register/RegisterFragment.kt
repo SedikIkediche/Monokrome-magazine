@@ -1,15 +1,14 @@
-package com.ssquare.myapplication.monokrome.auth.register
+package com.ssquare.myapplication.monokrome.ui.auth.register
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.auth.AuthActivity
+import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 import kotlinx.android.synthetic.main.fragment_register.view.*
 
 /**

@@ -1,4 +1,4 @@
-package com.ssquare.myapplication.monokrome.main.settings
+package com.ssquare.myapplication.monokrome.ui.main.settings
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

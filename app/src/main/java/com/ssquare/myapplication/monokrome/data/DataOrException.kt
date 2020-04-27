@@ -1,4 +1,4 @@
-package com.ssquare.myapplication.monokrome.main.data
+package com.ssquare.myapplication.monokrome.data
 
 data class DataOrException<out T, out E : Exception?>(val data: T?, val exception: E?) {
     init {

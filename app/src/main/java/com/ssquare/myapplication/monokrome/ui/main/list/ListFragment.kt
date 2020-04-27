@@ -1,4 +1,4 @@
-package com.ssquare.myapplication.monokrome.main.list
+package com.ssquare.myapplication.monokrome.ui.main.list
 
 import android.app.Activity
 import android.content.Intent
@@ -14,18 +14,17 @@ import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import br.com.mauker.materialsearchview.MaterialSearchView
 import br.com.mauker.materialsearchview.MaterialSearchView.SearchViewListener
 import com.google.firebase.database.FirebaseDatabase
 import com.ssquare.myapplication.monokrome.R
+import com.ssquare.myapplication.monokrome.data.MagazineListOrException
+import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.databinding.FragmentListBinding
-import com.ssquare.myapplication.monokrome.main.MainActivity
-import com.ssquare.myapplication.monokrome.main.data.MagazineListOrException
-import com.ssquare.myapplication.monokrome.main.data.Repository
-import com.ssquare.myapplication.monokrome.main.util.ClickAction
+import com.ssquare.myapplication.monokrome.ui.main.MainActivity
+import com.ssquare.myapplication.monokrome.util.ClickAction
 
 
 /**

@@ -1,7 +1,7 @@
-package com.ssquare.myapplication.monokrome.main.list
+package com.ssquare.myapplication.monokrome.ui.main.list
 
 import androidx.lifecycle.ViewModel
-import com.ssquare.myapplication.monokrome.main.data.Repository
+import com.ssquare.myapplication.monokrome.data.Repository
 
 class ListViewModel(private val repository: Repository) : ViewModel() {
 

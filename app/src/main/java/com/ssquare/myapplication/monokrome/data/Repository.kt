@@ -1,4 +1,4 @@
-package com.ssquare.myapplication.monokrome.main.data
+package com.ssquare.myapplication.monokrome.data
 
 import com.google.firebase.database.FirebaseDatabase
 

@@ -1,7 +1,7 @@
-package com.ssquare.myapplication.monokrome.auth
+package com.ssquare.myapplication.monokrome.ui.auth
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.ssquare.myapplication.monokrome.R
 
 class AuthActivity : AppCompatActivity() {

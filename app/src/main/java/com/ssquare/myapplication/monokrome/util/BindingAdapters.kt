@@ -1,14 +1,10 @@
-package com.ssquare.myapplication.monokrome.main.util
+package com.ssquare.myapplication.monokrome.util
 
-import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.GenericTransitionOptions
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.bumptech.glide.request.transition.DrawableCrossFadeTransition
 import com.makeramen.roundedimageview.RoundedImageView
 import com.ssquare.myapplication.monokrome.R
 

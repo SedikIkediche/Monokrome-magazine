@@ -19,7 +19,6 @@
             android:layout_width="0dp"
             android:layout_height="220dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/header_photo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

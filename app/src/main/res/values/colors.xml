@@ -9,4 +9,6 @@
     <color name="list_item_buttons_selected_state_background">#E0E0E0</color>
     <color name="shimmer_background">#dddddd</color>
     <color name="shimmer_transparent">#00000000</color>
+    <color name="image_place_holder_color">#e0e0e0</color>
+    <color name="search_view_background_color">#fafafa</color>
 </resources>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+
+    <group
+        android:id="@+id/information_group"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/home"
+            android:title="Home"
+            android:icon="@drawable/ic_home"/>
+        <item
+            android:id="@+id/about_us"
+            android:title="About Us"
+            android:icon="@drawable/ic_info"/>
+        <item
+            android:id="@+id/rate_us"
+            android:title="Rate Us"
+            android:icon="@drawable/ic_rate"/>
+    </group>
+
+   <item
+       android:id="@+id/communication"
+       android:title="communication">
+
+       <menu>
+           <group
+               android:id="@+id/communication_group"
+               android:checkableBehavior="single">
+               <item
+                   android:id="@+id/web_site"
+                   android:title="Web Site"
+                   android:icon="@drawable/ic_web_site"/>
+               <item
+                   android:id="@+id/facebook"
+                   android:title="Facebook"
+                   android:icon="@drawable/ic_facebook"/>
+               <item
+                   android:id="@+id/instagram"
+                   android:title="Instagram"
+                   android:icon="@drawable/ic_instagram"/>
+               <item
+                   android:id="@+id/contact_us"
+                   android:title="Contact Us"
+                   android:icon="@drawable/ic_contact"/>
+           </group>
+       </menu>
+
+   </item>
+
+    <group
+        android:id="@+id/settings_group"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/settings"
+            android:title="Settings"
+            android:icon="@drawable/ic_settings"/>
+        <item
+            android:id="@+id/logout"
+            android:title="Log Out"
+            android:icon="@drawable/ic_logout"/>
+    </group>
+
+
+
+</menu>

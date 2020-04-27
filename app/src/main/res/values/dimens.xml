@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="nav_drawer_width">@dimen/match_parent</dimen>
+
+    <item name="match_parent" format="integer" type="dimen">-1</item>
+</resources>

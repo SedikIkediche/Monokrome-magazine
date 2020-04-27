@@ -23,7 +23,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".login.LoginActivity" />
-        <activity android:name=".main.MainActivity"></activity>
+        <activity android:name=".main.MainActivity"/>
+        <provider
+            android:name="br.com.mauker.materialsearchview.db.HistoryProvider"
+            android:authorities="om.ssquare.myapplication.monokrome"
+            android:exported="false"
+            android:protectionLevel="signature"
+            android:syncable="true"/>
     </application>
 
 </manifest>

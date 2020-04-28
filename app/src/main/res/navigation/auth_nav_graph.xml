@@ -8,12 +8,12 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.ssquare.myapplication.monokrome.auth.login.LoginFragment"
+        android:name="com.ssquare.myapplication.monokrome.ui.auth.login.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" />
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.ssquare.myapplication.monokrome.auth.register.RegisterFragment"
+        android:name="com.ssquare.myapplication.monokrome.ui.auth.register.RegisterFragment"
         android:label="fragment_register"
         tools:layout="@layout/fragment_register" />
 </navigation>

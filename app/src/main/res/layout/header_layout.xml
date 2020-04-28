@@ -3,10 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <variable
+            name="header"
+            type="com.ssquare.myapplication.monokrome.data.Header" />
 
         <variable
             name="clickListener"
-            type="com.ssquare.myapplication.monokrome.main.list.MagazineAdapter.HeaderListener" />
+            type="com.ssquare.myapplication.monokrome.ui.main.list.MagazineAdapter.HeaderListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -19,7 +22,7 @@
             android:layout_width="0dp"
             android:layout_height="220dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/header_photo"
+            app:imageUrl="@{header.imageUrl}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

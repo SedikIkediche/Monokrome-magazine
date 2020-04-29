@@ -15,10 +15,15 @@
         <receiver
             android:name="com.ssquare.myapplication.monokrome.data.DownloadReceiver"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name="com.ssquare.myapplication.monokrome.ui.auth.AuthActivity"
-                  android:theme="@style/AuthStyle"/>
+            android:theme="@style/AuthStyle" />
         <activity
             android:name="com.ssquare.myapplication.monokrome.ui.splashscreen.SplashActivity"
             android:theme="@style/SplashTheme">
@@ -29,12 +34,13 @@
             </intent-filter>
         </activity>
         <activity android:name="com.ssquare.myapplication.monokrome.ui.main.MainActivity" />
+
         <provider
             android:name="br.com.mauker.materialsearchview.db.HistoryProvider"
             android:authorities="br.com.mauker.materialsearchview.searchhistorydatabase"
             android:exported="false"
             android:protectionLevel="signature"
-            android:syncable="true"/>
+            android:syncable="true" />
     </application>
 
 </manifest>

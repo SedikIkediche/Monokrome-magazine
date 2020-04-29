@@ -229,14 +229,25 @@ class ListFragment : Fragment() {
         val headerListener = MagazineAdapter.HeaderListener { /*Handle header click */ }
 
         val magazineListener = MagazineAdapter.MagazineListener { magazine, action ->
-            when (action) {
-                ClickAction.PREVIEW -> {
-                    navigateToDetail(magazine.path)
+            when {
+                action == ClickAction.PREVIEW_OR_DELETE && magazine.fileUri == NO_FILE -> {
+                    //preview
+                    toast(requireContext(), "preview clicked")
+                    navigateToDetail(magazine.id)
                 }
-                ClickAction.DOWNLOAD -> {
+                action == ClickAction.DOWNLOAD_OR_READ && magazine.fileUri == NO_FILE -> {
+                    //download
+                    toast(requireContext(), "download clicked")
                     downloadMagazine(magazine)
                 }
-                ClickAction.READ -> { /*Handle Read click */
+                action == ClickAction.PREVIEW_OR_DELETE && magazine.fileUri != NO_FILE -> {
+                    //delete
+                    toast(requireContext(), "delete clicked")
+                    viewModel.delete(magazine)
+                }
+                action == ClickAction.DOWNLOAD_OR_READ && magazine.fileUri != NO_FILE -> {
+                    //read
+                    toast(requireContext(), "read clicked")
                 }
             }
         }
@@ -264,8 +275,8 @@ class ListFragment : Fragment() {
             .enqueue(cacheWorkRequest)
     }
 
-    private fun navigateToDetail(path: String) {
-        val pathBundle = Bundle().apply { putString(MAGAZINE_PATH, path) }
+    private fun navigateToDetail(id: Long) {
+        val pathBundle = Bundle().apply { putLong(MAGAZINE_ID, id) }
         findNavController().navigate(R.id.action_listFragment_to_detailFragment, pathBundle)
     }
 

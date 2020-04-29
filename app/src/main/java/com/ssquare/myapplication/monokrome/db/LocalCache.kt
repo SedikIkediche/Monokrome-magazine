@@ -37,5 +37,7 @@ class LocalCache(
         return MagazineListLiveData(header, magazines)
     }
 
+    suspend fun updatePath(id: Long, path: String) = magazineDao.updatePath(id, path)
+
 }
 

@@ -8,7 +8,6 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.data.Header
-import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.util.HEADER_PATH
 
 class FirebaseServer(
@@ -46,7 +45,7 @@ class FirebaseServer(
 
                 override fun onDataChange(dataSnapShot: DataSnapshot) {
                     val magazines =
-                        dataSnapShot.children.mapNotNull { it.getValue(Magazine::class.java) }
+                        dataSnapShot.children.mapNotNull { it.getValue(NetworkMagazine::class.java) }
                     if (headerUrl != null) {
                         val header = Header(imageUrl = headerUrl!!)
                         val magazineListOrException =

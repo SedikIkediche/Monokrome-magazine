@@ -16,6 +16,9 @@ interface MagazineDao {
     @Query("SELECT * FROM magazines WHERE id=:id ")
     fun get(id: Int): LiveData<Magazine>
 
+    @Query("UPDATE magazines SET fileUri=:path WHERE id=:id")
+    suspend fun updatePath(id: Long, path: String)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(magazines: List<Magazine>)
 

@@ -2,6 +2,7 @@ package com.ssquare.myapplication.monokrome.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.ssquare.myapplication.monokrome.util.NO_FILE
 
 @Entity(tableName = "magazines")
 data class Magazine(
@@ -12,5 +13,5 @@ data class Magazine(
     val releaseDate: Long = 0,
     val imageUrl: String = "",
     val editionUrl: String = "",
-    val fileUri: String? = null
+    val fileUri: String = NO_FILE
 )

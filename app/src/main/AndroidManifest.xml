@@ -12,20 +12,23 @@
         android:roundIcon="@mipmap/ic_launcher_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ui.pdf.PdfViewActivity"></activity>
+
         <receiver
-            android:name="com.ssquare.myapplication.monokrome.data.DownloadReceiver"
+            android:name=".data.DownloadReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+                <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
             </intent-filter>
         </receiver>
 
         <activity
-            android:name="com.ssquare.myapplication.monokrome.ui.auth.AuthActivity"
+            android:name=".ui.auth.AuthActivity"
             android:theme="@style/AuthStyle" />
         <activity
-            android:name="com.ssquare.myapplication.monokrome.ui.splashscreen.SplashActivity"
+            android:name=".ui.splashscreen.SplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,7 +36,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.ssquare.myapplication.monokrome.ui.main.MainActivity" />
+        <activity android:name=".ui.main.MainActivity" />
 
         <provider
             android:name="br.com.mauker.materialsearchview.db.HistoryProvider"

@@ -8,7 +8,15 @@ import android.net.Uri
 import android.os.Environment
 import android.widget.Toast
 import androidx.preference.PreferenceManager
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.ssquare.myapplication.monokrome.data.Magazine
+import com.ssquare.myapplication.monokrome.work.RefreshDataWorker
+import java.io.File
+import java.net.URI
+import java.util.concurrent.TimeUnit
 
 const val MAGAZINE_ID = "magazine_path"
 const val HEADER_PATH = "header/header.jpg"
@@ -20,6 +28,7 @@ const val PDF_TYPE = ".pdf"
 const val DOWNLOAD_DIRECTORY_URI =
     "file:///storage/emulated/0/Android/data/com.ssquare.myapplication.monokrome/files/Download/"
 const val NO_FILE = "no_file"
+const val MAGAZINE_URI = "magazine_uri"
 
 fun toast(context: Context, text: String) {
     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
@@ -45,9 +54,24 @@ fun isConnected(context: Context): Boolean {
     return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting
 }
 
+fun launchUpdateWorker(context: Context) {
+    val constraints = Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.CONNECTED).build()
+
+    val cacheWorkRequest = OneTimeWorkRequest.Builder(RefreshDataWorker::class.java)
+        .setInitialDelay(REFRESH_TIME, TimeUnit.DAYS)
+        .setConstraints(constraints)
+        .build()
+    WorkManager.getInstance(context.applicationContext)
+        .enqueue(cacheWorkRequest)
+}
+
 
 fun downloadFile(magazine: Magazine, context: Context) {
-    //ask for storage permission
+    //delete unfinished file if exists
+    val uri = DOWNLOAD_DIRECTORY_URI + magazine.id + PDF_TYPE
+    deleteFile(uri)
+
     val fileUrl = Uri.parse(magazine.editionUrl)
     val request = DownloadManager.Request(fileUrl)
         .setTitle(magazine.title)
@@ -61,8 +85,16 @@ fun downloadFile(magazine: Magazine, context: Context) {
             Environment.DIRECTORY_DOWNLOADS,
             magazine.id.toString() + PDF_TYPE
         )
-    //set destination later
-
     val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
     val downloadId = downloadManager.enqueue(request)
+
+}
+
+fun deleteFile(uri: String): Boolean {
+    val file = File(URI.create(uri))
+    return if (file.exists()) {
+        file.delete()
+        true
+    } else
+        false
 }

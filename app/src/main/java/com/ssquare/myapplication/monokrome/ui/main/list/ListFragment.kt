@@ -15,10 +15,6 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
 import br.com.mauker.materialsearchview.MaterialSearchView
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
@@ -31,9 +27,8 @@ import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
+import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
-import com.ssquare.myapplication.monokrome.work.RefreshDataWorker
-import java.util.concurrent.TimeUnit
 
 /**
  * A simple [Fragment] subclass.
@@ -74,11 +69,14 @@ class ListFragment : Fragment() {
                 showLoading()
                 when (isConnected) {
                     true -> {
+                        toast(requireContext(), "netwworkCheck livedata Network state = true")
                         cacheData()
                     }
                     false -> {
+                        toast(requireContext(), "netwworkCheck livedata Network state = false")
                         showError("Please Connect To The Internet!")
                     }
+                    null -> toast(requireContext(), "netwworkCheck livedata Network state = null")
                 }
             }
         })
@@ -207,7 +205,7 @@ class ListFragment : Fragment() {
     private fun cacheData() {
         viewModel.loadAndCacheData()
         commitCacheData(requireContext())
-        launchUpdateWorker()
+        launchUpdateWorker(requireContext())
     }
 
     private fun setupUi(header: Header?, magazines: List<Magazine>?, exception: Exception? = null) {
@@ -248,11 +246,19 @@ class ListFragment : Fragment() {
                 action == ClickAction.DOWNLOAD_OR_READ && magazine.fileUri != NO_FILE -> {
                     //read
                     toast(requireContext(), "read clicked")
+                    navigateToPdf(magazine.fileUri)
                 }
             }
         }
         adapter = MagazineAdapter(magazineListener, headerListener)
         binding.recyclerview.adapter = adapter
+    }
+
+    private fun navigateToPdf(fileUri: String) {
+        val intent = Intent(context, PdfViewActivity::class.java).apply {
+            putExtra(MAGAZINE_URI, fileUri)
+        }
+        startActivity(intent)
     }
 
     private fun downloadMagazine(magazine: Magazine) {
@@ -263,17 +269,6 @@ class ListFragment : Fragment() {
         }
     }
 
-    private fun launchUpdateWorker() {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED).build()
-
-        val cacheWorkRequest = OneTimeWorkRequest.Builder(RefreshDataWorker::class.java)
-            .setInitialDelay(REFRESH_TIME, TimeUnit.DAYS)
-            .setConstraints(constraints)
-            .build()
-        WorkManager.getInstance(requireContext().applicationContext)
-            .enqueue(cacheWorkRequest)
-    }
 
     private fun navigateToDetail(id: Long) {
         val pathBundle = Bundle().apply { putLong(MAGAZINE_ID, id) }

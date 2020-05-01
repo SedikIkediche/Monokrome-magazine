@@ -90,7 +90,7 @@ class Repository private constructor(
 
     }
 
-    private fun getFilePath(id: Long): String? {
+    private fun getFilePath(id: Long): String {
         val path = DOWNLOAD_DIRECTORY_URI + id + PDF_TYPE
         return if (File(URI.create(path)).exists()) path else NO_FILE
     }

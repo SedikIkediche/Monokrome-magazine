@@ -114,13 +114,14 @@ class ListFragment : Fragment() {
         networkCheck.registerNetworkCallback()
     }
 
-    override fun onDestroyView() {
-        Log.d("ListFragment", "onDestroyView called")
-        viewModel.terminateRunningDownloads()
-        super.onDestroyView()
-    }
+//    override fun onDestroyView() {
+//        Log.d("ListFragment", "onDestroyView called")
+//        viewModel.terminateRunningDownloads()
+//        super.onDestroyView()
+//    }
 
     override fun onDestroy() {
+        launchCleanUpWorker(requireContext())
         toast(requireContext().applicationContext, "onDestroy() called")
         Log.d("ListFragment", "onDestroy called")
         super.onDestroy()

@@ -19,6 +19,7 @@ import com.downloader.PRDownloader
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.work.RefreshDataWorker
+import com.ssquare.myapplication.monokrome.work.TerminateDownloadsWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -69,6 +70,14 @@ fun launchUpdateWorker(context: Context) {
         .build()
     WorkManager.getInstance(context.applicationContext)
         .enqueue(cacheWorkRequest)
+}
+
+fun launchCleanUpWorker(context: Context) {
+    val cleanUpWorkRequest =
+        OneTimeWorkRequest.Builder(TerminateDownloadsWorker::class.java).build()
+    WorkManager.getInstance(context.applicationContext)
+        .enqueue(cleanUpWorkRequest)
+    Log.d("TerminateWorker", "launchCleanUpWorker called")
 }
 
 

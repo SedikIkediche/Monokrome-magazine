@@ -37,9 +37,10 @@ class LocalCache(
         return MagazineListLiveData(header, magazines)
     }
 
-    suspend fun updateUri(id: Long, path: String) = magazineDao.updateUri(id, path)
+    suspend fun updateFileUri(id: Long, path: String) = magazineDao.updateUri(id, path)
 
-    suspend fun updateProgress(id: Long, progress: Int) = magazineDao.updateProgress(id, progress)
+    suspend fun updateDownloadProgress(id: Long, progress: Int) =
+        magazineDao.updateProgress(id, progress)
 
     suspend fun updateDownloadId(id: Long, downloadId: Int) =
         magazineDao.updateDownloadId(id, downloadId)

@@ -47,7 +47,7 @@ class Repository private constructor(
     fun updateFileUri(id: Long, fileUri: String) {
         scope.launch {
             withContext(Dispatchers.IO) {
-                cache.updateUri(id, fileUri)
+                cache.updateFileUri(id, fileUri)
             }
         }
     }
@@ -55,7 +55,7 @@ class Repository private constructor(
     fun updateDownloadProgress(id: Long, progress: Int) {
         scope.launch {
             withContext(Dispatchers.IO) {
-                cache.updateProgress(id, progress)
+                cache.updateDownloadProgress(id, progress)
             }
         }
     }
@@ -69,6 +69,7 @@ class Repository private constructor(
     }
 
     fun deleteUnfinishedFile(magazine: Magazine, fileUri: String) {
+        Log.d("Repository", "deleteUnfinishedWork called")
         if (magazine.downloadProgress > -1 && magazine.downloadProgress < 100) {
             deleteFile(fileUri)
             updateDownloadProgress(magazine.id, -1)
@@ -78,13 +79,18 @@ class Repository private constructor(
     }
 
     fun terminateRunningDownloads() {
-        PRDownloader.cancelAll()
+
         CoroutineScope(Dispatchers.IO).launch {
             Log.d("Repository", "is io scope  active: ${this.isActive}")
             val magazines = cache.getRunningDownloads()
             magazines.forEach { magazine ->
+                PRDownloader.cancel(magazine.downloadId)
                 val fileUri = DOWNLOAD_DIRECTORY_URI + magazine.id + PDF_TYPE
-                deleteUnfinishedFile(magazine, fileUri)
+                cache.run {
+                    this.updateDownloadProgress(magazine.id, -1)
+                    this.updateFileUri(magazine.id, NO_FILE)
+                    this.updateDownloadId(magazine.id, NO_DOWNLOAD)
+                }
             }
             }
         }

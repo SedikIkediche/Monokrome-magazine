@@ -46,7 +46,7 @@ class FirebaseServer(
                 override fun onDataChange(dataSnapShot: DataSnapshot) {
                     val magazines =
                         dataSnapShot.children.mapNotNull { it.getValue(NetworkMagazine::class.java) }
-                    if (headerUrl != null) {
+                    if (headerUrl != null && magazines.isNotEmpty()) {
                         val header = Header(imageUrl = headerUrl!!)
                         val magazineListOrException =
                             MagazineListOrException(

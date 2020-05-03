@@ -3,6 +3,7 @@ package com.ssquare.myapplication.monokrome.ui.main.list
 import androidx.lifecycle.ViewModel
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
+import com.ssquare.myapplication.monokrome.util.NO_DOWNLOAD
 import com.ssquare.myapplication.monokrome.util.NO_FILE
 import com.ssquare.myapplication.monokrome.util.deleteFile
 
@@ -14,9 +15,19 @@ class ListViewModel(private val repository: Repository) : ViewModel() {
 
     fun delete(magazine: Magazine) {
         val fileDeleted = deleteFile(magazine.fileUri)
-        if (fileDeleted)
+        if (fileDeleted) {
             repository.updateFileUri(magazine.id, NO_FILE)
+            repository.updateDownloadProgress(magazine.id, NO_DOWNLOAD)
+            repository.updateDownloadId(magazine.id, NO_DOWNLOAD)
+        }
     }
+
+    fun updateFile(id: Long, uriString: String) = repository.updateFileUri(id, uriString)
+
+    fun updateDownloadProgress(id: Long, progress: Int) =
+        repository.updateDownloadProgress(id, progress)
+
+    fun terminateRunningDownloads() = repository.terminateRunningDownloads()
 
     fun loadAndCacheData() = repository.loadAndCacheData()
 

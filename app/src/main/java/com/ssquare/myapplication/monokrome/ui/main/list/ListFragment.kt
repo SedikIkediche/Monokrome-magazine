@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.text.TextUtils
+import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
@@ -29,20 +30,25 @@ import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
+import kotlinx.android.synthetic.main.fragment_list.*
 
 /**
  * A simple [Fragment] subclass.
  */
 class ListFragment : Fragment() {
     lateinit var binding: FragmentListBinding
+    private lateinit var repository: Repository
     private lateinit var viewModel: ListViewModel
     private lateinit var adapter: MagazineAdapter
+
     private val networkCheck: NetworkCheck by lazy {
         NetworkCheck(
             requireContext(),
             lifecycleScope
         ).apply { registerNetworkCallback() }
     }
+
+    private var isDownloadRunning = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,26 +64,30 @@ class ListFragment : Fragment() {
         val magazineDao = MagazineDatabase.getInstance(requireContext()).magazineDao
         val headerDao = MagazineDatabase.getInstance(requireContext()).headerDao
         val cache = LocalCache(magazineDao, headerDao)
-        val repository = Repository.getInstance(lifecycleScope, cache, network)
+        repository = Repository.getInstance(lifecycleScope, cache, network)
         val factory = ListViewModelFactory(repository)
         viewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
 
         initRecyclerView()
-
+        Log.d("ListFragment", "is data chached = ${isDataCached(requireContext())}")
         networkCheck.isConnected.observe(viewLifecycleOwner, Observer { isConnected ->
             if (!isDataCached(requireContext())) {
                 showLoading()
                 when (isConnected) {
                     true -> {
-                        toast(requireContext(), "netwworkCheck livedata Network state = true")
                         cacheData()
                     }
                     false -> {
-                        toast(requireContext(), "netwworkCheck livedata Network state = false")
                         showError("Please Connect To The Internet!")
                     }
-                    null -> toast(requireContext(), "netwworkCheck livedata Network state = null")
                 }
+            } else {
+                if (!isConnected && isDownloadRunning) {
+                    viewModel.terminateRunningDownloads()
+                    isDownloadRunning = false
+                    // showError("Please Connect To The Internet!")
+                }
+
             }
         })
 
@@ -94,6 +104,7 @@ class ListFragment : Fragment() {
     }
 
     override fun onPause() {
+        Log.d("ListFragment", "onPause() called")
         networkCheck.unregisterNetworkCallback()
         super.onPause()
     }
@@ -101,6 +112,18 @@ class ListFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         networkCheck.registerNetworkCallback()
+    }
+
+    override fun onDestroyView() {
+        Log.d("ListFragment", "onDestroyView called")
+        viewModel.terminateRunningDownloads()
+        super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        toast(requireContext().applicationContext, "onDestroy() called")
+        Log.d("ListFragment", "onDestroy called")
+        super.onDestroy()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -131,6 +154,7 @@ class ListFragment : Fragment() {
                 true
             }
             R.id.filter_list -> {
+                viewModel.terminateRunningDownloads()
                 true
             }
             android.R.id.home -> {
@@ -211,9 +235,11 @@ class ListFragment : Fragment() {
     private fun setupUi(header: Header?, magazines: List<Magazine>?, exception: Exception? = null) {
         when {
             header == null && magazines.isNullOrEmpty() && exception == null -> {
+                Log.d("ListFragment", "Null Data")
                 return
             }
             header != null && magazines != null && exception == null -> {
+                Log.d("setupUi", "magazines: ${magazines[0].downloadId}")
                 adapter.addHeaderAndSubmitList(magazines, header)
                 showData()
             }
@@ -230,22 +256,18 @@ class ListFragment : Fragment() {
             when {
                 action == ClickAction.PREVIEW_OR_DELETE && magazine.fileUri == NO_FILE -> {
                     //preview
-                    toast(requireContext(), "preview clicked")
                     navigateToDetail(magazine.id)
                 }
                 action == ClickAction.DOWNLOAD_OR_READ && magazine.fileUri == NO_FILE -> {
                     //download
-                    toast(requireContext(), "download clicked")
                     downloadMagazine(magazine)
                 }
                 action == ClickAction.PREVIEW_OR_DELETE && magazine.fileUri != NO_FILE -> {
                     //delete
-                    toast(requireContext(), "delete clicked")
                     viewModel.delete(magazine)
                 }
                 action == ClickAction.DOWNLOAD_OR_READ && magazine.fileUri != NO_FILE -> {
                     //read
-                    toast(requireContext(), "read clicked")
                     navigateToPdf(magazine.fileUri)
                 }
             }
@@ -262,8 +284,9 @@ class ListFragment : Fragment() {
     }
 
     private fun downloadMagazine(magazine: Magazine) {
-        if (isConnected(requireContext())) {
-            downloadFile(magazine, requireContext())
+        if (networkCheck.checkConnectivity(requireContext())) {
+            downloadWithPrDownloader(magazine, requireContext(), repository, recyclerview)
+            isDownloadRunning = true
         } else {
             showErrorLayout(getString(R.string.network_down))
         }

@@ -64,15 +64,10 @@ class NetworkCheck(private val context: Context, scope: CoroutineScope) {
         }
     }
 
-    fun checkConnectivity(): Boolean? {
+    fun checkConnectivity(context: Context): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            val activeNetworkInfo = cm.activeNetworkInfo
-            activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting
-        } else {
-            _isConnected.value
-        }
-
+        val activeNetworkInfo = cm.activeNetworkInfo
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting
     }
 
 

@@ -23,7 +23,7 @@ abstract class MagazineDatabase : RoomDatabase() {
                 instance = Room.databaseBuilder(
                     context.applicationContext,
                     MagazineDatabase::class.java,
-                    "database3"
+                    "database6"
                 ).build()
                 INSTANCE = instance
             }

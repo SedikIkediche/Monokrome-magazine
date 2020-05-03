@@ -1,18 +1,15 @@
 package com.ssquare.myapplication.monokrome.data
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.downloader.PRDownloader
 import com.google.android.gms.tasks.Tasks
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.network.NetworkMagazine
-import com.ssquare.myapplication.monokrome.util.DOWNLOAD_DIRECTORY_URI
-import com.ssquare.myapplication.monokrome.util.NO_FILE
-import com.ssquare.myapplication.monokrome.util.PDF_TYPE
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.ssquare.myapplication.monokrome.util.*
+import kotlinx.coroutines.*
 import java.io.File
 import java.net.URI
 
@@ -50,10 +47,47 @@ class Repository private constructor(
     fun updateFileUri(id: Long, fileUri: String) {
         scope.launch {
             withContext(Dispatchers.IO) {
-                cache.updatePath(id, fileUri)
+                cache.updateUri(id, fileUri)
             }
         }
     }
+
+    fun updateDownloadProgress(id: Long, progress: Int) {
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                cache.updateProgress(id, progress)
+            }
+        }
+    }
+
+    fun updateDownloadId(id: Long, downloadId: Int) {
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                cache.updateDownloadId(id, downloadId)
+            }
+        }
+    }
+
+    fun deleteUnfinishedFile(magazine: Magazine, fileUri: String) {
+        if (magazine.downloadProgress > -1 && magazine.downloadProgress < 100) {
+            deleteFile(fileUri)
+            updateDownloadProgress(magazine.id, -1)
+            updateFileUri(magazine.id, NO_FILE)
+            updateDownloadId(magazine.id, NO_DOWNLOAD)
+        }
+    }
+
+    fun terminateRunningDownloads() {
+        PRDownloader.cancelAll()
+        CoroutineScope(Dispatchers.IO).launch {
+            Log.d("Repository", "is io scope  active: ${this.isActive}")
+            val magazines = cache.getRunningDownloads()
+            magazines.forEach { magazine ->
+                val fileUri = DOWNLOAD_DIRECTORY_URI + magazine.id + PDF_TYPE
+                deleteUnfinishedFile(magazine, fileUri)
+            }
+            }
+        }
 
     fun loadAndCacheData(): Boolean {
         var resultState = false

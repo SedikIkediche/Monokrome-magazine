@@ -13,15 +13,15 @@
         android:roundIcon="@mipmap/ic_launcher_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.pdf.PdfViewActivity"></activity>
+        <activity android:name=".ui.pdf.PdfViewActivity" />
 
         <receiver
             android:name=".data.DownloadReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
                 <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
+                <action android:name="android.intent.action.VIEW_DOWNLOADS" />
             </intent-filter>
         </receiver>
 

@@ -42,12 +42,16 @@ class LocalCache(
     suspend fun updateDownloadProgress(id: Long, progress: Int) =
         magazineDao.updateProgress(id, progress)
 
-    suspend fun updateDownloadId(id: Long, downloadId: Int) =
+    suspend fun updateDownloadId(id: Long, downloadId: Long) =
         magazineDao.updateDownloadId(id, downloadId)
 
     suspend fun invalidateProgress() = magazineDao.invalidateProgress()
 
     suspend fun getRunningDownloads() = magazineDao.getRunningDownloads()
 
+    suspend fun updateDownloadState(id: Long, downloadState: Int) =
+        magazineDao.updateDownloadState(id, downloadState)
+
+    suspend fun getMagazineDownloadId(id: Long) = magazineDao.getMagazineDownloadId(id)
 }
 

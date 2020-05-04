@@ -26,12 +26,16 @@ interface MagazineDao {
     suspend fun updateProgress(id: Long, progress: Int)
 
     @Query("UPDATE magazines SET downloadId=:downloadId WHERE id=:id")
-    suspend fun updateDownloadId(id: Long, downloadId: Int)
+    suspend fun updateDownloadId(id: Long, downloadId: Long)
+
+    @Query("UPDATE magazines SET downloadState=:downloadState WHERE id=:id")
+    suspend fun updateDownloadState(id: Long, downloadState: Int)
 
     @Query("UPDATE magazines SET downloadProgress= -1")
     suspend fun invalidateProgress()
 
-
+    @Query("SELECT downloadId FROM magazines WHERE id =:id")
+    suspend fun getMagazineDownloadId(id: Long): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(magazines: List<Magazine>)

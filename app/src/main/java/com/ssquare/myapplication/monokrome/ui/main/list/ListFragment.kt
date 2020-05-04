@@ -16,13 +16,12 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
+import androidx.recyclerview.widget.DefaultItemAnimator
 import br.com.mauker.materialsearchview.MaterialSearchView
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.data.Header
-import com.ssquare.myapplication.monokrome.data.Magazine
-import com.ssquare.myapplication.monokrome.data.Repository
+import com.ssquare.myapplication.monokrome.data.*
 import com.ssquare.myapplication.monokrome.databinding.FragmentListBinding
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
@@ -30,17 +29,15 @@ import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
-import kotlinx.android.synthetic.main.fragment_list.*
 
 /**
  * A simple [Fragment] subclass.
  */
 class ListFragment : Fragment() {
     lateinit var binding: FragmentListBinding
-    private lateinit var repository: Repository
     private lateinit var viewModel: ListViewModel
     private lateinit var adapter: MagazineAdapter
-
+    private lateinit var downloadUtils: DownloadUtils
     private val networkCheck: NetworkCheck by lazy {
         NetworkCheck(
             requireContext(),
@@ -48,7 +45,6 @@ class ListFragment : Fragment() {
         ).apply { registerNetworkCallback() }
     }
 
-    private var isDownloadRunning = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,7 +60,14 @@ class ListFragment : Fragment() {
         val magazineDao = MagazineDatabase.getInstance(requireContext()).magazineDao
         val headerDao = MagazineDatabase.getInstance(requireContext()).headerDao
         val cache = LocalCache(magazineDao, headerDao)
-        repository = Repository.getInstance(lifecycleScope, cache, network)
+        val repository = Repository.getInstance(lifecycleScope, cache, network)
+
+        downloadUtils = DownloadUtils.getInstance(
+            requireContext(),
+            repository,
+            { binding.recyclerview.itemAnimator = null },
+            { binding.recyclerview.itemAnimator = DefaultItemAnimator() })
+
         val factory = ListViewModelFactory(repository)
         viewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
 
@@ -81,13 +84,6 @@ class ListFragment : Fragment() {
                         showError("Please Connect To The Internet!")
                     }
                 }
-            } else {
-                if (!isConnected && isDownloadRunning) {
-                    viewModel.terminateRunningDownloads()
-                    isDownloadRunning = false
-                    // showError("Please Connect To The Internet!")
-                }
-
             }
         })
 
@@ -114,18 +110,6 @@ class ListFragment : Fragment() {
         networkCheck.registerNetworkCallback()
     }
 
-//    override fun onDestroyView() {
-//        Log.d("ListFragment", "onDestroyView called")
-//        viewModel.terminateRunningDownloads()
-//        super.onDestroyView()
-//    }
-
-    override fun onDestroy() {
-        launchCleanUpWorker(requireContext())
-        toast(requireContext().applicationContext, "onDestroy() called")
-        Log.d("ListFragment", "onDestroy called")
-        super.onDestroy()
-    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
@@ -155,7 +139,7 @@ class ListFragment : Fragment() {
                 true
             }
             R.id.filter_list -> {
-                viewModel.terminateRunningDownloads()
+                viewModel.loadAndCacheData()
                 true
             }
             android.R.id.home -> {
@@ -230,7 +214,6 @@ class ListFragment : Fragment() {
     private fun cacheData() {
         viewModel.loadAndCacheData()
         commitCacheData(requireContext())
-        launchUpdateWorker(requireContext())
     }
 
     private fun setupUi(header: Header?, magazines: List<Magazine>?, exception: Exception? = null) {
@@ -239,8 +222,7 @@ class ListFragment : Fragment() {
                 Log.d("ListFragment", "Null Data")
                 return
             }
-            header != null && magazines != null && exception == null -> {
-                Log.d("setupUi", "magazines: ${magazines[0].downloadId}")
+            header != null && !magazines.isNullOrEmpty() && exception == null -> {
                 adapter.addHeaderAndSubmitList(magazines, header)
                 showData()
             }
@@ -255,22 +237,35 @@ class ListFragment : Fragment() {
 
         val magazineListener = MagazineAdapter.MagazineListener { magazine, action ->
             when {
-                action == ClickAction.PREVIEW_OR_DELETE && magazine.fileUri == NO_FILE -> {
+                action == ClickAction.PREVIEW_OR_DELETE && magazine.getDownloadState() != DownloadState.COMPLETED -> {
                     //preview
                     navigateToDetail(magazine.id)
                 }
-                action == ClickAction.DOWNLOAD_OR_READ && magazine.fileUri == NO_FILE -> {
-                    //download
-                    downloadMagazine(magazine)
-                }
-                action == ClickAction.PREVIEW_OR_DELETE && magazine.fileUri != NO_FILE -> {
+
+                action == ClickAction.PREVIEW_OR_DELETE && magazine.getDownloadState() == DownloadState.COMPLETED -> {
                     //delete
                     viewModel.delete(magazine)
                 }
-                action == ClickAction.DOWNLOAD_OR_READ && magazine.fileUri != NO_FILE -> {
+
+                action == ClickAction.DOWNLOAD_OR_READ && magazine.getDownloadState() == DownloadState.EMPTY -> {
+                    //download
+                    downloadMagazine(magazine)
+                }
+
+                action == ClickAction.DOWNLOAD_OR_READ && magazine.getDownloadState() == DownloadState.COMPLETED -> {
                     //read
                     navigateToPdf(magazine.fileUri)
                 }
+                action == ClickAction.DOWNLOAD_OR_READ && (magazine.getDownloadState() == DownloadState.RUNNING || magazine.getDownloadState() == DownloadState.PENDING) -> {
+                    //cancel
+                    downloadUtils.cancelDownload(magazine)
+                }
+
+                action == ClickAction.DOWNLOAD_OR_READ && magazine.getDownloadState() == DownloadState.PAUSED -> {
+                    //resume
+                    downloadUtils.cancelPaused(magazine)
+                }
+
             }
         }
         adapter = MagazineAdapter(magazineListener, headerListener)
@@ -286,8 +281,9 @@ class ListFragment : Fragment() {
 
     private fun downloadMagazine(magazine: Magazine) {
         if (networkCheck.checkConnectivity(requireContext())) {
-            downloadWithPrDownloader(magazine, requireContext(), repository, recyclerview)
-            isDownloadRunning = true
+            downloadUtils.downloadFile(magazine)
+            //downloadWithPrDownloader(magazine, requireContext(), repository, recyclerview)
+            // downloadFileWithDownloadManager(magazine,requireContext(),repository)
         } else {
             showErrorLayout(getString(R.string.network_down))
         }

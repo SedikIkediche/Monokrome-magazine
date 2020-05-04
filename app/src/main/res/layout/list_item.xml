@@ -111,14 +111,27 @@
             tools:src="@drawable/list_item_picture_test" />
 
         <TextView
-            android:id="@+id/text_progress"
+            android:id="@+id/text_download_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:textColor="@color/white"
+            app:downloadState="@{magazine}"
+            app:layout_constraintBottom_toBottomOf="@id/image_magazine"
+            app:layout_constraintEnd_toEndOf="@id/image_magazine"
+            app:layout_constraintStart_toStartOf="@id/image_magazine"
+            app:layout_constraintTop_toTopOf="@id/image_magazine" />
+
+        <TextView
+            android:id="@+id/text_download_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
             android:textColor="@color/white"
             app:downloadProgress="@{magazine}"
             app:layout_constraintBottom_toBottomOf="@id/image_magazine"
             app:layout_constraintEnd_toEndOf="@id/image_magazine"
             app:layout_constraintStart_toStartOf="@id/image_magazine"
-            app:layout_constraintTop_toTopOf="@id/image_magazine" />
+            app:layout_constraintTop_toBottomOf="@id/text_download_state" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

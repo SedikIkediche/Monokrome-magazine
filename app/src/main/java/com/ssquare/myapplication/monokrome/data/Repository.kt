@@ -1,15 +1,16 @@
 package com.ssquare.myapplication.monokrome.data
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.downloader.PRDownloader
 import com.google.android.gms.tasks.Tasks
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.network.NetworkMagazine
 import com.ssquare.myapplication.monokrome.util.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.URI
 
@@ -60,7 +61,7 @@ class Repository private constructor(
         }
     }
 
-    fun updateDownloadId(id: Long, downloadId: Int) {
+    fun updateDownloadId(id: Long, downloadId: Long) {
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadId(id, downloadId)
@@ -68,36 +69,30 @@ class Repository private constructor(
         }
     }
 
-    fun deleteUnfinishedFile(magazine: Magazine, fileUri: String) {
-        Log.d("Repository", "deleteUnfinishedWork called")
-        if (magazine.downloadProgress > -1 && magazine.downloadProgress < 100) {
-            deleteFile(fileUri)
-            updateDownloadProgress(magazine.id, -1)
-            updateFileUri(magazine.id, NO_FILE)
-            updateDownloadId(magazine.id, NO_DOWNLOAD)
+    fun updateDownloadState(id: Long, downloadState: DownloadState) {
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                cache.updateDownloadState(id, downloadState.ordinal)
+            }
         }
     }
 
-    fun terminateRunningDownloads() {
 
-        CoroutineScope(Dispatchers.IO).launch {
-            Log.d("Repository", "is io scope  active: ${this.isActive}")
-            val magazines = cache.getRunningDownloads()
-            magazines.forEach { magazine ->
-                PRDownloader.cancel(magazine.downloadId)
-                val fileUri = DOWNLOAD_DIRECTORY_URI + magazine.id + PDF_TYPE
-                cache.run {
-                    this.updateDownloadProgress(magazine.id, -1)
-                    this.updateFileUri(magazine.id, NO_FILE)
-                    this.updateDownloadId(magazine.id, NO_DOWNLOAD)
-                }
-            }
+    fun cancelDownload(magazine: Magazine) {
+        scope.launch {
+            val fileUri = DOWNLOAD_DIRECTORY_URI + magazine.id + PDF_TYPE
+            deleteFile(fileUri)
+            cache.run {
+                this.updateDownloadProgress(magazine.id, -1)
+                this.updateFileUri(magazine.id, NO_FILE)
+                this.updateDownloadId(magazine.id, NO_DOWNLOAD)
             }
         }
+    }
 
-    fun loadAndCacheData(): Boolean {
+
+    suspend fun loadAndCacheData(): Boolean {
         var resultState = false
-        scope.launch {
             val task = network.loadFromServer()
             withContext(Dispatchers.IO) {
                 val result = Tasks.await(task)
@@ -114,8 +109,6 @@ class Repository private constructor(
                         false
                     }
             }
-        }
-
         return resultState
     }
 

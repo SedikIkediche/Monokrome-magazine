@@ -6,7 +6,9 @@
     <string name="download">download</string>
     <string name="preview">preview</string>
     <string name="read">read</string>
+    <string name="resume">resume</string>
     <string name="delete">delete</string>
+    <string name="loading">loading</string>
     <string name="terms_of_usage"><u>By joining you agree to the Terms of Service and Privacy Policy</u></string>
     <string name="search">Search</string>
     <string name="filter_list">Filter</string>

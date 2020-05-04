@@ -1,11 +1,15 @@
 package com.ssquare.myapplication.monokrome.ui.main.list
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.ssquare.myapplication.monokrome.data.DownloadState
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.util.NO_DOWNLOAD
 import com.ssquare.myapplication.monokrome.util.NO_FILE
+import com.ssquare.myapplication.monokrome.util.NO_PROGRESS
 import com.ssquare.myapplication.monokrome.util.deleteFile
+import kotlinx.coroutines.launch
 
 
 class ListViewModel(private val repository: Repository) : ViewModel() {
@@ -17,18 +21,22 @@ class ListViewModel(private val repository: Repository) : ViewModel() {
         val fileDeleted = deleteFile(magazine.fileUri)
         if (fileDeleted) {
             repository.updateFileUri(magazine.id, NO_FILE)
-            repository.updateDownloadProgress(magazine.id, NO_DOWNLOAD)
+            repository.updateDownloadProgress(magazine.id, NO_PROGRESS)
             repository.updateDownloadId(magazine.id, NO_DOWNLOAD)
+            repository.updateDownloadState(magazine.id, DownloadState.EMPTY)
         }
     }
+
 
     fun updateFile(id: Long, uriString: String) = repository.updateFileUri(id, uriString)
 
     fun updateDownloadProgress(id: Long, progress: Int) =
         repository.updateDownloadProgress(id, progress)
 
-    fun terminateRunningDownloads() = repository.terminateRunningDownloads()
 
-    fun loadAndCacheData() = repository.loadAndCacheData()
+    fun loadAndCacheData() {
+        viewModelScope.launch { repository.loadAndCacheData() }
+
+    }
 
 }

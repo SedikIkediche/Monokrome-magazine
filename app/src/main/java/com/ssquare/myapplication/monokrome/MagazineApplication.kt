@@ -1,20 +1,41 @@
 package com.ssquare.myapplication.monokrome
 
 import android.app.Application
-import com.downloader.PRDownloader
-import com.downloader.PRDownloaderConfig
+import androidx.work.*
+import com.ssquare.myapplication.monokrome.work.RefreshDataWorker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class MagazineApplication : Application() {
+    private val applicationScope = CoroutineScope(Dispatchers.Default)
+
     override fun onCreate() {
         super.onCreate()
 
-        val config = PRDownloaderConfig.newBuilder()
-            .setDatabaseEnabled(false)
+        initPeriodicCache()
+    }
+
+    private fun initPeriodicCache() {
+        applicationScope.launch {
+            setupRecurringWork()
+        }
+    }
+
+    private fun setupRecurringWork() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED).build()
+
+        val cacheWorkRequest = PeriodicWorkRequestBuilder<RefreshDataWorker>(1, TimeUnit.DAYS)
+            .setConstraints(constraints)
             .build()
-        PRDownloader.initialize(
-            applicationContext,
-            config
-        )
+        WorkManager.getInstance(applicationContext)
+            .enqueueUniquePeriodicWork(
+                RefreshDataWorker.WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                cacheWorkRequest
+            )
     }
 
 }

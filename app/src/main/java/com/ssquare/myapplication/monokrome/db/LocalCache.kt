@@ -37,21 +37,30 @@ class LocalCache(
         return MagazineListLiveData(header, magazines)
     }
 
-    suspend fun updateFileUri(id: Long, path: String) = magazineDao.updateUri(id, path)
+    suspend fun invalidateProgress() = magazineDao.invalidateProgress()
+    suspend fun getRunningDownloads() = magazineDao.getRunningDownloads()
+    suspend fun getMagazineDownloadId(id: Long) = magazineDao.getMagazineDownloadId(id)
 
+
+    suspend fun updateFileUri(id: Long, path: String) = magazineDao.updateUri(id, path)
     suspend fun updateDownloadProgress(id: Long, progress: Int) =
         magazineDao.updateProgress(id, progress)
 
-    suspend fun updateDownloadId(id: Long, downloadId: Long) =
+    suspend fun updateDownloadId(id: Long, downloadId: Int) =
         magazineDao.updateDownloadId(id, downloadId)
-
-    suspend fun invalidateProgress() = magazineDao.invalidateProgress()
-
-    suspend fun getRunningDownloads() = magazineDao.getRunningDownloads()
-
     suspend fun updateDownloadState(id: Long, downloadState: Int) =
         magazineDao.updateDownloadState(id, downloadState)
 
-    suspend fun getMagazineDownloadId(id: Long) = magazineDao.getMagazineDownloadId(id)
+
+    suspend fun updateFileUriByDid(dId: Int, path: String) = magazineDao.updateUriByDid(dId, path)
+    suspend fun updateDownloadProgressByDid(dId: Int, progress: Int) =
+        magazineDao.updateProgressByDid(dId, progress)
+
+    suspend fun updateDownloadIdByDid(dId: Int, downloadId: Int) =
+        magazineDao.updateDownloadIdByDid(dId, downloadId)
+
+    suspend fun updateDownloadStateByDid(dId: Int, downloadState: Int) =
+        magazineDao.updateDownloadStateByDid(dId, downloadState)
+
 }
 

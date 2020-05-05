@@ -30,7 +30,7 @@ abstract class MagazineDatabase : RoomDatabase() {
                 instance = Room.databaseBuilder(
                     context.applicationContext,
                     MagazineDatabase::class.java,
-                    "database7"
+                    "database8"
                 )
                     .addCallback(CleanDownloadsCallback(context))
                     .build()

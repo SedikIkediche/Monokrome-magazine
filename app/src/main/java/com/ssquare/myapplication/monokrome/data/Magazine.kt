@@ -16,7 +16,7 @@ data class Magazine(
     val editionUrl: String = "",
     var fileUri: String = NO_FILE,
     var downloadProgress: Int = -1,
-    val downloadId: Long = NO_DOWNLOAD,
+    val downloadId: Int = NO_DOWNLOAD,
     var downloadState: Int = DownloadState.EMPTY.ordinal
 )
 

@@ -61,7 +61,7 @@ class Repository private constructor(
         }
     }
 
-    fun updateDownloadId(id: Long, downloadId: Long) {
+    fun updateDownloadId(id: Long, downloadId: Int) {
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadId(id, downloadId)
@@ -76,6 +76,41 @@ class Repository private constructor(
             }
         }
     }
+
+
+    //for DownloadUtils
+    fun updateFileUriByDid(dId: Int, fileUri: String) {
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                cache.updateFileUriByDid(dId, fileUri)
+            }
+        }
+    }
+
+    fun updateDownloadProgressByDid(dId: Int, progress: Int) {
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                cache.updateDownloadProgressByDid(dId, progress)
+            }
+        }
+    }
+
+    fun updateDownloadIdByDid(dId: Int, downloadId: Int) {
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                cache.updateDownloadIdByDid(dId, downloadId)
+            }
+        }
+    }
+
+    fun updateDownloadStateByDid(dId: Int, downloadState: DownloadState) {
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                cache.updateDownloadStateByDid(dId, downloadState.ordinal)
+            }
+        }
+    }
+    //for DownloadUtils
 
 
     fun cancelDownload(magazine: Magazine) {

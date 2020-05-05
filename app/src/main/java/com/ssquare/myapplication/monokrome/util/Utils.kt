@@ -19,7 +19,7 @@ const val DOWNLOAD_DIRECTORY_URI =
     "file:///storage/emulated/0/Android/data/com.ssquare.myapplication.monokrome/files/Download/"
 const val NO_FILE = "no_file"
 const val MAGAZINE_URI = "magazine_uri"
-const val NO_DOWNLOAD = -1L
+const val NO_DOWNLOAD = -1
 const val NO_PROGRESS = -1
 
 fun toast(context: Context, text: String) {

@@ -1,18 +1,13 @@
 package com.ssquare.myapplication.monokrome.util
 
-import android.app.DownloadManager
 import android.content.Context
-import android.database.Cursor
-import android.net.Uri
-import android.os.Environment
 import android.util.Log
 import com.ssquare.myapplication.monokrome.data.DownloadState
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.tonyodev.fetch2.*
+import com.tonyodev.fetch2core.DownloadBlock
+import com.tonyodev.fetch2core.Func
 import java.io.File
 import java.net.URI
 
@@ -46,131 +41,135 @@ class DownloadUtils private constructor(
         }
     }
 
-    private val downloadManager =
-        context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+    private val fetchConfiguration = FetchConfiguration.Builder(context)
+        .setDownloadConcurrentLimit(3)
+        .build()
+
+    private val fetch = Fetch.Impl.getInstance(fetchConfiguration)
+
     var downloadState = DownloadState.EMPTY
     var downloadId = NO_DOWNLOAD
     var progress = NO_PROGRESS
 
+    val listener = object : FetchListener {
 
-    fun downloadFile(magazine: Magazine) {
-        if (downloadState != DownloadState.EMPTY && magazine.downloadId != downloadId) {
-            //Download already running
-            return
+        override fun onAdded(download: Download) {}
+
+        override fun onCancelled(download: Download) {
+            updateDownloadFailed(download.id)
         }
+
+        override fun onCompleted(download: Download) {}
+
+        override fun onDeleted(download: Download) {}
+
+        override fun onError(download: Download, error: Error, throwable: Throwable?) {}
+
+        override fun onPaused(download: Download) {
+            updateDownloadPaused(download.id)
+        }
+
+        override fun onProgress(
+            download: Download,
+            etaInMilliSeconds: Long,
+            downloadedBytesPerSecond: Long
+        ) {
+            updateDownloadRunning(download.id, etaInMilliSeconds)
+        }
+
+        override fun onQueued(download: Download, waitingOnNetwork: Boolean) {}
+        override fun onDownloadBlockUpdated(
+            download: Download,
+            downloadBlock: DownloadBlock,
+            totalBlocks: Int
+        ) {
+        }
+
+        override fun onRemoved(download: Download) {}
+        override fun onResumed(download: Download) {}
+        override fun onStarted(
+            download: Download,
+            downloadBlocks: List<DownloadBlock>,
+            totalBlocks: Int
+        ) {
+        }
+
+        override fun onWaitingNetwork(download: Download) {}
+    }
+
+
+    fun enqueueDownload(magazine: Magazine) {
+        if (downloadState != DownloadState.EMPTY) return
 
         val fileUri = createUriString(magazine.id)
-        deleteFile(fileUri)
+        val request = Request(magazine.editionUrl, fileUri).apply { networkType = NetworkType.ALL }
 
-        val request = DownloadManager.Request(Uri.parse(magazine.editionUrl))
-            .setTitle(magazine.title)
-            .setDescription(magazine.id.toString())
-            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
-            .setAllowedOverMetered(true)
-            .setAllowedOverRoaming(true)
-            .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI)
-            .setDestinationInExternalFilesDir(
-                context,
-                Environment.DIRECTORY_DOWNLOADS,
-                magazine.id.toString() + PDF_TYPE
-            )
-
-
-        downloadId = downloadManager.enqueue(request)
-        downloadState = DownloadState.PENDING
-        updateDownloadStarted(magazine.id, downloadId)
-        startDownloadBlock()
-
-        CoroutineScope(Dispatchers.IO).launch {
-            while (downloadState != DownloadState.COMPLETED && downloadState != DownloadState.EMPTY) {
-                val cursor =
-                    downloadManager.query(DownloadManager.Query().setFilterById(downloadId))
-                if (cursor.moveToFirst()) {
-
-                    when (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
-                        DownloadManager.STATUS_PENDING -> {
-                            updateDownloadPending(magazine.id)
-                        }
-                        DownloadManager.STATUS_PAUSED -> {
-                            updateDownloadPaused(magazine.id)
-                        }
-                        DownloadManager.STATUS_RUNNING -> {
-                            updateDownloadRunning(cursor, magazine)
-                        }
-                        DownloadManager.STATUS_SUCCESSFUL -> {
-                            updateDownloadCompleted(magazine.id, fileUri)
-                        }
-                        else -> { //download failed
-                            updateDownloadFailed(magazine.id, fileUri)
-                        }
-                    }
-
-                } else { //download canceled
-                    updateDownloadFailed(magazine.id, fileUri)
-                }
-                cursor.close()
-                delay(POLLING_DELAY)
+        fetch.enqueue(request,
+            Func { updatedRequest: Request? ->
+                updateDownloadPending(magazine.id, request.id)
+            },
+            Func { error: Error? ->
             }
-        }
-
+        )
     }
 
     private fun updateDownloadRunning(
-        cursor: Cursor,
-        magazine: Magazine
+        dId: Int, inputProgress: Long
     ) {
         updateState(DownloadState.RUNNING)
-        val total =
-            cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-        if (total >= 0) {
-            val downloadedSoFar =
-                cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
-            progress = (downloadedSoFar * 100 / total).toInt()
-            repository.updateDownloadProgress(magazine.id, progress)
+
+        val inSeconds = (inputProgress / 1000).toInt()
+        val inMinutes = (inSeconds / 60)
+
+        val progress = if (inMinutes != 0) inMinutes else inSeconds
+        repository.updateDownloadProgressByDid(dId, progress)
             Log.d("UtilsDownloadFile", "Download progress: $progress%")
-        }
+
     }
+
+
 
     private fun updateDownloadStarted(id: Long, downloadId: Long) {
-        downloadState = DownloadState.PENDING
+        downloadState = DownloadState.RUNNING
         repository.updateDownloadState(id, DownloadState.RUNNING)
-        repository.updateDownloadId(id, downloadId)
     }
 
-    private fun updateDownloadCompleted(magazineId: Long, fileUri: String) {
+    private fun updateDownloadCompleted(dId: Int, fileUri: String) {
         progress = 100
         updateState(DownloadState.COMPLETED)
-        updateDownloadCompleted(magazineId, fileUri)
-        repository.updateFileUri(magazineId, fileUri)
-        repository.updateDownloadState(magazineId, DownloadState.COMPLETED)
-        repository.updateDownloadProgress(magazineId, 100)
-        repository.updateDownloadId(magazineId, NO_DOWNLOAD)
+        repository.updateFileUriByDid(downloadId, fileUri)
+        repository.updateDownloadStateByDid(downloadId, DownloadState.COMPLETED)
+        repository.updateDownloadProgressByDid(downloadId, 100)
+        repository.updateDownloadIdByDid(downloadId, NO_DOWNLOAD)
         downloadId = NO_DOWNLOAD
         finishedDownloadBlock()
     }
 
-    private fun updateDownloadFailed(magazineId: Long, fileUri: String) {
+    private fun updateDownloadFailed(dId: Int) {
+        val fileUri = DOWNLOAD_DIRECTORY_URI +
         updateState(DownloadState.EMPTY)
         deleteFile(fileUri)
-        repository.updateDownloadState(magazineId, DownloadState.EMPTY)
-        repository.updateDownloadId(magazineId, NO_DOWNLOAD)
-        repository.updateDownloadProgress(magazineId, NO_PROGRESS)
+        repository.updateDownloadStateByDid(dId, DownloadState.EMPTY)
+        repository.updateDownloadIdByDid(dId, NO_DOWNLOAD)
+        repository.updateDownloadProgressByDid(dId, NO_PROGRESS)
         downloadId = NO_DOWNLOAD
         finishedDownloadBlock()
     }
 
-    private fun updateDownloadPaused(magazineId: Long) {
+    private fun updateDownloadPaused(dId: Int) {
         updateState(DownloadState.PAUSED)
-        repository.updateDownloadState(magazineId, DownloadState.PAUSED)
+        repository.updateDownloadStateByDid(dId, DownloadState.PAUSED)
     }
 
-    private fun updateDownloadPending(magazineId: Long) {
+    private fun updateDownloadPending(magazineId: Long, downloadId: Int) {
         updateState(DownloadState.PENDING)
+        repository.updateDownloadState(magazineId, DownloadState.PENDING)
+        repository.updateDownloadId(magazineId, downloadId)
     }
 
 
-    fun cancelDownload(magazine: Magazine) {
-        downloadManager.remove(magazine.downloadId)
+    fun cancelDownload(dId: Int) {
+        fetch.cancel(dId)
     }
 
     private fun createUriString(id: Long): String {
@@ -189,21 +188,6 @@ class DownloadUtils private constructor(
 
     private fun updateState(downloadState: DownloadState) {
         if (this.downloadState != downloadState) this.downloadState = downloadState
-    }
-
-    fun cancelPaused(magazine: Magazine) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val cursor =
-                downloadManager.query(DownloadManager.Query().setFilterByStatus(DownloadManager.STATUS_PAUSED))
-            if (cursor.moveToFirst()) {
-                do {
-                    val id = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_ID))
-                    downloadManager.remove(id)
-                } while (cursor.moveToNext())
-
-            }
-
-        }
     }
 
 }

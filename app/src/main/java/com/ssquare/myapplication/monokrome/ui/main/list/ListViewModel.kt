@@ -28,12 +28,6 @@ class ListViewModel(private val repository: Repository) : ViewModel() {
     }
 
 
-    fun updateFile(id: Long, uriString: String) = repository.updateFileUri(id, uriString)
-
-    fun updateDownloadProgress(id: Long, progress: Int) =
-        repository.updateDownloadProgress(id, progress)
-
-
     fun loadAndCacheData() {
         viewModelScope.launch { repository.loadAndCacheData() }
 

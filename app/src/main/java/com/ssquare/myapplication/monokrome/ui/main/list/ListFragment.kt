@@ -281,7 +281,7 @@ class ListFragment : Fragment() {
 
     private fun downloadMagazine(magazine: Magazine) {
         if (networkCheck.checkConnectivity(requireContext())) {
-            downloadUtils.downloadFile(magazine)
+            downloadUtils.enqueueDownload(magazine)
             //downloadWithPrDownloader(magazine, requireContext(), repository, recyclerview)
             // downloadFileWithDownloadManager(magazine,requireContext(),repository)
         } else {

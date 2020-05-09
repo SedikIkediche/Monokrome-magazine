@@ -4,6 +4,7 @@ import android.util.Log
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.MagazineListLiveData
+import kotlinx.coroutines.runBlocking
 
 
 class LocalCache(
@@ -46,6 +47,7 @@ class LocalCache(
     suspend fun updateDownloadProgress(id: Long, progress: Int) =
         magazineDao.updateProgress(id, progress)
 
+    //downloadUrils
     suspend fun updateDownloadId(id: Long, downloadId: Int) =
         magazineDao.updateDownloadId(id, downloadId)
     suspend fun updateDownloadState(id: Long, downloadState: Int) =
@@ -62,5 +64,9 @@ class LocalCache(
     suspend fun updateDownloadStateByDid(dId: Int, downloadState: Int) =
         magazineDao.updateDownloadStateByDid(dId, downloadState)
 
+    suspend fun getMagazineByDid(dId: Int): Magazine =
+        runBlocking { magazineDao.getMagazineByDId(dId) }
 }
+
+
 

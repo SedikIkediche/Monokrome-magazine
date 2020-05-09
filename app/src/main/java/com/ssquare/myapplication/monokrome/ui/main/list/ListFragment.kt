@@ -1,7 +1,10 @@
 package com.ssquare.myapplication.monokrome.ui.main.list
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.text.TextUtils
@@ -21,7 +24,11 @@ import br.com.mauker.materialsearchview.MaterialSearchView
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.data.*
+import com.ssquare.myapplication.monokrome.data.DownloadState.*
+import com.ssquare.myapplication.monokrome.data.Header
+import com.ssquare.myapplication.monokrome.data.Magazine
+import com.ssquare.myapplication.monokrome.data.Repository
+import com.ssquare.myapplication.monokrome.data.getDownloadState
 import com.ssquare.myapplication.monokrome.databinding.FragmentListBinding
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
@@ -34,6 +41,7 @@ import com.ssquare.myapplication.monokrome.util.*
  * A simple [Fragment] subclass.
  */
 class ListFragment : Fragment() {
+    private var toDownloadMagazine: Magazine? = null
     lateinit var binding: FragmentListBinding
     private lateinit var viewModel: ListViewModel
     private lateinit var adapter: MagazineAdapter
@@ -50,7 +58,7 @@ class ListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
+        Log.d("ListFragment", "onCreateView called")
         binding = FragmentListBinding.inflate(inflater)
         setupToolbar()
 
@@ -61,17 +69,18 @@ class ListFragment : Fragment() {
         val headerDao = MagazineDatabase.getInstance(requireContext()).headerDao
         val cache = LocalCache(magazineDao, headerDao)
         val repository = Repository.getInstance(lifecycleScope, cache, network)
-
-        downloadUtils = DownloadUtils.getInstance(
-            requireContext(),
-            repository,
-            { binding.recyclerview.itemAnimator = null },
-            { binding.recyclerview.itemAnimator = DefaultItemAnimator() })
-
         val factory = ListViewModelFactory(repository)
         viewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
-
         initRecyclerView()
+        downloadUtils = DownloadUtils.getInstance(
+            requireContext(),
+            repository
+        ) { isDownloading ->
+            Log.d("ListFragment", "isDownloading block called $isDownloading")
+            binding.recyclerview.itemAnimator =
+                if (isDownloading) null else DefaultItemAnimator()
+        }
+
         Log.d("ListFragment", "is data chached = ${isDataCached(requireContext())}")
         networkCheck.isConnected.observe(viewLifecycleOwner, Observer { isConnected ->
             if (!isDataCached(requireContext())) {
@@ -93,7 +102,11 @@ class ListFragment : Fragment() {
 
         viewModel.data.observe(viewLifecycleOwner, Observer {
             if (isDataCached(requireContext()))
-                setupUi(it.first, it.second)
+                Log.d(
+                    "ListFragment",
+                    "data LiveData called header = ${it.first} ,  list = ${it.second} "
+                )
+            setupUi(it.first, it.second)
         })
 
         return binding.root
@@ -102,14 +115,46 @@ class ListFragment : Fragment() {
     override fun onPause() {
         Log.d("ListFragment", "onPause() called")
         networkCheck.unregisterNetworkCallback()
+        downloadUtils.unregisterListener()
         super.onPause()
     }
 
     override fun onResume() {
         super.onResume()
         networkCheck.registerNetworkCallback()
+        downloadUtils.registerListener()
     }
 
+    override fun onDestroy() {
+        Log.d("ListFragment", "onDestroy called")
+        downloadUtils.close()
+        super.onDestroy()
+
+    }
+
+    private fun checkForPermission(magazine: Magazine) {
+        toDownloadMagazine = magazine
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                STORAGE_PERMISSION_CODE
+            )
+        } else {
+            downloadMagazine(magazine)
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == STORAGE_PERMISSION_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            downloadMagazine(toDownloadMagazine!!)
+        } else {
+            toast(requireContext(), "Storage Permission Denied")
+        }
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
@@ -233,38 +278,37 @@ class ListFragment : Fragment() {
     }
 
     private fun initRecyclerView() {
+        Log.d("ListFragment", "initRecyclerView called")
         val headerListener = MagazineAdapter.HeaderListener { /*Handle header click */ }
 
         val magazineListener = MagazineAdapter.MagazineListener { magazine, action ->
             when {
-                action == ClickAction.PREVIEW_OR_DELETE && magazine.getDownloadState() != DownloadState.COMPLETED -> {
+                (action == ClickAction.PREVIEW_OR_DELETE && magazine.getDownloadState() != COMPLETED)
+                        || action == ClickAction.PREVIEW_ONLY -> {
                     //preview
                     navigateToDetail(magazine.id)
                 }
 
-                action == ClickAction.PREVIEW_OR_DELETE && magazine.getDownloadState() == DownloadState.COMPLETED -> {
+                action == ClickAction.PREVIEW_OR_DELETE && magazine.getDownloadState() == COMPLETED -> {
                     //delete
                     viewModel.delete(magazine)
                 }
 
-                action == ClickAction.DOWNLOAD_OR_READ && magazine.getDownloadState() == DownloadState.EMPTY -> {
+                action == ClickAction.DOWNLOAD_OR_READ && magazine.getDownloadState() == EMPTY -> {
                     //download
-                    downloadMagazine(magazine)
+                    checkForPermission(magazine)
                 }
 
-                action == ClickAction.DOWNLOAD_OR_READ && magazine.getDownloadState() == DownloadState.COMPLETED -> {
+                action == ClickAction.DOWNLOAD_OR_READ && magazine.getDownloadState() == COMPLETED -> {
                     //read
                     navigateToPdf(magazine.fileUri)
                 }
-                action == ClickAction.DOWNLOAD_OR_READ && (magazine.getDownloadState() == DownloadState.RUNNING || magazine.getDownloadState() == DownloadState.PENDING) -> {
+                action == ClickAction.DOWNLOAD_OR_READ
+                        && (magazine.getDownloadState() == RUNNING || magazine.getDownloadState() == PENDING || magazine.getDownloadState() == PAUSED) -> {
                     //cancel
-                    downloadUtils.cancelDownload(magazine)
+                    downloadUtils.cancelDownload(magazine.downloadId)
                 }
 
-                action == ClickAction.DOWNLOAD_OR_READ && magazine.getDownloadState() == DownloadState.PAUSED -> {
-                    //resume
-                    downloadUtils.cancelPaused(magazine)
-                }
 
             }
         }

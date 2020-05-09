@@ -87,6 +87,10 @@ class Repository private constructor(
         }
     }
 
+    fun getMagazineByDid(dId: Int) {
+
+    }
+
     fun updateDownloadProgressByDid(dId: Int, progress: Int) {
         scope.launch {
             withContext(Dispatchers.IO) {

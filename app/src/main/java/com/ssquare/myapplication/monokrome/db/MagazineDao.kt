@@ -25,6 +25,9 @@ interface MagazineDao {
     @Query("SELECT downloadId FROM magazines WHERE id =:id")
     suspend fun getMagazineDownloadId(id: Long): Int
 
+    @Query("SELECT * FROM magazines WHERE downloadId =:downloadId")
+    suspend fun getMagazineByDId(downloadId: Int): Magazine
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(magazines: List<Magazine>)
 

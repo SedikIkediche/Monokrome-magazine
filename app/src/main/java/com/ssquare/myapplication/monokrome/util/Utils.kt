@@ -20,8 +20,8 @@ const val DOWNLOAD_DIRECTORY_URI =
 const val NO_FILE = "no_file"
 const val MAGAZINE_URI = "magazine_uri"
 const val NO_DOWNLOAD = -1
+const val STORAGE_PERMISSION_CODE = 100
 const val NO_PROGRESS = -1
-
 fun toast(context: Context, text: String) {
     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
 }

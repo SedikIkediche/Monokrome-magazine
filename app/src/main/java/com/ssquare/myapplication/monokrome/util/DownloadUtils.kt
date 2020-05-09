@@ -1,39 +1,39 @@
 package com.ssquare.myapplication.monokrome.util
 
-import android.content.Context
+import  android.content.Context
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.ssquare.myapplication.monokrome.data.DownloadState
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.tonyodev.fetch2.*
 import com.tonyodev.fetch2core.DownloadBlock
+import com.tonyodev.fetch2core.FetchObserver
 import com.tonyodev.fetch2core.Func
+import com.tonyodev.fetch2core.Reason
 import java.io.File
 import java.net.URI
 
 class DownloadUtils private constructor(
     val context: Context,
-    val repository: Repository,
-    val startDownloadBlock: () -> Unit = {},
-    val finishedDownloadBlock: () -> Unit = {}
+    private val repository: Repository,
+    val block: (isDownloading: Boolean) -> Unit = {}
 ) {
 
     companion object {
-        private const val POLLING_DELAY = 1000L
-
+        const val DOWNLOADS_TAG = "monokrome_downloads"
         var INSTANCE: DownloadUtils? = null
         fun getInstance(
             context: Context,
-            repository: Repository, startDownloadBlock: () -> Unit = {},
-            finishedDownloadBlock: () -> Unit = {}
+            repository: Repository, block: (isDownloading: Boolean) -> Unit = {}
         ): DownloadUtils {
             var instance = INSTANCE
             if (instance == null) {
                 instance = DownloadUtils(
                     context.applicationContext,
                     repository,
-                    startDownloadBlock,
-                    finishedDownloadBlock
+                    block
                 )
                 INSTANCE = instance
             }
@@ -42,31 +42,40 @@ class DownloadUtils private constructor(
     }
 
     private val fetchConfiguration = FetchConfiguration.Builder(context)
-        .setDownloadConcurrentLimit(3)
+        .setDownloadConcurrentLimit(10)
+        .setProgressReportingInterval(1000)
+        .setHasActiveDownloadsCheckInterval(5000)
         .build()
 
-    private val fetch = Fetch.Impl.getInstance(fetchConfiguration)
+    private val listener = object : FetchListener {
 
-    var downloadState = DownloadState.EMPTY
-    var downloadId = NO_DOWNLOAD
-    var progress = NO_PROGRESS
-
-    val listener = object : FetchListener {
-
-        override fun onAdded(download: Download) {}
-
-        override fun onCancelled(download: Download) {
-            updateDownloadFailed(download.id)
+        override fun onAdded(download: Download) {
+            Log.d("DownloadUtils", "onAdded called")
         }
 
-        override fun onCompleted(download: Download) {}
+        override fun onCancelled(download: Download) {
+            updateDownloadFailed(download.id, download.fileUri.toString())
+            Log.d("DownloadUtils", "onCancelled called")
+        }
 
-        override fun onDeleted(download: Download) {}
+        override fun onCompleted(download: Download) {
+            updateDownloadCompleted(download.id, download.fileUri.toString())
+            Log.d("DownloadUtils", "onCompleted called")
+        }
 
-        override fun onError(download: Download, error: Error, throwable: Throwable?) {}
+        override fun onDeleted(download: Download) {
+            updateDownloadFailed(download.id, download.fileUri.toString())
+            Log.d("DownloadUtils", "onDeleted called")
+        }
+
+        override fun onError(download: Download, error: Error, throwable: Throwable?) {
+            updateDownloadFailed(download.id, download.fileUri.toString())
+            Log.d("DownloadUtils", "onError called")
+        }
 
         override fun onPaused(download: Download) {
             updateDownloadPaused(download.id)
+            Log.d("DownloadUtils", "onPaused called")
         }
 
         override fun onProgress(
@@ -74,86 +83,123 @@ class DownloadUtils private constructor(
             etaInMilliSeconds: Long,
             downloadedBytesPerSecond: Long
         ) {
-            updateDownloadRunning(download.id, etaInMilliSeconds)
+            updateDownloadProgress(download.id, download.progress)
+            Log.d("DownloadUtils", "onProgress called")
         }
 
-        override fun onQueued(download: Download, waitingOnNetwork: Boolean) {}
+        override fun onQueued(download: Download, waitingOnNetwork: Boolean) {
+            updateDownloadStarted(download.id)
+            Log.d("DownloadUtils", "onQueued called")
+        }
+
         override fun onDownloadBlockUpdated(
             download: Download,
             downloadBlock: DownloadBlock,
             totalBlocks: Int
         ) {
+            Log.d("DownloadUtils", "onDonwloadBlockUpdated called")
         }
 
-        override fun onRemoved(download: Download) {}
-        override fun onResumed(download: Download) {}
+        override fun onRemoved(download: Download) {
+            Log.d("DownloadUtils", "onRemoved called")
+        }
+
+        override fun onResumed(download: Download) {
+            updateDownloadResumed(download.id)
+            Log.d("DownloadUtils", "onResumed called")
+        }
+
         override fun onStarted(
             download: Download,
             downloadBlocks: List<DownloadBlock>,
             totalBlocks: Int
         ) {
+            updateDownloadStarted(download.id)
+            Log.d("DownloadUtils", "onStarted called")
         }
 
-        override fun onWaitingNetwork(download: Download) {}
+        override fun onWaitingNetwork(download: Download) {
+            Log.d("DownloadUtils", "onWaitingForNetwork called")
+        }
     }
 
 
+    private val fetch = Fetch.Impl.getInstance(fetchConfiguration)
+
+
+    var downloadState = DownloadState.EMPTY
+
+    private val _isDownloadRunning = MutableLiveData<Boolean>()
+    val isDownloadRunning: LiveData<Boolean>
+        get() = _isDownloadRunning
+
+
+    fun registerListener() {
+        fetch.addActiveDownloadsObserver(true, object : FetchObserver<Boolean> {
+            override fun onChanged(data: Boolean, reason: Reason) {
+                Log.d("DownloadUtils", " activeDownloadsObserver triggered: $data")
+                block(data)
+            }
+
+        })
+        fetch.getDownloads(Func {
+            it.forEach { download ->
+                when (download.status) {
+                    Status.COMPLETED -> updateDownloadCompleted(
+                        download.id,
+                        download.fileUri.toString()
+                    )
+                    Status.FAILED -> updateDownloadFailed(download.id, download.fileUri.toString())
+                }
+            }
+        })
+        fetch.addListener(listener)
+        Log.d("DownloadUtils", "regist,erListener called")
+    }
+
+    fun unregisterListener() {
+        fetch.removeListener(listener)
+        Log.d("DownloadUtils", "unregisterListener called")
+    }
+
+    fun close() {
+        fetch.close()
+    }
+
     fun enqueueDownload(magazine: Magazine) {
-        if (downloadState != DownloadState.EMPTY) return
 
         val fileUri = createUriString(magazine.id)
-        val request = Request(magazine.editionUrl, fileUri).apply { networkType = NetworkType.ALL }
-
+        val filePath = File(URI.create(fileUri)).path
+        val request = Request(magazine.editionUrl, filePath).apply {
+            networkType = NetworkType.ALL
+            tag = DOWNLOADS_TAG
+        }
         fetch.enqueue(request,
             Func { updatedRequest: Request? ->
                 updateDownloadPending(magazine.id, request.id)
             },
             Func { error: Error? ->
+                Log.d("DownloadUtils", "Error queueing download: error:${error}")
             }
         )
     }
 
-    private fun updateDownloadRunning(
-        dId: Int, inputProgress: Long
-    ) {
-        updateState(DownloadState.RUNNING)
 
-        val inSeconds = (inputProgress / 1000).toInt()
-        val inMinutes = (inSeconds / 60)
-
-        val progress = if (inMinutes != 0) inMinutes else inSeconds
-        repository.updateDownloadProgressByDid(dId, progress)
-            Log.d("UtilsDownloadFile", "Download progress: $progress%")
-
+    private fun updateDownloadPending(magazineId: Long, downloadId: Int) {
+        updateState(DownloadState.PENDING)
+        repository.updateDownloadProgress(magazineId, 0)
+        repository.updateDownloadState(magazineId, DownloadState.PENDING)
+        repository.updateDownloadId(magazineId, downloadId)
     }
 
-
-
-    private fun updateDownloadStarted(id: Long, downloadId: Long) {
+    private fun updateDownloadStarted(dId: Int) {
         downloadState = DownloadState.RUNNING
-        repository.updateDownloadState(id, DownloadState.RUNNING)
+        repository.updateDownloadStateByDid(dId, DownloadState.RUNNING)
     }
 
-    private fun updateDownloadCompleted(dId: Int, fileUri: String) {
-        progress = 100
-        updateState(DownloadState.COMPLETED)
-        repository.updateFileUriByDid(downloadId, fileUri)
-        repository.updateDownloadStateByDid(downloadId, DownloadState.COMPLETED)
-        repository.updateDownloadProgressByDid(downloadId, 100)
-        repository.updateDownloadIdByDid(downloadId, NO_DOWNLOAD)
-        downloadId = NO_DOWNLOAD
-        finishedDownloadBlock()
-    }
-
-    private fun updateDownloadFailed(dId: Int) {
-        val fileUri = DOWNLOAD_DIRECTORY_URI +
-        updateState(DownloadState.EMPTY)
-        deleteFile(fileUri)
-        repository.updateDownloadStateByDid(dId, DownloadState.EMPTY)
-        repository.updateDownloadIdByDid(dId, NO_DOWNLOAD)
-        repository.updateDownloadProgressByDid(dId, NO_PROGRESS)
-        downloadId = NO_DOWNLOAD
-        finishedDownloadBlock()
+    private fun updateDownloadProgress(dId: Int, inputProgress: Int) {
+        updateState(DownloadState.RUNNING)
+        repository.updateDownloadProgressByDid(dId, inputProgress)
     }
 
     private fun updateDownloadPaused(dId: Int) {
@@ -161,15 +207,33 @@ class DownloadUtils private constructor(
         repository.updateDownloadStateByDid(dId, DownloadState.PAUSED)
     }
 
-    private fun updateDownloadPending(magazineId: Long, downloadId: Int) {
-        updateState(DownloadState.PENDING)
-        repository.updateDownloadState(magazineId, DownloadState.PENDING)
-        repository.updateDownloadId(magazineId, downloadId)
+    private fun updateDownloadResumed(dId: Int) {
+        updateState(DownloadState.RUNNING)
+        repository.updateDownloadStateByDid(dId, DownloadState.RUNNING)
+    }
+
+    private fun updateDownloadCompleted(dId: Int, fileUri: String) {
+        updateState(DownloadState.EMPTY)
+        repository.updateFileUriByDid(dId, fileUri)
+        repository.updateDownloadStateByDid(dId, DownloadState.COMPLETED)
+        repository.updateDownloadProgressByDid(dId, 100)
+        repository.updateDownloadIdByDid(dId, 100)
+    }
+
+    private fun updateDownloadFailed(dId: Int, fileUri: String) {
+
+        updateState(DownloadState.EMPTY)
+        deleteFile(fileUri)
+        repository.updateDownloadStateByDid(dId, DownloadState.EMPTY)
+        repository.updateDownloadIdByDid(dId, NO_DOWNLOAD)
+        repository.updateDownloadProgressByDid(dId, NO_PROGRESS)
     }
 
 
     fun cancelDownload(dId: Int) {
+        Log.d("DownloadUtils", "cancelDownload called")
         fetch.cancel(dId)
+        fetch.remove(dId)
     }
 
     private fun createUriString(id: Long): String {

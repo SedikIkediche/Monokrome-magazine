@@ -95,7 +95,7 @@ dependencies {
     implementation 'com.mindorks.android:prdownloader:0.6.0'
 
     //fetch
-    implementation "androidx.tonyodev.fetch2:xfetch2:3.1.4"
+
     implementation "com.tonyodev.fetch2:fetch2:3.0.10"
 
     testImplementation 'junit:junit:4.12'

@@ -33,14 +33,11 @@ fun loadImage(view: ImageView, url: String) {
 @BindingAdapter("downloadOrRead")
 fun downloadOrCancelOrRead(view: TextView, magazine: Magazine) {
     view.text = when (magazine.getDownloadState()) {
-        DownloadState.RUNNING, DownloadState.PENDING -> {
+        DownloadState.RUNNING, DownloadState.PENDING, DownloadState.PAUSED -> {
             view.context.getString(android.R.string.cancel)
         }
         DownloadState.EMPTY -> {
             view.context.getString(R.string.download)
-        }
-        DownloadState.PAUSED -> {
-            view.context.getString(R.string.resume)
         }
 
         DownloadState.COMPLETED -> {
@@ -75,6 +72,5 @@ fun downloadState(view: TextView, magazine: Magazine) {
 @BindingAdapter("downloadProgress")
 fun downloadProgress(view: TextView, magazine: Magazine) {
     view.text = magazine.downloadProgress.toString()
-    view.isVisible =
-        magazine.downloadProgress > -1 && magazine.downloadProgress < 100// file is downloading
+    view.isVisible = magazine.getDownloadState() == DownloadState.RUNNING// file is downloading
 }

@@ -30,7 +30,6 @@ class ListViewModel(private val repository: Repository) : ViewModel() {
 
     fun loadAndCacheData() {
         viewModelScope.launch { repository.loadAndCacheData() }
-
     }
 
 }

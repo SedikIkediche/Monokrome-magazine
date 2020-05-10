@@ -1,10 +1,8 @@
 package com.ssquare.myapplication.monokrome.db
 
-import android.util.Log
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.MagazineListLiveData
-import kotlinx.coroutines.runBlocking
 
 
 class LocalCache(
@@ -26,8 +24,7 @@ class LocalCache(
 
     private suspend fun refreshMagazines(magazines: List<Magazine>) {
         magazineDao.clear()
-        Log.d("LocalCache", "dataSize = ${magazineDao.insertAll(magazines)}")
-
+        magazineDao.insertAll(magazines)
     }
 
     fun getMagazine(id: Int) = magazineDao.get(id)
@@ -38,23 +35,20 @@ class LocalCache(
         return MagazineListLiveData(header, magazines)
     }
 
-    suspend fun invalidateProgress() = magazineDao.invalidateProgress()
-    suspend fun getRunningDownloads() = magazineDao.getRunningDownloads()
-    suspend fun getMagazineDownloadId(id: Long) = magazineDao.getMagazineDownloadId(id)
-
-
     suspend fun updateFileUri(id: Long, path: String) = magazineDao.updateUri(id, path)
+
     suspend fun updateDownloadProgress(id: Long, progress: Int) =
         magazineDao.updateProgress(id, progress)
 
-    //downloadUrils
     suspend fun updateDownloadId(id: Long, downloadId: Int) =
         magazineDao.updateDownloadId(id, downloadId)
+
     suspend fun updateDownloadState(id: Long, downloadState: Int) =
         magazineDao.updateDownloadState(id, downloadState)
 
 
     suspend fun updateFileUriByDid(dId: Int, path: String) = magazineDao.updateUriByDid(dId, path)
+
     suspend fun updateDownloadProgressByDid(dId: Int, progress: Int) =
         magazineDao.updateProgressByDid(dId, progress)
 
@@ -64,8 +58,6 @@ class LocalCache(
     suspend fun updateDownloadStateByDid(dId: Int, downloadState: Int) =
         magazineDao.updateDownloadStateByDid(dId, downloadState)
 
-    suspend fun getMagazineByDid(dId: Int): Magazine =
-        runBlocking { magazineDao.getMagazineByDId(dId) }
 }
 
 

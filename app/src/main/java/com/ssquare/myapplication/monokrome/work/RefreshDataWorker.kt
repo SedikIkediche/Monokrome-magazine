@@ -12,13 +12,16 @@ import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.util.commitCacheData
+import com.ssquare.myapplication.monokrome.util.commitWorkActive
+import com.ssquare.myapplication.monokrome.util.isDownloadActive
+import com.ssquare.myapplication.monokrome.util.toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 class RefreshDataWorker(private val appContext: Context, params: WorkerParameters) :
     CoroutineWorker(
-    appContext, params
-) {
+        appContext, params
+    ) {
 
 
     companion object {
@@ -29,22 +32,40 @@ class RefreshDataWorker(private val appContext: Context, params: WorkerParameter
     @SuppressLint("RestrictedApi")
     override suspend fun doWork(): Result {
         Log.d("RefreshDataWorker", "doWork called")
+        val repository = initDependencies()
+
+        val result: Result
+        if (!isDownloadActive(appContext)) {
+            commitWorkActive(appContext, true)
+            val loadState = repository.loadAndCacheData()  // (true)success or (false)failure
+            result = if (loadState) {
+                commitCacheData(appContext)
+                Result.Success()
+            } else {
+                Result.Retry()
+            }
+            commitWorkActive(appContext, false)
+        } else {
+            toast(appContext, "Downloading Magazine From Server!")
+            result = Result.Retry()
+        }
+
+        return result
+
+    }
+
+    private fun initDependencies(): Repository {
         val database = FirebaseDatabase.getInstance()
         val storage = FirebaseStorage.getInstance()
         val network = FirebaseServer(database, storage)
         val magazineDao = MagazineDatabase.getInstance(appContext).magazineDao
         val headerDao = MagazineDatabase.getInstance(appContext).headerDao
         val cache = LocalCache(magazineDao, headerDao)
-
-        val repository =
-            Repository.getInstance(CoroutineScope(Dispatchers.Main), cache, network)
-        val resultState = repository.loadAndCacheData()  // (true)success or (false)failure
-
-        return if (resultState) {
-            commitCacheData(appContext)
-            Result.Success()
-        } else {
-            Result.Retry()
-        }
+        return Repository.getInstance(
+            applicationContext,
+            CoroutineScope(Dispatchers.Main),
+            cache,
+            network
+        )
     }
 }

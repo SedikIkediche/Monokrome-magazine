@@ -58,7 +58,6 @@ class ListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d("ListFragment", "onCreateView called")
         binding = FragmentListBinding.inflate(inflater)
         setupToolbar()
 
@@ -68,20 +67,13 @@ class ListFragment : Fragment() {
         val magazineDao = MagazineDatabase.getInstance(requireContext()).magazineDao
         val headerDao = MagazineDatabase.getInstance(requireContext()).headerDao
         val cache = LocalCache(magazineDao, headerDao)
-        val repository = Repository.getInstance(lifecycleScope, cache, network)
+        val repository = Repository.getInstance(requireContext(), lifecycleScope, cache, network)
         val factory = ListViewModelFactory(repository)
         viewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
-        initRecyclerView()
-        downloadUtils = DownloadUtils.getInstance(
-            requireContext(),
-            repository
-        ) { isDownloading ->
-            Log.d("ListFragment", "isDownloading block called $isDownloading")
-            binding.recyclerview.itemAnimator =
-                if (isDownloading) null else DefaultItemAnimator()
-        }
 
-        Log.d("ListFragment", "is data chached = ${isDataCached(requireContext())}")
+        initRecyclerView()
+        initDownloadUtils(repository)
+
         networkCheck.isConnected.observe(viewLifecycleOwner, Observer { isConnected ->
             if (!isDataCached(requireContext())) {
                 showLoading()
@@ -102,18 +94,26 @@ class ListFragment : Fragment() {
 
         viewModel.data.observe(viewLifecycleOwner, Observer {
             if (isDataCached(requireContext()))
-                Log.d(
-                    "ListFragment",
-                    "data LiveData called header = ${it.first} ,  list = ${it.second} "
-                )
             setupUi(it.first, it.second)
         })
 
         return binding.root
     }
 
+    private fun initDownloadUtils(repository: Repository) {
+        downloadUtils = DownloadUtils.getInstance(
+            requireContext(),
+            repository
+        ).apply {
+            isDownloadRunning.observe(viewLifecycleOwner, Observer { isDownloading ->
+                commitDownloadActive(requireContext(), isDownloading)
+                binding.recyclerview.itemAnimator =
+                    if (isDownloading) null else DefaultItemAnimator()
+            })
+        }
+    }
+
     override fun onPause() {
-        Log.d("ListFragment", "onPause() called")
         networkCheck.unregisterNetworkCallback()
         downloadUtils.unregisterListener()
         super.onPause()
@@ -126,7 +126,6 @@ class ListFragment : Fragment() {
     }
 
     override fun onDestroy() {
-        Log.d("ListFragment", "onDestroy called")
         downloadUtils.close()
         super.onDestroy()
 
@@ -184,7 +183,10 @@ class ListFragment : Fragment() {
                 true
             }
             R.id.filter_list -> {
-                viewModel.loadAndCacheData()
+                //for testing
+                if (!isDownloadActive(requireContext()))
+                    viewModel.loadAndCacheData()
+                else toast(requireContext(), "Downloading Magazine From Server")
                 true
             }
             android.R.id.home -> {
@@ -308,8 +310,6 @@ class ListFragment : Fragment() {
                     //cancel
                     downloadUtils.cancelDownload(magazine.downloadId)
                 }
-
-
             }
         }
         adapter = MagazineAdapter(magazineListener, headerListener)
@@ -325,9 +325,12 @@ class ListFragment : Fragment() {
 
     private fun downloadMagazine(magazine: Magazine) {
         if (networkCheck.checkConnectivity(requireContext())) {
-            downloadUtils.enqueueDownload(magazine)
-            //downloadWithPrDownloader(magazine, requireContext(), repository, recyclerview)
-            // downloadFileWithDownloadManager(magazine,requireContext(),repository)
+            if (!isWorkActive(requireContext())) {
+                downloadUtils.enqueueDownload(magazine)
+            } else {
+                toast(requireContext(), "Loading Data From Server!")
+            }
+
         } else {
             showErrorLayout(getString(R.string.network_down))
         }

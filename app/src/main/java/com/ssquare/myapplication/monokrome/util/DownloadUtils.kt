@@ -1,6 +1,7 @@
 package com.ssquare.myapplication.monokrome.util
 
-import  android.content.Context
+import android.content.Context
+import android.os.Environment
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,16 +10,13 @@ import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.tonyodev.fetch2.*
 import com.tonyodev.fetch2core.DownloadBlock
-import com.tonyodev.fetch2core.FetchObserver
 import com.tonyodev.fetch2core.Func
-import com.tonyodev.fetch2core.Reason
 import java.io.File
 import java.net.URI
 
 class DownloadUtils private constructor(
     val context: Context,
-    private val repository: Repository,
-    val block: (isDownloading: Boolean) -> Unit = {}
+    private val repository: Repository
 ) {
 
     companion object {
@@ -26,14 +24,13 @@ class DownloadUtils private constructor(
         var INSTANCE: DownloadUtils? = null
         fun getInstance(
             context: Context,
-            repository: Repository, block: (isDownloading: Boolean) -> Unit = {}
+            repository: Repository
         ): DownloadUtils {
             var instance = INSTANCE
             if (instance == null) {
                 instance = DownloadUtils(
                     context.applicationContext,
-                    repository,
-                    block
+                    repository
                 )
                 INSTANCE = instance
             }
@@ -44,7 +41,6 @@ class DownloadUtils private constructor(
     private val fetchConfiguration = FetchConfiguration.Builder(context)
         .setDownloadConcurrentLimit(10)
         .setProgressReportingInterval(1000)
-        .setHasActiveDownloadsCheckInterval(5000)
         .build()
 
     private val listener = object : FetchListener {
@@ -97,6 +93,7 @@ class DownloadUtils private constructor(
             downloadBlock: DownloadBlock,
             totalBlocks: Int
         ) {
+            triggerActiveDownloads()
             Log.d("DownloadUtils", "onDonwloadBlockUpdated called")
         }
 
@@ -133,15 +130,16 @@ class DownloadUtils private constructor(
     val isDownloadRunning: LiveData<Boolean>
         get() = _isDownloadRunning
 
+    private fun triggerActiveDownloads() {
+        fetch.getDownloads(Func { list ->
+            val activeDownloadsList =
+                list.filter { it.status == Status.QUEUED || it.status == Status.DOWNLOADING || it.status == Status.PAUSED }
+            _isDownloadRunning.postValue(activeDownloadsList.isNotEmpty())
+        })
+    }
 
     fun registerListener() {
-        fetch.addActiveDownloadsObserver(true, object : FetchObserver<Boolean> {
-            override fun onChanged(data: Boolean, reason: Reason) {
-                Log.d("DownloadUtils", " activeDownloadsObserver triggered: $data")
-                block(data)
-            }
-
-        })
+        triggerActiveDownloads()
         fetch.getDownloads(Func {
             it.forEach { download ->
                 when (download.status) {
@@ -168,8 +166,7 @@ class DownloadUtils private constructor(
 
     fun enqueueDownload(magazine: Magazine) {
 
-        val fileUri = createUriString(magazine.id)
-        val filePath = File(URI.create(fileUri)).path
+        val filePath = createFilePath(magazine.id)
         val request = Request(magazine.editionUrl, filePath).apply {
             networkType = NetworkType.ALL
             tag = DOWNLOADS_TAG
@@ -214,19 +211,19 @@ class DownloadUtils private constructor(
 
     private fun updateDownloadCompleted(dId: Int, fileUri: String) {
         updateState(DownloadState.EMPTY)
-        repository.updateFileUriByDid(dId, fileUri)
         repository.updateDownloadStateByDid(dId, DownloadState.COMPLETED)
-        repository.updateDownloadProgressByDid(dId, 100)
-        repository.updateDownloadIdByDid(dId, 100)
+        repository.updateFileUriByDid(dId, fileUri)
+        repository.updateDownloadIdByDid(dId, NO_DOWNLOAD)
+        triggerActiveDownloads()
     }
 
     private fun updateDownloadFailed(dId: Int, fileUri: String) {
-
         updateState(DownloadState.EMPTY)
         deleteFile(fileUri)
         repository.updateDownloadStateByDid(dId, DownloadState.EMPTY)
         repository.updateDownloadIdByDid(dId, NO_DOWNLOAD)
         repository.updateDownloadProgressByDid(dId, NO_PROGRESS)
+        triggerActiveDownloads()
     }
 
 
@@ -236,8 +233,8 @@ class DownloadUtils private constructor(
         fetch.remove(dId)
     }
 
-    private fun createUriString(id: Long): String {
-        return DOWNLOAD_DIRECTORY_URI + id.toString() + PDF_TYPE
+    private fun createFilePath(id: Long): String {
+        return context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path + id.toString() + PDF_TYPE
     }
 
     private fun deleteFile(uri: String): Boolean {
@@ -249,6 +246,7 @@ class DownloadUtils private constructor(
         } else
             false
     }
+
 
     private fun updateState(downloadState: DownloadState) {
         if (this.downloadState != downloadState) this.downloadState = downloadState

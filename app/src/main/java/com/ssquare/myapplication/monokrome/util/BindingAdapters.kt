@@ -46,8 +46,6 @@ fun downloadOrCancelOrRead(view: TextView, magazine: Magazine) {
 
     }
 
-    //view clickable when progress=-1 (download hasn't started) or progress= 100(download finished)
-    //view.isClickable = magazine.downloadProgress == -1 || magazine.downloadProgress == 100
 }
 
 @BindingAdapter("previewOrDelete")

@@ -29,6 +29,7 @@ class MagazineApplication : Application() {
 
         val cacheWorkRequest = PeriodicWorkRequestBuilder<RefreshDataWorker>(1, TimeUnit.DAYS)
             .setConstraints(constraints)
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.HOURS)
             .build()
         WorkManager.getInstance(applicationContext)
             .enqueueUniquePeriodicWork(

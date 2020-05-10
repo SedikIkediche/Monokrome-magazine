@@ -10,13 +10,14 @@ import java.net.URI
 
 const val MAGAZINE_ID = "magazine_path"
 const val HEADER_PATH = "header/header.jpg"
-const val DATA_CACHED = "data_cached"
-const val REFRESH_TIME = 1L
 const val REQUEST_CODE: Int = 10
+const val DOWNLOAD_ACTIVE = "download_active"
+const val WORK_ACTIVE = "work_active"
+const val DATA_CACHED = "data_cached"
 
 const val PDF_TYPE = ".pdf"
-const val DOWNLOAD_DIRECTORY_URI =
-    "file:///storage/emulated/0/Android/data/com.ssquare.myapplication.monokrome/files/Download/"
+
+const val FILE_PREFIX = "file://"
 const val NO_FILE = "no_file"
 const val MAGAZINE_URI = "magazine_uri"
 const val NO_DOWNLOAD = -1
@@ -31,13 +32,37 @@ fun isDataCached(context: Context): Boolean =
         DATA_CACHED, false
     )
 
-
 fun commitCacheData(context: Context) {
     PreferenceManager.getDefaultSharedPreferences(context).edit().apply {
         putBoolean(DATA_CACHED, true)
         apply()
     }
 }
+
+fun isWorkActive(context: Context): Boolean =
+    PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+        WORK_ACTIVE, false
+    )
+
+fun commitWorkActive(context: Context, state: Boolean) {
+    PreferenceManager.getDefaultSharedPreferences(context).edit().apply {
+        putBoolean(WORK_ACTIVE, state)
+        apply()
+    }
+}
+
+fun isDownloadActive(context: Context): Boolean =
+    PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+        DOWNLOAD_ACTIVE, false
+    )
+
+fun commitDownloadActive(context: Context, state: Boolean) {
+    PreferenceManager.getDefaultSharedPreferences(context).edit().apply {
+        putBoolean(DOWNLOAD_ACTIVE, state)
+        apply()
+    }
+}
+
 
 
 fun deleteFile(uri: String): Boolean {

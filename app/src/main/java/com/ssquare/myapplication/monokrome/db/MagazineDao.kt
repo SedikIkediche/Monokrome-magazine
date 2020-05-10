@@ -16,26 +16,12 @@ interface MagazineDao {
     @Query("SELECT * FROM magazines WHERE id=:id ")
     fun get(id: Int): LiveData<Magazine>
 
-    @Query("SELECT * FROM magazines WHERE downloadId != -1")
-    suspend fun getRunningDownloads(): List<Magazine>
-
-    @Query("UPDATE magazines SET downloadProgress= -1")
-    suspend fun invalidateProgress()
-
-    @Query("SELECT downloadId FROM magazines WHERE id =:id")
-    suspend fun getMagazineDownloadId(id: Long): Int
-
-    @Query("SELECT * FROM magazines WHERE downloadId =:downloadId")
-    suspend fun getMagazineByDId(downloadId: Int): Magazine
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(magazines: List<Magazine>)
 
     @Query("DELETE FROM magazines")
     suspend fun clear()
 
-
-    //listViewModel delete
     @Query("UPDATE magazines SET fileUri=:path WHERE id=:id")
     suspend fun updateUri(id: Long, path: String)
 

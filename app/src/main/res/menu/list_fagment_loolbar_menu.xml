@@ -6,7 +6,19 @@
         android:id="@+id/filter_list"
         android:icon="@drawable/ic_filter_list"
         android:title="@string/filter_list"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom" >
+            <menu>
+                <group android:id="@+id/group"
+                    android:checkableBehavior="single">
+                    <item android:id="@+id/sort_by_most_recent"
+                        android:title="@string/most_recent"/>
+                    <item android:id="@+id/sort_from_a_to_z"
+                        android:title="@string/a_to_z"/>
+                    <item android:id="@+id/sort_from_z_to_a"
+                        android:title="@string/z_to_a"/>
+                </group>
+            </menu>
+    </item>
 
     <item
         android:id="@+id/search"

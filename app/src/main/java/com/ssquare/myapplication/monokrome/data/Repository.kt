@@ -1,5 +1,6 @@
 package com.ssquare.myapplication.monokrome.data
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.tasks.Tasks
@@ -41,6 +42,7 @@ class Repository private constructor(
 
     fun getMagazine(id: Int) = cache.getMagazine(id)
 
+   fun searchResult(search : String) = cache.searchResult(search)
 
     fun loadAndCacheData(): Boolean {
         var resultState = false

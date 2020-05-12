@@ -27,9 +27,12 @@ class LocalCache(
         magazineDao.clear()
         Log.d("LocalCache", "dataSize = ${magazineDao.insertAll(magazines)}")
 
+
     }
 
     fun getMagazine(id: Int) = magazineDao.get(id)
+
+    fun searchResult(search : String) = magazineDao.searchResult(search)
 
     fun getCachedData(): MagazineListLiveData {
         val header = headerDao.get()

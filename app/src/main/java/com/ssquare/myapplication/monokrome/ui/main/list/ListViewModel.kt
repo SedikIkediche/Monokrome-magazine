@@ -11,4 +11,6 @@ class ListViewModel(private val repository: Repository) : ViewModel() {
 
     fun loadAndCacheData() = repository.loadAndCacheData()
 
+    fun searchResult(search :String) = repository.searchResult(search)
+
 }

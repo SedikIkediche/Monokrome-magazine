@@ -1,25 +1,24 @@
 package com.ssquare.myapplication.monokrome.ui.main.list
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
-import android.speech.RecognizerIntent
-import android.text.TextUtils
 import android.view.*
-import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import br.com.mauker.materialsearchview.MaterialSearchView
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.R
@@ -32,30 +31,30 @@ import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.*
+import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import com.ssquare.myapplication.monokrome.work.RefreshDataWorker
+import kotlinx.android.synthetic.main.fragment_list.*
 import java.util.concurrent.TimeUnit
 
 /**
  * A simple [Fragment] subclass.
  */
-class ListFragment : Fragment() {
+class ListFragment : Fragment() , ConnectivityProvider.ConnectivityStateListener {
     lateinit var binding: FragmentListBinding
     private lateinit var viewModel: ListViewModel
     private lateinit var adapter: MagazineAdapter
-    private val networkCheck: NetworkCheck by lazy {
-        NetworkCheck(
-            requireContext(),
-            lifecycleScope
-        ).apply { registerNetworkCallback() }
-    }
+    private var isNotConnected = false
+    private val provider: ConnectivityProvider by lazy { ConnectivityProvider.createProvider(requireContext()) }
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+          binding =  FragmentListBinding.inflate(inflater)
 
-        binding = FragmentListBinding.inflate(inflater)
-        setupToolbar()
+        setUpToolbar()
 
         val database = FirebaseDatabase.getInstance()
         val storage = FirebaseStorage.getInstance()
@@ -69,20 +68,6 @@ class ListFragment : Fragment() {
 
         initRecyclerView()
 
-        networkCheck.isConnected.observe(viewLifecycleOwner, Observer { isConnected ->
-            if (!isDataCached(requireContext())) {
-                showLoading()
-                when (isConnected) {
-                    true -> {
-                        cacheData()
-                    }
-                    false -> {
-                        showError("Please Connect To The Internet!")
-                    }
-                }
-            }
-        })
-
         viewModel.networkError.observe(viewLifecycleOwner, Observer {
             setupUi(null, null, it)
         })
@@ -95,112 +80,63 @@ class ListFragment : Fragment() {
         return binding.root
     }
 
-    override fun onPause() {
-        networkCheck.unregisterNetworkCallback()
-        super.onPause()
+    private fun setUpToolbar() {
+
+        getMainActivity().setSupportActionBar(binding.listFragmentToolbar)
+        getMainActivity().supportActionBar?.title = getString(R.string.home)
+
+        setHasOptionsMenu(true)
+        addBannerClickListener()
+
     }
 
-    override fun onResume() {
-        super.onResume()
-        networkCheck.registerNetworkCallback()
+    private fun getMainActivity() = activity as MainActivity
+
+    override fun onStart() {
+        super.onStart()
+        provider.addListener(this)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
-        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            val matches =
-                data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-            if (matches != null && matches.size > 0) {
-                val searchWrd = matches[0]
-                if (!TextUtils.isEmpty(searchWrd)) {
-                    binding.searchView.setQuery(searchWrd, false)
-                }
-            }
-            return
-        }
-        super.onActivityResult(requestCode, resultCode, data)
+    override fun onStop() {
+        super.onStop()
+        provider.removeListener(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.list_fagment_loolbar_menu, menu)
+
+        menu.findItem(R.id.sort_by_most_recent).isChecked = true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-
             R.id.search -> {
-                showSearchView()
+                findNavController().navigate(R.id.searchMagazineFragment)
                 true
             }
-            R.id.filter_list -> {
+            R.id.sort_by_most_recent-> {
+                item.isChecked = !item.isChecked
                 true
             }
-            android.R.id.home -> {
-                if (!binding.drawer.isDrawerOpen(GravityCompat.START)) {
-                    binding.drawer.openDrawer(GravityCompat.START)
-                }
+            R.id.sort_from_a_to_z -> {
+                item.isChecked = !item.isChecked
+                true
+            }
+            R.id.sort_from_z_to_a -> {
+                item.isChecked = !item.isChecked
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    private fun setupToolbar() {
-        (activity as MainActivity).setSupportActionBar(binding.listFragmentToolbar)
-        NavigationUI.setupActionBarWithNavController(
-            activity as MainActivity,
-            this.findNavController(),
-            binding.drawer
-        )
-        NavigationUI.setupWithNavController(binding.navigation, this.findNavController())
-        setHasOptionsMenu(true)
-        addSearchViewListener()
-    }
-
-    private fun showSearchView() {
-        binding.searchView.openSearch()
-    }
-
-    private fun addSearchViewListener() {
-        binding.searchView.setSearchViewListener(object : MaterialSearchView.SearchViewListener {
-            override fun onSearchViewOpened() {
-                requireActivity().onBackPressedDispatcher.addCallback(
-                    viewLifecycleOwner,
-                    onBackPressedCallback
-                )
-            }
-
-            override fun onSearchViewClosed() {
-                onBackPressedCallback.remove()
-            }
-        })
-
-        binding.searchView.setOnQueryTextListener(object : MaterialSearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String): Boolean {
-
-                binding.searchView.closeSearch()
-
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String): Boolean {
-                return false
-            }
-        })
-
-        binding.searchView.setOnVoiceClickedListener {
-            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-            intent.putExtra(
-                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-            )
-            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Voice searching...")
-            startActivityForResult(intent, REQUEST_CODE)
+    private fun addBannerClickListener() {
+        binding.closeButton.setOnClickListener {
+            binding.bannerLayout.visibility = View.GONE
         }
-
-        binding.searchView.findViewById<View>(R.id.transparent_view).visibility = View.GONE
-        binding.searchView.findViewById<LinearLayout>(R.id.search_bar)
-            .setBackgroundResource(R.drawable.search_view_background)
+        binding.tryAgainButton.setOnClickListener {
+            binding.bannerLayout.visibility = View.GONE
+        }
     }
 
 
@@ -228,20 +164,22 @@ class ListFragment : Fragment() {
     private fun initRecyclerView() {
         val headerListener = MagazineAdapter.HeaderListener { /*Handle header click */ }
 
-        val magazineListener = MagazineAdapter.MagazineListener { magazine, action ->
-            when (action) {
-                ClickAction.PREVIEW -> {
-                    navigateToDetail(magazine.path)
-                }
-                ClickAction.DOWNLOAD -> {
-                    downloadMagazine(magazine)
-                }
-                ClickAction.READ -> { /*Handle Read click */
+        val magazineListener =
+            MagazineAdapter.MagazineListener { magazine, action ->
+                when (action) {
+                    ClickAction.PREVIEW -> {
+                        navigateToDetail( magazine.path)
+                    }
+                    ClickAction.DOWNLOAD -> {
+                        downloadMagazine(magazine)
+                    }
+                    ClickAction.READ -> { /*Handle Read click */
+                    }
                 }
             }
-        }
         adapter = MagazineAdapter(magazineListener, headerListener)
         binding.recyclerview.adapter = adapter
+
     }
 
     private fun downloadMagazine(magazine: Magazine) {
@@ -264,24 +202,33 @@ class ListFragment : Fragment() {
             .enqueue(cacheWorkRequest)
     }
 
-    private fun navigateToDetail(path: String) {
+    private fun navigateToDetail(
+        path: String
+    ) {
         val pathBundle = Bundle().apply { putString(MAGAZINE_PATH, path) }
-        findNavController().navigate(R.id.action_listFragment_to_detailFragment, pathBundle)
+        this.findNavController().navigate(R.id.action_listFragment_to_detailFragment,pathBundle)
     }
 
     private fun showLoading() {
         binding.run {
-            recyclerview.visibility = View.GONE
-            textError.visibility = View.GONE
-            shimmerLayout.visibility = View.VISIBLE
             shimmerLayout.startShimmer()
+            recyclerview.visibility = View.GONE
+            errorContainer.visibility = View.GONE
+            bannerLayout.visibility = View.GONE
+            onlineIndicator.visibility = View.GONE
+            if (isNotConnected) {
+                backOnlineIndicator.visibility = View.VISIBLE
+                isNotConnected = false
+            }
+            shimmerLayout.visibility = View.VISIBLE
+
         }
     }
 
     private fun showError(errorText: String) {
         binding.run {
-            shimmerLayout.hideShimmer()
             shimmerLayout.visibility = View.GONE
+            shimmerLayout.stopShimmer()
             recyclerview.visibility = View.GONE
         }
         showErrorLayout(errorText)
@@ -289,29 +236,37 @@ class ListFragment : Fragment() {
 
     private fun showData() {
         binding.run {
-            shimmerLayout.hideShimmer()
             shimmerLayout.visibility = View.GONE
-            textError.visibility = View.GONE
+            backOnlineIndicator.visibility = View.GONE
+            errorContainer.visibility = View.GONE
+            bannerLayout.visibility = View.GONE
+            onlineIndicator.visibility = View.GONE
             recyclerview.visibility = View.VISIBLE
+            shimmerLayout.stopShimmer()
         }
     }
 
     private fun showErrorLayout(errorText: String) {
         binding.run {
-            textError.visibility = View.VISIBLE
+            errorContainer.visibility = View.VISIBLE
             textError.text = errorText
+            bannerLayout.visibility = View.VISIBLE
+            onlineIndicator.visibility = View.VISIBLE
+            isNotConnected = true
         }
     }
 
-    val onBackPressedCallback = object : OnBackPressedCallback(true) {
-        override fun handleOnBackPressed() {
-            if (binding.searchView.isOpen) {
-                binding.searchView.closeSearch()
-            }
-            if (binding.drawer.isDrawerOpen(GravityCompat.START)) {
-                binding.drawer.closeDrawer(GravityCompat.START)
+    override fun onStateChange(state: ConnectivityProvider.NetworkState) {
+        if (!isDataCached(requireContext())) {
+            showLoading()
+            when (state.hasInternet()) {
+                true -> {
+                    cacheData()
+                }
+                false -> {
+                    showError("No results found!")
+                }
             }
         }
     }
-
 }

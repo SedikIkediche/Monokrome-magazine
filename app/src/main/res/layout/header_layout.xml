@@ -20,9 +20,10 @@
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/header_image"
             android:layout_width="0dp"
-            android:layout_height="220dp"
+            android:layout_height="0dp"
             android:scaleType="centerCrop"
             app:imageUrl="@{header.imageUrl}"
+            app:layout_constraintDimensionRatio="h,3:1.8"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

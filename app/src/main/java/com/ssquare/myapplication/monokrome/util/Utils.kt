@@ -1,6 +1,7 @@
 package com.ssquare.myapplication.monokrome.util
 
 import android.content.Context
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.preference.PreferenceManager
@@ -12,7 +13,7 @@ const val MAGAZINE_ID = "magazine_path"
 const val HEADER_PATH = "header/header.jpg"
 const val REQUEST_CODE: Int = 10
 const val DOWNLOAD_ACTIVE = "download_active"
-const val WORK_ACTIVE = "work_active"
+const val LOAD_DATA_ACTIVE = "work_active"
 const val DATA_CACHED = "data_cached"
 
 const val PDF_TYPE = ".pdf"
@@ -39,16 +40,17 @@ fun commitCacheData(context: Context) {
     }
 }
 
-fun isWorkActive(context: Context): Boolean =
+fun isLoadDataActive(context: Context): Boolean =
     PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-        WORK_ACTIVE, false
+        LOAD_DATA_ACTIVE, false
     )
 
-fun commitWorkActive(context: Context, state: Boolean) {
+fun commitLoadDataActive(context: Context, state: Boolean) {
     PreferenceManager.getDefaultSharedPreferences(context).edit().apply {
-        putBoolean(WORK_ACTIVE, state)
+        putBoolean(LOAD_DATA_ACTIVE, state)
         apply()
     }
+    Log.d("Utils", "commitWorkActive called")
 }
 
 fun isDownloadActive(context: Context): Boolean =
@@ -63,6 +65,10 @@ fun commitDownloadActive(context: Context, state: Boolean) {
     }
 }
 
+fun createUriString(context: Context, id: Long): String {
+    return FILE_PREFIX +
+            context.applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path + id.toString() + PDF_TYPE
+}
 
 
 fun deleteFile(uri: String): Boolean {

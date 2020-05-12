@@ -24,7 +24,6 @@ class NetworkCheck(private val context: Context, scope: CoroutineScope) {
             delay(1000)
             if (_isConnected.value != true) {
                 _isConnected.postValue(false)
-                toast(context, "network status false")
             }
 
         }
@@ -38,12 +37,10 @@ class NetworkCheck(private val context: Context, scope: CoroutineScope) {
         object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 _isConnected.postValue(true)
-                toast(context, "network status true")
             }
 
             override fun onLost(network: Network) {
                 _isConnected.postValue(false)
-                toast(context, "network status false")
             }
         }
 

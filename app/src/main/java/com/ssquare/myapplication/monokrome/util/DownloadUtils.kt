@@ -20,8 +20,7 @@ class DownloadUtils private constructor(
 ) {
 
     companion object {
-        const val DOWNLOADS_TAG = "monokrome_downloads"
-        var INSTANCE: DownloadUtils? = null
+        private var INSTANCE: DownloadUtils? = null
         fun getInstance(
             context: Context,
             repository: Repository
@@ -98,6 +97,7 @@ class DownloadUtils private constructor(
         }
 
         override fun onRemoved(download: Download) {
+            updateDownloadFailed(download.id, download.fileUri.toString())
             Log.d("DownloadUtils", "onRemoved called")
         }
 
@@ -151,13 +151,13 @@ class DownloadUtils private constructor(
                 }
             }
         })
+        Log.d("DownloadUtils", "registerListener called")
         fetch.addListener(listener)
-        Log.d("DownloadUtils", "regist,erListener called")
     }
 
     fun unregisterListener() {
-        fetch.removeListener(listener)
         Log.d("DownloadUtils", "unregisterListener called")
+        fetch.removeListener(listener)
     }
 
     fun close() {
@@ -169,10 +169,9 @@ class DownloadUtils private constructor(
         val filePath = createFilePath(magazine.id)
         val request = Request(magazine.editionUrl, filePath).apply {
             networkType = NetworkType.ALL
-            tag = DOWNLOADS_TAG
         }
         fetch.enqueue(request,
-            Func { updatedRequest: Request? ->
+            Func {
                 updateDownloadPending(magazine.id, request.id)
             },
             Func { error: Error? ->
@@ -219,8 +218,8 @@ class DownloadUtils private constructor(
 
     private fun updateDownloadFailed(dId: Int, fileUri: String) {
         updateState(DownloadState.EMPTY)
-        deleteFile(fileUri)
         repository.updateDownloadStateByDid(dId, DownloadState.EMPTY)
+        deleteFile(fileUri)
         repository.updateDownloadIdByDid(dId, NO_DOWNLOAD)
         repository.updateDownloadProgressByDid(dId, NO_PROGRESS)
         triggerActiveDownloads()
@@ -234,7 +233,7 @@ class DownloadUtils private constructor(
     }
 
     private fun createFilePath(id: Long): String {
-        return context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path + id.toString() + PDF_TYPE
+        return context.applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path + id.toString() + PDF_TYPE
     }
 
     private fun deleteFile(uri: String): Boolean {

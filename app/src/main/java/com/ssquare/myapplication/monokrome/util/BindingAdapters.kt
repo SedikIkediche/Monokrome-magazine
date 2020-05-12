@@ -1,6 +1,7 @@
 package com.ssquare.myapplication.monokrome.util
 
 import android.graphics.drawable.ColorDrawable
+import android.text.format.DateFormat
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -12,27 +13,41 @@ import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.DownloadState
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.getDownloadState
+import java.util.*
 
 
 @BindingAdapter("imageUrl")
-fun loadImage(view: ImageView, url: String) {
-    Glide.with(view.context).load(url)
-        .placeholder(
-            ColorDrawable(
-                ContextCompat.getColor(
-                    view.context,
-                    R.color.image_place_holder_color
+fun loadImage(view: ImageView, url: String?) {
+    url?.let {
+        Glide.with(view.context).load(url)
+            .placeholder(
+                ColorDrawable(
+                    ContextCompat.getColor(
+                        view.context,
+                        R.color.image_place_holder_color
+                    )
                 )
             )
-        )
-        .transition(GenericTransitionOptions.with(R.anim.fade_in))
-        .centerCrop()
-        .into(view)
+            .transition(GenericTransitionOptions.with(R.anim.fade_in))
+            .centerCrop()
+            .into(view)
+    }
+
 }
 
+@BindingAdapter("date")
+fun date(view: TextView, timeStamp: Long) {
+    val calendar = Calendar.getInstance().apply { timeInMillis = timeStamp * 1000L }
+    val date = DateFormat.format("dd MMMM yyyy", calendar).toString()
+    view.text = date
+}
+
+//for listFragment
+
 @BindingAdapter("downloadOrRead")
-fun downloadOrCancelOrRead(view: TextView, magazine: Magazine) {
-    view.text = when (magazine.getDownloadState()) {
+fun downloadOrCancelOrRead(view: TextView, magazine: Magazine?) {
+    magazine?.let {
+        view.text = when (magazine.getDownloadState()) {
         DownloadState.RUNNING, DownloadState.PENDING, DownloadState.PAUSED -> {
             view.context.getString(android.R.string.cancel)
         }
@@ -43,32 +58,39 @@ fun downloadOrCancelOrRead(view: TextView, magazine: Magazine) {
         DownloadState.COMPLETED -> {
             view.context.getString(R.string.read)
         }
-
+        }
     }
 
 }
 
 @BindingAdapter("previewOrDelete")
-fun previewOrDelete(view: TextView, magazine: Magazine) {
-    view.text =
-        if (magazine.getDownloadState() == DownloadState.COMPLETED) view.context.getString(R.string.delete) else view.context.getString(
-            R.string.preview
-        )
+fun previewOrDelete(view: TextView, magazine: Magazine?) {
+    magazine?.let {
+        view.text =
+            if (magazine.getDownloadState() == DownloadState.COMPLETED) view.context.getString(R.string.delete) else view.context.getString(
+                R.string.preview
+            )
+    }
 }
 
 
 @BindingAdapter("downloadState")
-fun downloadState(view: TextView, magazine: Magazine) {
-    view.text = DownloadState.values()[magazine.downloadState].toString()
-    view.isVisible = when (magazine.getDownloadState()) {
-        DownloadState.PENDING, DownloadState.RUNNING, DownloadState.PAUSED -> true
-        else -> false
+fun downloadState(view: TextView, magazine: Magazine?) {
+    magazine?.let {
+        view.text = magazine.getDownloadState().toString()
+        view.isVisible = when (magazine.getDownloadState()) {
+            DownloadState.PENDING, DownloadState.RUNNING, DownloadState.PAUSED -> true
+            else -> false
+        }
     }
-    // file is downloading or paused
 }
 
 @BindingAdapter("downloadProgress")
-fun downloadProgress(view: TextView, magazine: Magazine) {
-    view.text = magazine.downloadProgress.toString()
-    view.isVisible = magazine.getDownloadState() == DownloadState.RUNNING// file is downloading
+fun downloadProgress(view: TextView, magazine: Magazine?) {
+    magazine?.let {
+        view.text = magazine.downloadProgress.toString()
+        view.isVisible =
+            magazine.getDownloadState() == DownloadState.RUNNING// file is downloading }
+
+    }
 }

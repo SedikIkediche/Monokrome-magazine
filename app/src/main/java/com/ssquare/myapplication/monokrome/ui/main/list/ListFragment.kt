@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import br.com.mauker.materialsearchview.MaterialSearchView
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
+import com.ssquare.myapplication.monokrome.MagazineApplication
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.DownloadState.*
 import com.ssquare.myapplication.monokrome.data.Header
@@ -41,11 +42,13 @@ import com.ssquare.myapplication.monokrome.util.*
  * A simple [Fragment] subclass.
  */
 class ListFragment : Fragment() {
-    private var toDownloadMagazine: Magazine? = null
+
     lateinit var binding: FragmentListBinding
     private lateinit var viewModel: ListViewModel
     private lateinit var adapter: MagazineAdapter
-    private lateinit var downloadUtils: DownloadUtils
+    private val downloadUtils: DownloadUtils by lazy {
+        (requireContext().applicationContext as MagazineApplication).downloadUtils
+    }
     private val networkCheck: NetworkCheck by lazy {
         NetworkCheck(
             requireContext(),
@@ -72,7 +75,7 @@ class ListFragment : Fragment() {
         viewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
 
         initRecyclerView()
-        initDownloadUtils(repository)
+        initDownloadUtils()
 
         networkCheck.isConnected.observe(viewLifecycleOwner, Observer { isConnected ->
             if (!isDataCached(requireContext())) {
@@ -100,29 +103,22 @@ class ListFragment : Fragment() {
         return binding.root
     }
 
-    private fun initDownloadUtils(repository: Repository) {
-        downloadUtils = DownloadUtils.getInstance(
-            requireContext(),
-            repository
-        ).apply {
-            isDownloadRunning.observe(viewLifecycleOwner, Observer { isDownloading ->
+    private fun initDownloadUtils() {
+        downloadUtils.isDownloadRunning.observe(viewLifecycleOwner, Observer { isDownloading ->
                 commitDownloadActive(requireContext(), isDownloading)
                 binding.recyclerview.itemAnimator =
                     if (isDownloading) null else DefaultItemAnimator()
             })
-        }
     }
 
     override fun onPause() {
         networkCheck.unregisterNetworkCallback()
-        downloadUtils.unregisterListener()
         super.onPause()
     }
 
     override fun onResume() {
         super.onResume()
         networkCheck.registerNetworkCallback()
-        downloadUtils.registerListener()
     }
 
     override fun onDestroy() {
@@ -132,7 +128,7 @@ class ListFragment : Fragment() {
     }
 
     private fun checkForPermission(magazine: Magazine) {
-        toDownloadMagazine = magazine
+        viewModel.setToDownload(magazine)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(
                 arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
@@ -149,8 +145,9 @@ class ListFragment : Fragment() {
         grantResults: IntArray
     ) {
         if (requestCode == STORAGE_PERMISSION_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            downloadMagazine(toDownloadMagazine!!)
+            downloadMagazine(viewModel.toDownloadMagazine!!)
         } else {
+            viewModel.setToDownload(null)
             toast(requireContext(), "Storage Permission Denied")
         }
     }
@@ -183,10 +180,7 @@ class ListFragment : Fragment() {
                 true
             }
             R.id.filter_list -> {
-                //for testing
-                if (!isDownloadActive(requireContext()))
-                    viewModel.loadAndCacheData()
-                else toast(requireContext(), "Downloading Magazine From Server")
+                viewModel.loadAndCacheData()
                 true
             }
             android.R.id.home -> {
@@ -325,7 +319,7 @@ class ListFragment : Fragment() {
 
     private fun downloadMagazine(magazine: Magazine) {
         if (networkCheck.checkConnectivity(requireContext())) {
-            if (!isWorkActive(requireContext())) {
+            if (!isLoadDataActive(requireContext())) {
                 downloadUtils.enqueueDownload(magazine)
             } else {
                 toast(requireContext(), "Loading Data From Server!")

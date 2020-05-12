@@ -16,6 +16,8 @@ class ListViewModel(private val repository: Repository) : ViewModel() {
 
     val data = repository.getCachedData()
     val networkError = repository.networkError
+    var toDownloadMagazine: Magazine? = null
+
 
     fun delete(magazine: Magazine) {
         val fileDeleted = deleteFile(magazine.fileUri)
@@ -30,6 +32,10 @@ class ListViewModel(private val repository: Repository) : ViewModel() {
 
     fun loadAndCacheData() {
         viewModelScope.launch { repository.loadAndCacheData() }
+    }
+
+    fun setToDownload(magazine: Magazine?) {
+        toDownloadMagazine = magazine
     }
 
 }

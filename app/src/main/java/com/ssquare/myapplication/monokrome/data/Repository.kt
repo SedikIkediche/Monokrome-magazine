@@ -1,15 +1,14 @@
 package com.ssquare.myapplication.monokrome.data
 
 import android.content.Context
-import android.os.Environment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.tasks.Tasks
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.network.NetworkMagazine
-import com.ssquare.myapplication.monokrome.util.FILE_PREFIX
-import com.ssquare.myapplication.monokrome.util.PDF_TYPE
+import com.ssquare.myapplication.monokrome.util.commitLoadDataActive
+import com.ssquare.myapplication.monokrome.util.createUriString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,7 +28,7 @@ class Repository private constructor(
         get() = _networkError
 
     companion object {
-        var INSTANCE: Repository? = null
+        private var INSTANCE: Repository? = null
         fun getInstance(
             context: Context,
             scope: CoroutineScope,
@@ -48,7 +47,7 @@ class Repository private constructor(
 
     fun getCachedData(): MagazineListLiveData = cache.getCachedData()
 
-    fun getMagazine(id: Int) = cache.getMagazine(id)
+    fun getMagazine(id: Long) = cache.getMagazine(id)
 
     fun updateFileUri(id: Long, fileUri: String) {
         scope.launch {
@@ -119,6 +118,7 @@ class Repository private constructor(
         var resultState = false
         val task = network.loadFromServer()
         withContext(Dispatchers.IO) {
+            commitLoadDataActive(context, true)
             val result = Tasks.await(task)
             resultState =
                 if (result.header != null && result.magazineList != null && result.exception == null) {
@@ -131,6 +131,7 @@ class Repository private constructor(
                     )
                     false
                 }
+            commitLoadDataActive(context, false)
         }
         return resultState
     }
@@ -142,8 +143,7 @@ class Repository private constructor(
     }
 
     private fun NetworkMagazine.toMagazine(): Magazine {
-        val uri = FILE_PREFIX +
-                context.applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path + id.toString() + PDF_TYPE
+        val uri = createUriString(context, id)
         return if (File(URI.create(uri)).exists()) {
             Magazine(
                 this.id,

@@ -65,7 +65,7 @@
                 app:layout_constraintGuide_end="112dp" />
 
             <TextView
-                android:id="@+id/button_download"
+                android:id="@+id/button_download_read"
                 style="@style/CustomTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -84,7 +84,7 @@
                 android:layout_marginBottom="16dp"
                 android:onClick="@{() -> clickListener.onClick(magazine,ClickAction.PREVIEW_OR_DELETE)}"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/button_download"
+                app:layout_constraintStart_toEndOf="@+id/button_download_read"
                 app:previewOrDelete="@{magazine}"
                 tools:text="@string/preview" />
 

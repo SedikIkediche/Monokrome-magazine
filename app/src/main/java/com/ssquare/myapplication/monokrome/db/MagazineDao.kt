@@ -14,7 +14,7 @@ interface MagazineDao {
     fun getAll(): LiveData<List<Magazine>>
 
     @Query("SELECT * FROM magazines WHERE id=:id ")
-    fun get(id: Int): LiveData<Magazine>
+    fun get(id: Long): LiveData<Magazine>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(magazines: List<Magazine>)

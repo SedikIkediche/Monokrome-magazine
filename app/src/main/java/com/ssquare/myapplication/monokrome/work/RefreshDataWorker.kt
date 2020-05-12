@@ -12,7 +12,6 @@ import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.util.commitCacheData
-import com.ssquare.myapplication.monokrome.util.commitWorkActive
 import com.ssquare.myapplication.monokrome.util.isDownloadActive
 import com.ssquare.myapplication.monokrome.util.toast
 import kotlinx.coroutines.CoroutineScope
@@ -32,29 +31,24 @@ class RefreshDataWorker(private val appContext: Context, params: WorkerParameter
     @SuppressLint("RestrictedApi")
     override suspend fun doWork(): Result {
         Log.d("RefreshDataWorker", "doWork called")
-        val repository = initDependencies()
+        val repository = initRepository()
 
-        val result: Result
-        if (!isDownloadActive(appContext)) {
-            commitWorkActive(appContext, true)
+
+        return if (!isDownloadActive(appContext)) {
             val loadState = repository.loadAndCacheData()  // (true)success or (false)failure
-            result = if (loadState) {
+            if (loadState) {
                 commitCacheData(appContext)
                 Result.Success()
             } else {
                 Result.Retry()
             }
-            commitWorkActive(appContext, false)
         } else {
             toast(appContext, "Downloading Magazine From Server!")
-            result = Result.Retry()
+            Result.Retry()
         }
-
-        return result
-
     }
 
-    private fun initDependencies(): Repository {
+    private fun initRepository(): Repository {
         val database = FirebaseDatabase.getInstance()
         val storage = FirebaseStorage.getInstance()
         val network = FirebaseServer(database, storage)
@@ -68,4 +62,6 @@ class RefreshDataWorker(private val appContext: Context, params: WorkerParameter
             network
         )
     }
+
+
 }

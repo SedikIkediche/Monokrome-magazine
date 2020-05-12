@@ -5,11 +5,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.ssquare.myapplication.monokrome.data.Repository
 
 @Suppress("UNCHECKED_CAST")
-class DetailViewModelFactory(private val repository: Repository, private val path: String) :
+class DetailViewModelFactory(private val repository: Repository, private val id: Long) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(DetailViewModel::class.java))
-            return DetailViewModel(repository, path) as T
+            return DetailViewModel(repository, id) as T
         else
             throw IllegalArgumentException("Unknown ViewModel Class")
     }

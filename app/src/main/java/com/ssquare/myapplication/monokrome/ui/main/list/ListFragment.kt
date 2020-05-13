@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import br.com.mauker.materialsearchview.MaterialSearchView
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
-import com.ssquare.myapplication.monokrome.MagazineApplication
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.DownloadState.*
 import com.ssquare.myapplication.monokrome.data.Header
@@ -47,7 +46,7 @@ class ListFragment : Fragment() {
     private lateinit var viewModel: ListViewModel
     private lateinit var adapter: MagazineAdapter
     private val downloadUtils: DownloadUtils by lazy {
-        (requireContext().applicationContext as MagazineApplication).downloadUtils
+        (activity as MainActivity).downloadUtils
     }
     private val networkCheck: NetworkCheck by lazy {
         NetworkCheck(
@@ -121,11 +120,6 @@ class ListFragment : Fragment() {
         networkCheck.registerNetworkCallback()
     }
 
-    override fun onDestroy() {
-        downloadUtils.close()
-        super.onDestroy()
-
-    }
 
     private fun checkForPermission(magazine: Magazine) {
         viewModel.setToDownload(magazine)

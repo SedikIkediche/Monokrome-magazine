@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
-import com.ssquare.myapplication.monokrome.MagazineApplication
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.DownloadState
 import com.ssquare.myapplication.monokrome.data.Magazine
@@ -25,6 +24,7 @@ import com.ssquare.myapplication.monokrome.databinding.FragmentDetailBinding
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
+import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
 
@@ -42,7 +42,7 @@ class DetailFragment : Fragment(), DetailClickListener {
     lateinit var binding: FragmentDetailBinding
     private lateinit var viewModel: DetailViewModel
     private val downloadUtils: DownloadUtils by lazy {
-        (requireContext().applicationContext as MagazineApplication).downloadUtils
+        (activity as MainActivity).downloadUtils
     }
     private val networkCheck: NetworkCheck by lazy {
         NetworkCheck(

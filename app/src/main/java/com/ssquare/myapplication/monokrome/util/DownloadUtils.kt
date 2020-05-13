@@ -21,12 +21,14 @@ class DownloadUtils private constructor(
 
     companion object {
         private var INSTANCE: DownloadUtils? = null
+
         fun getInstance(
             context: Context,
             repository: Repository
         ): DownloadUtils {
             var instance = INSTANCE
             if (instance == null) {
+                Log.d("DownloadUtils", "INSTANCE = $INSTANCE")
                 instance = DownloadUtils(
                     context.applicationContext,
                     repository
@@ -35,12 +37,18 @@ class DownloadUtils private constructor(
             }
             return instance
         }
+
+        fun clear() {
+            INSTANCE = null
+        }
     }
 
     private val fetchConfiguration = FetchConfiguration.Builder(context)
         .setDownloadConcurrentLimit(10)
         .setProgressReportingInterval(1000)
         .build()
+
+    private val fetch = Fetch.Impl.getInstance(fetchConfiguration)
 
     private val listener = object : FetchListener {
 
@@ -121,8 +129,6 @@ class DownloadUtils private constructor(
     }
 
 
-    private val fetch = Fetch.Impl.getInstance(fetchConfiguration)
-
 
     var downloadState = DownloadState.EMPTY
 
@@ -159,6 +165,7 @@ class DownloadUtils private constructor(
         Log.d("DownloadUtils", "unregisterListener called")
         fetch.removeListener(listener)
     }
+
 
     fun close() {
         fetch.close()

@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
- <ScrollView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-     tools:context=".ui.auth.login.LoginFragment">
+        tools:context=".ui.auth.login.LoginFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -14,7 +19,7 @@
 
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/appCompatImageView2"
+                android:id="@+id/detailMagazineImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="64dp"
@@ -30,13 +35,14 @@
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="90dp"
                 android:layout_marginEnd="32dp"
-                android:hint="Email"
+                android:hint="@string/email"
+                app:errorEnabled="true"
                 app:boxBackgroundColor="@color/list_item_container_background"
                 app:boxStrokeColor="@color/list_item_container_background"
                 app:boxStrokeWidth="0dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/appCompatImageView2"
+                app:layout_constraintTop_toBottomOf="@+id/detailMagazineImage"
                 app:startIconDrawable="@drawable/ic_email"
                 app:startIconTint="@android:color/black">
 
@@ -53,7 +59,7 @@
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="32dp"
-                android:hint="Password"
+                android:hint="@string/password"
                 app:boxBackgroundColor="@color/list_item_container_background"
                 app:boxStrokeColor="@color/list_item_container_background"
                 app:boxStrokeWidth="0dp"
@@ -77,7 +83,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:text="Forget Password?"
+                android:text="@string/forget_password"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -91,12 +97,13 @@
                 android:layout_marginTop="32dp"
                 android:layout_marginEnd="24dp"
                 android:minHeight="60dp"
-                android:text="Login"
-                app:cornerRadius="50dp"
+                android:text="@string/login"
                 android:textAllCaps="false"
+                android:enabled="false"
                 android:textColor="@android:color/white"
                 android:textSize="16sp"
-                app:backgroundTint="@android:color/black"
+                app:backgroundTint="@color/log_in_button_background"
+                app:cornerRadius="50dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/forget_password" />
@@ -105,7 +112,7 @@
                 android:id="@+id/textView6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Not a member ?"
+                android:text="@string/not_a_member"
                 android:textSize="14sp"
                 app:layout_constraintBaseline_toBaselineOf="@+id/join_text_view"
                 app:layout_constraintEnd_toStartOf="@+id/join_text_view"
@@ -119,7 +126,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="16dp"
-                android:text="Join now"
+                android:text="@string/join_now"
                 android:textColor="@color/list_item_buttons_text_color"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -130,4 +137,5 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
+</layout>
 

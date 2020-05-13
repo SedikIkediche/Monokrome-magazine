@@ -8,7 +8,7 @@ buildscript {
         material_version = '1.2.0-alpha06'
         glide_version = '4.11.0'
         room_version = '2.2.5'
-        nav_version = '2.2.2'
+        nav_version = '2.3.0-alpha06'
         preference_version = '1.1.1'
         work_version = '2.3.4'
         version_timber = '4.7.1'
@@ -23,6 +23,8 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.google.gms:google-services:4.3.3'
 
+        def nav_version = "2.3.0-alpha06"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }

@@ -59,4 +59,8 @@
         <item name="android:scaleType">centerCrop</item>
     </style>
 
+    <style name="progressBarTheme" parent="AppTheme">
+        <item name="colorAccent">@android:color/black</item>
+    </style>
+
 </resources>

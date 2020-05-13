@@ -1,15 +1,26 @@
 package com.ssquare.myapplication.monokrome.ui.main.list
 
+import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.GenericTransitionOptions
+import com.bumptech.glide.Glide
+import com.makeramen.roundedimageview.RoundedImageView
+import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.databinding.HeaderLayoutBinding
 import com.ssquare.myapplication.monokrome.databinding.ListItemBinding
 import com.ssquare.myapplication.monokrome.util.ClickAction
+import kotlinx.android.synthetic.main.list_item.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,16 +36,16 @@ class MagazineAdapter(
     ListAdapter<MagazineAdapter.DataItem, RecyclerView.ViewHolder>(MagazineDiffCallback()) {
 
     private val adapterScope = CoroutineScope(Dispatchers.Default)
-
+    private var items : MutableList<DataItem>?  = null
     fun addHeaderAndSubmitList(list: List<Magazine>?, header: Header?) {
         adapterScope.launch {
-            val items = when {
+              items = when {
                 (header != null && list != null) ->
-                    listOf(DataItem.HeaderItem(header)) + list.map { DataItem.MagazineItem(it) }
+                    listOf(DataItem.HeaderItem(header)) +  list.map { DataItem.MagazineItem(it)}
                 (header == null && list != null) -> list.map { DataItem.MagazineItem(it) }
                 (header != null && list == null) -> listOf(DataItem.HeaderItem(header))
                 else -> emptyList()
-            }
+            }.toMutableList()
             withContext(Dispatchers.Main) {
                 submitList(items)
             }
@@ -89,15 +100,17 @@ class MagazineAdapter(
         companion object {
             fun from(parent: ViewGroup): ViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
-                val binding = ListItemBinding.inflate(layoutInflater, parent, false)
+                val binding = ListItemBinding.inflate(layoutInflater,parent,false)
                 return ViewHolder(binding)
             }
         }
 
-        fun bind(magazineItem: Magazine, clickListener: MagazineListener) {
-            binding.clickListener = clickListener
-            binding.magazine = magazineItem
 
+        fun bind(magazineItem: Magazine, clickListener: MagazineListener) {
+
+
+            binding.magazine = magazineItem
+            binding.clickListener= clickListener
             binding.executePendingBindings()
         }
 
@@ -115,7 +128,10 @@ class MagazineAdapter(
     }
 
     class MagazineListener(val clickListener: (magazine: Magazine, action: ClickAction) -> Unit) {
-        fun onClick(magazine: Magazine, action: ClickAction) = clickListener(magazine, action)
+        fun onClick(
+            magazine: Magazine,
+            action: ClickAction
+        ) = clickListener(magazine, action)
     }
 
     class HeaderListener(val clickListener: () -> Unit) {

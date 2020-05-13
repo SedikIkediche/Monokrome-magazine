@@ -1,10 +1,7 @@
 package com.ssquare.myapplication.monokrome.db
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.ssquare.myapplication.monokrome.data.Magazine
 
 @Dao
@@ -21,4 +18,7 @@ interface MagazineDao {
 
     @Query("DELETE FROM magazines")
     suspend fun clear()
+
+    @Query("SELECT * From magazines WHERE title LIKE :search")
+    fun searchResult(search : String) : LiveData<List<Magazine>>
 }

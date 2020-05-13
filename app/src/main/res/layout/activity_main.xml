@@ -5,26 +5,43 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
     </data>
+
+    <com.ssquare.myapplication.monokrome.util.CustomDrawerLayout
+        android:id="@+id/drawer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:openDrawer="start">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context=".ui.main.MainActivity">
+
             <fragment
                 android:id="@+id/nav_host_fragment"
-                android:name="androidx.navigation.fragment.NavHostFragment"
-                android:layout_width="0dp"
+                android:name="com.ssquare.myapplication.monokrome.util.navigation.NavHostFragment"
+                android:layout_width="match_parent"
                 android:layout_height="0dp"
                 app:defaultNavHost="true"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:navGraph="@navigation/nav_graph" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:navGraph="@navigation/nav_graph"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/navigation"
+            android:layout_width="@dimen/nav_drawer_width"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            app:itemTextAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            android:background="@color/search_view_background_color"
+            app:headerLayout="@layout/drawer_header_layout"
+            app:menu="@menu/navigation" />
+
+    </com.ssquare.myapplication.monokrome.util.CustomDrawerLayout>
 
 </layout>

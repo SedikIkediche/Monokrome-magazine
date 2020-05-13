@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/list_item_container_background"
-        android:onClick="@{() -> clickListener.onClick(magazine,ClickAction.PREVIEW)}">
+        android:onClick="@{() -> clickListener.onClick(magazine,ClickAction.PREVIEW_ONLY)}">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/inner_container"
@@ -65,15 +65,16 @@
                 app:layout_constraintGuide_end="112dp" />
 
             <TextView
-                android:id="@+id/button_download"
+                android:id="@+id/button_download_read"
                 style="@style/CustomTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:onClick="@{() -> clickListener.onClick(magazine,ClickAction.DOWNLOAD)}"
-                android:text="@string/download"
+                android:onClick="@{() -> clickListener.onClick(magazine,ClickAction.DOWNLOAD_OR_READ)}"
+                app:downloadOrRead="@{magazine}"
                 app:layout_constraintBaseline_toBaselineOf="@+id/button_preview"
-                app:layout_constraintStart_toEndOf="@+id/guideline2" />
+                app:layout_constraintStart_toEndOf="@+id/guideline2"
+                tools:text="@string/download" />
 
             <TextView
                 android:id="@+id/button_preview"
@@ -81,10 +82,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:onClick="@{() -> clickListener.onClick(magazine,ClickAction.PREVIEW)}"
-                android:text="@string/preview"
+                android:onClick="@{() -> clickListener.onClick(magazine,ClickAction.PREVIEW_OR_DELETE)}"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/button_download" />
+                app:layout_constraintStart_toEndOf="@+id/button_download_read"
+                app:previewOrDelete="@{magazine}"
+                tools:text="@string/preview" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline2"
@@ -107,5 +109,29 @@
             app:layout_constraintTop_toTopOf="parent"
             app:riv_corner_radius="4dp"
             tools:src="@drawable/list_item_picture_test" />
+
+        <TextView
+            android:id="@+id/text_download_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:textColor="@color/white"
+            app:downloadState="@{magazine}"
+            app:layout_constraintBottom_toBottomOf="@id/image_magazine"
+            app:layout_constraintEnd_toEndOf="@id/image_magazine"
+            app:layout_constraintStart_toStartOf="@id/image_magazine"
+            app:layout_constraintTop_toTopOf="@id/image_magazine" />
+
+        <TextView
+            android:id="@+id/text_download_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:textColor="@color/white"
+            app:downloadProgress="@{magazine}"
+            app:layout_constraintBottom_toBottomOf="@id/image_magazine"
+            app:layout_constraintEnd_toEndOf="@id/image_magazine"
+            app:layout_constraintStart_toStartOf="@id/image_magazine"
+            app:layout_constraintTop_toBottomOf="@id/text_download_state" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

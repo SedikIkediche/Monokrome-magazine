@@ -25,12 +25,10 @@ class LocalCache(
 
     private suspend fun refreshMagazines(magazines: List<Magazine>) {
         magazineDao.clear()
-        Log.d("LocalCache", "dataSize = ${magazineDao.insertAll(magazines)}")
-
-
+        magazineDao.insertAll(magazines)
     }
 
-    fun getMagazine(id: Int) = magazineDao.get(id)
+    fun getMagazine(id: Long) = magazineDao.get(id)
 
     fun searchResult(search : String) = magazineDao.searchResult(search)
 
@@ -39,6 +37,29 @@ class LocalCache(
         val magazines = magazineDao.getAll()
         return MagazineListLiveData(header, magazines)
     }
+
+    suspend fun updateFileUri(id: Long, path: String) = magazineDao.updateUri(id, path)
+
+    suspend fun updateDownloadProgress(id: Long, progress: Int) =
+        magazineDao.updateProgress(id, progress)
+
+    suspend fun updateDownloadId(id: Long, downloadId: Int) =
+        magazineDao.updateDownloadId(id, downloadId)
+
+    suspend fun updateDownloadState(id: Long, downloadState: Int) =
+        magazineDao.updateDownloadState(id, downloadState)
+
+
+    suspend fun updateFileUriByDid(dId: Int, path: String) = magazineDao.updateUriByDid(dId, path)
+
+    suspend fun updateDownloadProgressByDid(dId: Int, progress: Int) =
+        magazineDao.updateProgressByDid(dId, progress)
+
+    suspend fun updateDownloadIdByDid(dId: Int, downloadId: Int) =
+        magazineDao.updateDownloadIdByDid(dId, downloadId)
+
+    suspend fun updateDownloadStateByDid(dId: Int, downloadState: Int) =
+        magazineDao.updateDownloadStateByDid(dId, downloadState)
 
 }
 

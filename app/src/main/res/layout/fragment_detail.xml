@@ -5,6 +5,18 @@
 
     <data>
 
+        <variable
+            name="viewModel"
+            type="com.ssquare.myapplication.monokrome.ui.main.detail.DetailViewModel" />
+
+        <variable
+            name="clickListener"
+            type="com.ssquare.myapplication.monokrome.ui.main.detail.DetailClickListener" />
+
+        <import type="com.ssquare.myapplication.monokrome.data.DownloadState" />
+
+        <import type="android.view.View" />
+
     </data>
 
     <ScrollView
@@ -12,14 +24,14 @@
         android:layout_height="wrap_content">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/detailContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#eeeeee"
             android:padding="16dp"
             tools:context=".DetailFragment">
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/closeIcon"
+                android:id="@+id/button_close"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="4dp"
@@ -28,53 +40,101 @@
                 app:srcCompat="@drawable/ic_close" />
 
             <com.makeramen.roundedimageview.RoundedImageView
-                android:id="@+id/detailMagazineImage"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:id="@+id/image"
+                android:layout_width="224dp"
+                android:layout_height="300dp"
                 android:layout_marginTop="20dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/list_item_picture_test"
-                app:layout_constraintDimensionRatio="h,1:1.3"
-                app:layout_constraintEnd_toStartOf="@+id/guideline4"
-                app:layout_constraintStart_toStartOf="@+id/guideline3"
-                app:layout_constraintTop_toBottomOf="@+id/closeIcon"
-                app:riv_corner_radius="4dp" />
+                app:imageUrl="@{viewModel.magazine.imageUrl}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/button_close"
+                app:riv_corner_radius="4dp"
+                tools:src="@drawable/list_item_picture_test" />
+
+            <!--added for download state and progress -->
+
+            <TextView
+                android:id="@+id/text_download_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:textColor="@color/white"
+                app:downloadState="@{viewModel.magazine}"
+                app:layout_constraintBottom_toBottomOf="@id/image"
+                app:layout_constraintEnd_toEndOf="@id/image"
+                app:layout_constraintStart_toStartOf="@id/image"
+                app:layout_constraintTop_toTopOf="@id/image" />
+
+            <TextView
+                android:id="@+id/text_download_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:textColor="@color/white"
+                app:downloadProgress="@{viewModel.magazine}"
+                app:layout_constraintBottom_toBottomOf="@id/image"
+                app:layout_constraintEnd_toEndOf="@id/image"
+                app:layout_constraintStart_toStartOf="@id/image"
+                app:layout_constraintTop_toBottomOf="@id/text_download_state" />
+
+            <!--added for download state and progress -->
 
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:text="@string/free"
+                android:text="FREE"
                 android:textColor="@android:color/black"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/detailMagazineImage" />
+                app:layout_constraintTop_toBottomOf="@+id/image" />
 
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/text_release_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="13 Sep 219"
                 android:textColor="#424242"
                 android:textSize="12sp"
                 android:textStyle="bold"
+                app:date="@{viewModel.magazine.releaseDate}"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView" />
+                app:layout_constraintTop_toBottomOf="@+id/textView"
+                tools:text="13 Sep 219" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_download_read"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="@{()->clickListener.downloadOrRead(viewModel.magazine)}"
                 android:paddingStart="22dp"
                 android:paddingEnd="22dp"
-                android:text="@string/download"
                 android:textSize="12sp"
                 app:backgroundTint="@color/list_item_buttons_text_color"
-                app:layout_constraintBottom_toBottomOf="@+id/textView2"
+                app:downloadOrRead="@{viewModel.magazine}"
+                app:layout_constraintBottom_toBottomOf="@+id/button_delete"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/button_delete"
+                tools:text="@string/download" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_delete"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{()->viewModel.delete(viewModel.magazine)}"
+                android:paddingStart="22dp"
+                android:paddingEnd="22dp"
+                android:text="@string/delete"
+                android:textSize="12sp"
+                android:visibility="@{viewModel.magazine.downloadState == DownloadState.COMPLETED.ordinal() ? View.VISIBLE : View.GONE}"
+                app:backgroundTint="@color/list_item_buttons_text_color"
+                app:layout_constraintBottom_toBottomOf="@+id/text_release_date"
+                app:layout_constraintEnd_toStartOf="@id/button_download_read"
                 app:layout_constraintTop_toTopOf="@+id/textView" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -85,15 +145,16 @@
                 android:padding="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.531"
+                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView2">
+                app:layout_constraintTop_toBottomOf="@+id/text_release_date"
+                app:layout_constraintVertical_bias="0.0">
 
                 <TextView
                     android:id="@+id/textView3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/title"
+                    android:text="TITLE"
                     android:textColor="@android:color/black"
                     android:textSize="14sp"
                     android:textStyle="bold"
@@ -101,33 +162,34 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/textView4"
+                    android:id="@+id/text_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="KROMA 8/Summer '18"
+                    android:text="@{viewModel.magazine.title}"
                     android:textSize="14sp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView3" />
+                    app:layout_constraintTop_toBottomOf="@+id/textView3"
+                    tools:text="KROMA 8/Summer '18" />
 
                 <TextView
                     android:id="@+id/textView5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="@string/category"
+                    android:text="CATEGORY"
                     android:textColor="@android:color/black"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView4" />
+                    app:layout_constraintTop_toBottomOf="@+id/text_title" />
 
                 <TextView
                     android:id="@+id/textView6"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="@string/art"
+                    android:text="Art"
                     android:textSize="14sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/textView5" />
@@ -137,7 +199,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="@string/description"
+                    android:text="DESCRIPTION"
                     android:textColor="@android:color/black"
                     android:textSize="14sp"
                     android:textStyle="bold"
@@ -145,30 +207,18 @@
                     app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
                 <TextView
+                    android:id="@+id/text_description"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Welcome to the 1st issue of KROMA art magazine! Artists featured: Pistonis, Chadoulou, Cacao Rocks, Euangelia, Dreyk # Eros, Selimas, Velisioti and more."
+                    android:text="@{viewModel.magazine.description}"
                     android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView7" />
+                    app:layout_constraintTop_toBottomOf="@+id/textView7"
+                    tools:text="Welcome to the 1st issue of KROMA art magazine! Artists featured: Pistonis, Chadoulou, Cacao Rocks, Euangelia, Dreyk # Eros, Selimas, Velisioti and more." />
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.18" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.82" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

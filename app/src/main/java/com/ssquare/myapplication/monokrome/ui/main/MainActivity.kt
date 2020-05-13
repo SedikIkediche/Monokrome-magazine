@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
@@ -18,15 +19,24 @@ import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.plusAssign
 import androidx.navigation.ui.NavigationUI
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.R
+import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.databinding.ActivityMainBinding
 import com.ssquare.myapplication.monokrome.databinding.FragmentListBinding
 import com.ssquare.myapplication.monokrome.ui.main.list.ListFragment
 import kotlinx.android.synthetic.main.activity_main.*
+import com.ssquare.myapplication.monokrome.db.LocalCache
+import com.ssquare.myapplication.monokrome.db.MagazineDatabase
+import com.ssquare.myapplication.monokrome.network.FirebaseServer
+import com.ssquare.myapplication.monokrome.util.DownloadUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 
 class MainActivity : AppCompatActivity() {
-
+    lateinit var downloadUtils: DownloadUtils
     private lateinit var binding : ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,9 +48,15 @@ class MainActivity : AppCompatActivity() {
             binding.navigation,
             Navigation.findNavController(this,R.id.nav_host_fragment)
         )
+        initDownloadUtils()
+    }
 
         Navigation.findNavController(this,R.id.nav_host_fragment)
             .addOnDestinationChangedListener { controller, destination, arguments ->
+    override fun onStop() {
+        downloadUtils.unregisterListener()
+        super.onStop()
+    }
 
                 when (destination.id) {
                     R.id.listFragment -> {
@@ -51,10 +67,16 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
+    override fun onStart() {
+        super.onStart()
+        downloadUtils.registerListener()
     }
 
-
-
+    override fun onDestroy() {
+        downloadUtils.close()
+        DownloadUtils.clear()
+        super.onDestroy()
+    }
 
     override fun onSupportNavigateUp(): Boolean {
         return NavigationUI.navigateUp(this.findNavController(R.id.nav_host_fragment), binding.drawer)
@@ -66,6 +88,19 @@ class MainActivity : AppCompatActivity() {
         } else{
             super.onBackPressed()
         }
+    }
+    private fun initDownloadUtils() {
+        Log.d("MainActivity", "initDownloadUtils called")
+        val database = FirebaseDatabase.getInstance()
+        val storage = FirebaseStorage.getInstance()
+        val network = FirebaseServer(database, storage)
+        val magazineDao = MagazineDatabase.getInstance(applicationContext).magazineDao
+        val headerDao = MagazineDatabase.getInstance(applicationContext).headerDao
+        val cache = LocalCache(magazineDao, headerDao)
+        val repository = Repository.getInstance(
+            applicationContext, CoroutineScope(Dispatchers.Main), cache, network
+        )
+        downloadUtils = DownloadUtils.getInstance(applicationContext, repository)
     }
 
 }

@@ -22,6 +22,10 @@ android {
 
     }
 
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -81,6 +85,15 @@ dependencies {
 
     //workManager
     implementation "androidx.work:work-runtime-ktx:$work_version"
+
+
+    //pdfViewer
+    implementation 'com.github.barteksc:android-pdf-viewer:3.2.0-beta.1'
+
+
+    //fetch
+
+    implementation "com.tonyodev.fetch2:fetch2:3.0.10"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

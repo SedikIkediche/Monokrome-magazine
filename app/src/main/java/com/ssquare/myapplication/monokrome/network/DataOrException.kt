@@ -1,11 +1,10 @@
 package com.ssquare.myapplication.monokrome.network
 
 import com.ssquare.myapplication.monokrome.data.Header
-import com.ssquare.myapplication.monokrome.data.Magazine
 
 
 data class MagazineListOrException(
-    val magazineList: List<Magazine>?,
+    val magazineList: List<NetworkMagazine>?,
     val header: Header?,
     val exception: Exception?
 ) {

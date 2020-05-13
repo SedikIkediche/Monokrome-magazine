@@ -1,24 +1,21 @@
 package com.ssquare.myapplication.monokrome.util
 
 import android.content.Context
-import android.os.Environment
-import android.util.Log
 import android.content.Context.CONNECTIVITY_SERVICE
 import android.net.ConnectivityManager
-import android.net.Uri
+import android.os.Environment
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
-import java.io.File
-import java.net.URI
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.databinding.AlertDialogLayoutBinding
 import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
+import java.io.File
+import java.net.URI
 
 
 const val MAGAZINE_ID = "magazine_path"

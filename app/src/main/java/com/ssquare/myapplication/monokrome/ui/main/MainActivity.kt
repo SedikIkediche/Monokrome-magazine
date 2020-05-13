@@ -1,32 +1,20 @@
 package com.ssquare.myapplication.monokrome.ui.main
 
-import android.app.SearchManager
-import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
 import android.view.Window
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
-import androidx.navigation.plusAssign
 import androidx.navigation.ui.NavigationUI
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.databinding.ActivityMainBinding
-import com.ssquare.myapplication.monokrome.databinding.FragmentListBinding
-import com.ssquare.myapplication.monokrome.ui.main.list.ListFragment
-import kotlinx.android.synthetic.main.activity_main.*
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
@@ -43,21 +31,15 @@ class MainActivity : AppCompatActivity() {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
           binding = DataBindingUtil.setContentView(this,R.layout.activity_main)
-
+        initDownloadUtils()
         NavigationUI.setupWithNavController(
             binding.navigation,
             Navigation.findNavController(this,R.id.nav_host_fragment)
         )
-        initDownloadUtils()
-    }
+
 
         Navigation.findNavController(this,R.id.nav_host_fragment)
             .addOnDestinationChangedListener { controller, destination, arguments ->
-    override fun onStop() {
-        downloadUtils.unregisterListener()
-        super.onStop()
-    }
-
                 when (destination.id) {
                     R.id.listFragment -> {
                         binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
@@ -66,6 +48,15 @@ class MainActivity : AppCompatActivity() {
                 }
                 }
             }
+
+
+    }
+
+
+    override fun onStop() {
+        downloadUtils.unregisterListener()
+        super.onStop()
+    }
 
     override fun onStart() {
         super.onStart()

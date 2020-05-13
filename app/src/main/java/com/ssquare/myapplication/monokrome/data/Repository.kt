@@ -138,4 +138,37 @@ class Repository private constructor(
         return resultState
     }
 
+    private fun List<NetworkMagazine>.toDatabaseMagazines(): List<Magazine> {
+        return this.map {
+            it.toMagazine()
+        }
+    }
+
+    private fun NetworkMagazine.toMagazine(): Magazine {
+        val uri = createUriString(context, id)
+        return if (File(URI.create(uri)).exists()) {
+            Magazine(
+                this.id,
+                this.title,
+                this.description,
+                this.releaseDate,
+                this.imageUrl,
+                this.editionUrl,
+                uri,
+                100,
+                downloadState = DownloadState.COMPLETED.ordinal
+            )
+        } else {
+            Magazine(
+                this.id,
+                this.title,
+                this.description,
+                this.releaseDate,
+                this.imageUrl,
+                this.editionUrl
+            )
+        }
+
+    }
+
 }

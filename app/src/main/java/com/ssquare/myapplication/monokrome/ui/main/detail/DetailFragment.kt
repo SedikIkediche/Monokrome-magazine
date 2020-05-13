@@ -5,21 +5,18 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.databinding.FragmentDetailBinding
-import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.data.DownloadState
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
@@ -48,12 +45,6 @@ class DetailFragment : Fragment(), DetailClickListener {
     private val downloadUtils: DownloadUtils by lazy {
         (activity as MainActivity).downloadUtils
     }
-    private val networkCheck: NetworkCheck by lazy {
-        NetworkCheck(
-            requireContext(),
-            lifecycleScope
-        ).apply { registerNetworkCallback() }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,7 +54,6 @@ class DetailFragment : Fragment(), DetailClickListener {
         binding = FragmentDetailBinding.inflate(inflater)
         binding.root.setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.list_item_container_background))
 
-        return binding.root
         binding = FragmentDetailBinding.inflate(inflater)
 
         val id = requireArguments().getLong(MAGAZINE_ID, -1)
@@ -86,15 +76,6 @@ class DetailFragment : Fragment(), DetailClickListener {
         return binding.root
     }
 
-    override fun onPause() {
-        networkCheck.unregisterNetworkCallback()
-        super.onPause()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        networkCheck.registerNetworkCallback()
-    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -119,15 +100,13 @@ class DetailFragment : Fragment(), DetailClickListener {
 
 
     private fun downloadMagazine(magazine: Magazine) {
-        if (networkCheck.checkConnectivity(requireContext())) {
+        // check for connectivity
             if (!isLoadDataActive(requireContext())) {
                 downloadUtils.enqueueDownload(magazine)
             } else {
                 toast(requireContext(), "Loading Data From Server!")
             }
-        } else {
-            showErrorLayout(getString(R.string.network_down))
-        }
+
     }
 
     private fun showErrorLayout(error: String) {

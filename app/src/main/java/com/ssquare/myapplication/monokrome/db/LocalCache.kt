@@ -1,6 +1,5 @@
 package com.ssquare.myapplication.monokrome.db
 
-import android.util.Log
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.MagazineListLiveData

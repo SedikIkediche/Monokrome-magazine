@@ -2,6 +2,7 @@ package com.ssquare.myapplication.monokrome.db
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.ssquare.myapplication.monokrome.data.Magazine
 
 @Dao
@@ -19,9 +20,10 @@ interface MagazineDao {
     @Query("DELETE FROM magazines")
     suspend fun clear()
 
-    @Query("SELECT * From magazines WHERE title LIKE :search")
-    fun searchResult(search : String) : LiveData<List<Magazine>>
+    @RawQuery(observedEntities = [Magazine::class])
+    fun searchResult(query: SupportSQLiteQuery): LiveData<List<Magazine>>
 
+    //for download
     @Query("UPDATE magazines SET fileUri=:path WHERE id=:id")
     suspend fun updateUri(id: Long, path: String)
 
@@ -33,7 +35,6 @@ interface MagazineDao {
 
     @Query("UPDATE magazines SET downloadState=:downloadState WHERE id=:id")
     suspend fun updateDownloadState(id: Long, downloadState: Int)
-
 
     //downloadUtils
     @Query("UPDATE magazines SET fileUri=:path WHERE downloadId=:dId")

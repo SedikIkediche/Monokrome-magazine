@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.main.search.SearchFragment">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/searchTool_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+            app:contentInsetStartWithNavigation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:navigationIcon="@drawable/ic_back_white"
+            app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light">
+
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/search_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                app:iconifiedByDefault="false"
+                app:searchIcon="@null" />
+
+
+        </androidx.appcompat.widget.Toolbar>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_search"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/searchTool_bar" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/empty_list_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/text_error"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:srcCompat="@drawable/ic_empty_list_icon" />
+
+        <TextView
+            android:id="@+id/text_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/empty_list_image" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

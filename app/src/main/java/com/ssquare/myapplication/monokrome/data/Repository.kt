@@ -57,7 +57,8 @@ class Repository private constructor(
         }
     }
 
-   fun searchResult(search : String) = cache.searchResult(search)
+    fun searchResult(search: String?) = cache.searchResult(search)
+
     fun updateDownloadProgress(id: Long, progress: Int) {
         scope.launch {
             withContext(Dispatchers.IO) {

@@ -39,8 +39,6 @@ class ListFragment : Fragment() , ConnectivityProvider.ConnectivityStateListener
     private lateinit var adapter: MagazineAdapter
     private var isNotConnected = false
     private val provider: ConnectivityProvider by lazy { ConnectivityProvider.createProvider(requireContext()) }
-
-
     private val downloadUtils: DownloadUtils by lazy {
         (activity as MainActivity).downloadUtils
     }
@@ -50,19 +48,8 @@ class ListFragment : Fragment() , ConnectivityProvider.ConnectivityStateListener
         savedInstanceState: Bundle?
     ): View? {
           binding =  FragmentListBinding.inflate(inflater)
-
         setUpToolbar()
-
-        val database = FirebaseDatabase.getInstance()
-        val storage = FirebaseStorage.getInstance()
-        val network = FirebaseServer(database, storage)
-        val magazineDao = MagazineDatabase.getInstance(requireContext()).magazineDao
-        val headerDao = MagazineDatabase.getInstance(requireContext()).headerDao
-        val cache = LocalCache(magazineDao, headerDao)
-        val repository = Repository.getInstance(requireContext(), lifecycleScope, cache, network)
-        val factory = ListViewModelFactory(repository)
-        viewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
-
+        initDependencies()
         initRecyclerView()
         initDownloadUtils()
 
@@ -72,10 +59,22 @@ class ListFragment : Fragment() , ConnectivityProvider.ConnectivityStateListener
 
         viewModel.data.observe(viewLifecycleOwner, Observer {
             if (isDataCached(requireContext()))
-            setupUi(it.first, it.second)
+                setupUi(it.first, it.second)
         })
 
         return binding.root
+    }
+
+    private fun initDependencies() {
+        val database = FirebaseDatabase.getInstance()
+        val storage = FirebaseStorage.getInstance()
+        val network = FirebaseServer(database, storage)
+        val magazineDao = MagazineDatabase.getInstance(requireContext()).magazineDao
+        val headerDao = MagazineDatabase.getInstance(requireContext()).headerDao
+        val cache = LocalCache(magazineDao, headerDao)
+        val repository = Repository.getInstance(requireContext(), lifecycleScope, cache, network)
+        val factory = ListViewModelFactory(repository)
+        viewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
     }
 
     private fun initDownloadUtils() {
@@ -87,10 +86,8 @@ class ListFragment : Fragment() , ConnectivityProvider.ConnectivityStateListener
     }
 
     private fun setUpToolbar() {
-
         getMainActivity().setSupportActionBar(binding.listFragmentToolbar)
         getMainActivity().supportActionBar?.title = getString(R.string.home)
-
         setHasOptionsMenu(true)
         addBannerClickListener()
     }
@@ -135,14 +132,13 @@ class ListFragment : Fragment() , ConnectivityProvider.ConnectivityStateListener
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.list_fagment_loolbar_menu, menu)
-
         menu.findItem(R.id.sort_by_most_recent).isChecked = true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.search -> {
-                findNavController().navigate(R.id.searchMagazineFragment)
+                findNavController().navigate(R.id.searchFragment)
                 true
             }
             R.id.sort_by_most_recent-> {
@@ -193,9 +189,7 @@ class ListFragment : Fragment() , ConnectivityProvider.ConnectivityStateListener
     }
 
     private fun initRecyclerView() {
-        Log.d("ListFragment", "initRecyclerView called")
         val headerListener = MagazineAdapter.HeaderListener { /*Handle header click */ }
-
         val magazineListener = MagazineAdapter.MagazineListener { magazine, action ->
             when {
                 (action == ClickAction.PREVIEW_OR_DELETE && magazine.getDownloadState() != COMPLETED)

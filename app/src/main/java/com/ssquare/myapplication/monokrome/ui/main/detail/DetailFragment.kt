@@ -54,8 +54,17 @@ class DetailFragment : Fragment(), DetailClickListener {
         binding = FragmentDetailBinding.inflate(inflater)
         binding.root.setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.list_item_container_background))
 
-        binding = FragmentDetailBinding.inflate(inflater)
+        initDependencies()
+        initDownloadUtils()
 
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
+        binding.clickListener = this
+
+        return binding.root
+    }
+
+    private fun initDependencies() {
         val id = requireArguments().getLong(MAGAZINE_ID, -1)
         val database = FirebaseDatabase.getInstance()
         val storage = FirebaseStorage.getInstance()
@@ -66,14 +75,6 @@ class DetailFragment : Fragment(), DetailClickListener {
         val repository = Repository.getInstance(requireContext(), lifecycleScope, cache, network)
         val factory = DetailViewModelFactory(repository, id)
         viewModel = ViewModelProviders.of(this, factory).get(DetailViewModel::class.java)
-
-        initDownloadUtils()
-
-        binding.lifecycleOwner = this
-        binding.viewModel = viewModel
-        binding.clickListener = this
-
-        return binding.root
     }
 
 
@@ -97,7 +98,6 @@ class DetailFragment : Fragment(), DetailClickListener {
             //updateUi Accordingly
         })
     }
-
 
     private fun downloadMagazine(magazine: Magazine) {
         // check for connectivity
@@ -142,7 +142,6 @@ class DetailFragment : Fragment(), DetailClickListener {
                 //download
                 checkForPermission(magazine)
             }
-
             DownloadState.COMPLETED -> {
                 //read
                 navigateToPdf(magazine.fileUri)
@@ -152,8 +151,6 @@ class DetailFragment : Fragment(), DetailClickListener {
                 downloadUtils.cancelDownload(magazine.downloadId)
             }
         }
-
     }
-
 
 }

@@ -126,8 +126,7 @@
         <!-- Here you loading layout -->
 
 
-
-        <!-- Here you write your complex vieww -->
+        <!-- Here you write your complex view -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview"
             android:layout_width="0dp"
@@ -137,7 +136,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/list_fragment_toolbar" />
-        <!-- Here you write your complex vieww -->
+        <!-- Here you write your complex view -->
 
         <TextView
             android:id="@+id/back_online_indicator"

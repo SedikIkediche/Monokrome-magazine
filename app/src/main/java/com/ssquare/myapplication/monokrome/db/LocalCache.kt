@@ -1,5 +1,7 @@
 package com.ssquare.myapplication.monokrome.db
 
+import android.database.DatabaseUtils
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.MagazineListLiveData
@@ -29,7 +31,7 @@ class LocalCache(
 
     fun getMagazine(id: Long) = magazineDao.get(id)
 
-    fun searchResult(search : String) = magazineDao.searchResult(search)
+    fun searchResult(search: String?) = magazineDao.searchResult(getQueryByInput(search))
 
     fun getCachedData(): MagazineListLiveData {
         val header = headerDao.get()
@@ -37,6 +39,18 @@ class LocalCache(
         return MagazineListLiveData(header, magazines)
     }
 
+    private fun getQueryByInput(input: String?): SimpleSQLiteQuery {
+        return if (input.isNullOrBlank()) {
+            SimpleSQLiteQuery("SELECT * From magazines")
+        } else {
+            val escapedInput = DatabaseUtils.sqlEscapeString(input)
+            val search = escapedInput.substring(1 until escapedInput.length - 1)
+            SimpleSQLiteQuery("SELECT * From magazines WHERE title LIKE '%$search%'")
+        }
+    }
+
+
+    //for download
     suspend fun updateFileUri(id: Long, path: String) = magazineDao.updateUri(id, path)
 
     suspend fun updateDownloadProgress(id: Long, progress: Int) =
@@ -47,7 +61,6 @@ class LocalCache(
 
     suspend fun updateDownloadState(id: Long, downloadState: Int) =
         magazineDao.updateDownloadState(id, downloadState)
-
 
     suspend fun updateFileUriByDid(dId: Int, path: String) = magazineDao.updateUriByDid(dId, path)
 

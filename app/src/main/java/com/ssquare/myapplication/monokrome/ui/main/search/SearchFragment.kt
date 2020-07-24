@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.data.DownloadState
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.data.getDownloadState

@@ -5,6 +5,8 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.MagazineListLiveData
+import com.ssquare.myapplication.monokrome.util.OrderBy
+import com.ssquare.myapplication.monokrome.util.OrderBy.*
 
 
 class LocalCache(
@@ -33,19 +35,30 @@ class LocalCache(
 
     fun searchResult(search: String?) = magazineDao.searchResult(getQueryByInput(search))
 
-    fun getCachedData(): MagazineListLiveData {
+    private fun getAllByOrder(orderBy: OrderBy) =
+        magazineDao.getAllByOrder(getQueryByOrder(orderBy))
+
+    fun getCachedData(orderBy: OrderBy): MagazineListLiveData {
         val header = headerDao.get()
-        val magazines = magazineDao.getAll()
+        val magazines = getAllByOrder(orderBy)
         return MagazineListLiveData(header, magazines)
     }
 
     private fun getQueryByInput(input: String?): SimpleSQLiteQuery {
         return if (input.isNullOrBlank()) {
-            SimpleSQLiteQuery("SELECT * From magazines")
+            SimpleSQLiteQuery("SELECT * From magazines ORDER BY releaseDate DESC")
         } else {
             val escapedInput = DatabaseUtils.sqlEscapeString(input)
             val search = escapedInput.substring(1 until escapedInput.length - 1)
-            SimpleSQLiteQuery("SELECT * From magazines WHERE title LIKE '%$search%'")
+            SimpleSQLiteQuery("SELECT * From magazines WHERE title LIKE '%$search%' ORDER BY releaseDate DESC")
+        }
+    }
+
+    private fun getQueryByOrder(orderBy: OrderBy): SimpleSQLiteQuery {
+        return when (orderBy) {
+            MOST_RECENT -> SimpleSQLiteQuery("SELECT * FROM magazines ORDER BY releaseDate DESC")
+            A_TO_Z -> SimpleSQLiteQuery("SELECT * FROM magazines ORDER BY title ASC")
+            Z_TO_A -> SimpleSQLiteQuery("SELECT * FROM magazines ORDER BY title DESC")
         }
     }
 

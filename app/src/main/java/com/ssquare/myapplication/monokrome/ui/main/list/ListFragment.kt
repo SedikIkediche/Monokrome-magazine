@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.data.DownloadState.*
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
@@ -28,17 +27,23 @@ import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
+import com.ssquare.myapplication.monokrome.util.DownloadState.*
+import com.ssquare.myapplication.monokrome.util.OrderBy.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 
 /**
  * A simple [Fragment] subclass.
  */
-class ListFragment : Fragment() , ConnectivityProvider.ConnectivityStateListener {
+class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener {
     lateinit var binding: FragmentListBinding
     private lateinit var viewModel: ListViewModel
     private lateinit var adapter: MagazineAdapter
     private var isNotConnected = false
-    private val provider: ConnectivityProvider by lazy { ConnectivityProvider.createProvider(requireContext()) }
+    private val provider: ConnectivityProvider by lazy {
+        ConnectivityProvider.createProvider(
+            requireContext()
+        )
+    }
     private val downloadUtils: DownloadUtils by lazy {
         (activity as MainActivity).downloadUtils
     }
@@ -47,12 +52,13 @@ class ListFragment : Fragment() , ConnectivityProvider.ConnectivityStateListener
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-          binding =  FragmentListBinding.inflate(inflater)
+        binding = FragmentListBinding.inflate(inflater)
         setUpToolbar()
         initDependencies()
         initRecyclerView()
         initDownloadUtils()
 
+        viewModel.orderBy(getOrderBy(requireContext()))
         viewModel.networkError.observe(viewLifecycleOwner, Observer {
             setupUi(null, null, it)
         })
@@ -141,19 +147,39 @@ class ListFragment : Fragment() , ConnectivityProvider.ConnectivityStateListener
                 findNavController().navigate(R.id.searchFragment)
                 true
             }
-            R.id.sort_by_most_recent-> {
+            R.id.sort_by_most_recent -> {
                 item.isChecked = !item.isChecked
+                orderBy(item.itemId)
                 true
             }
             R.id.sort_from_a_to_z -> {
                 item.isChecked = !item.isChecked
+                orderBy(item.itemId)
                 true
             }
             R.id.sort_from_z_to_a -> {
                 item.isChecked = !item.isChecked
+                orderBy(item.itemId)
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun orderBy(id: Int) {
+        when (id) {
+            R.id.sort_by_most_recent -> {
+                viewModel.orderBy(MOST_RECENT)
+                commitOrderBy(requireContext(), MOST_RECENT)
+            }
+            R.id.sort_from_a_to_z -> {
+                viewModel.orderBy(A_TO_Z)
+                commitOrderBy(requireContext(), A_TO_Z)
+            }
+            R.id.sort_from_z_to_a -> {
+                viewModel.orderBy(Z_TO_A)
+                commitOrderBy(requireContext(), Z_TO_A)
+            }
         }
     }
 

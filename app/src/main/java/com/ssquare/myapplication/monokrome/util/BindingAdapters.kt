@@ -9,9 +9,7 @@ import androidx.core.view.isVisible
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.GenericTransitionOptions
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.data.DownloadState
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.getDownloadState
 import java.util.*

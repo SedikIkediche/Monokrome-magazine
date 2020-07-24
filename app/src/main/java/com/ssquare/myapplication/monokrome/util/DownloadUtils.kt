@@ -5,7 +5,6 @@ import android.os.Environment
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.ssquare.myapplication.monokrome.data.DownloadState
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.tonyodev.fetch2.*

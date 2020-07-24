@@ -1,20 +1,22 @@
 package com.ssquare.myapplication.monokrome.ui.main.list
 
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ssquare.myapplication.monokrome.data.DownloadState
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
-import com.ssquare.myapplication.monokrome.util.NO_DOWNLOAD
-import com.ssquare.myapplication.monokrome.util.NO_FILE
-import com.ssquare.myapplication.monokrome.util.NO_PROGRESS
-import com.ssquare.myapplication.monokrome.util.deleteFile
+import com.ssquare.myapplication.monokrome.util.*
 import kotlinx.coroutines.launch
 
 
 class ListViewModel(private val repository: Repository) : ViewModel() {
 
-    val data = repository.getCachedData()
+    private val _orderBy = MutableLiveData<OrderBy>()
+
+    val data = Transformations.switchMap(_orderBy) {
+        repository.getCachedData(it)
+    }
     val networkError = repository.networkError
     var toDownloadMagazine: Magazine? = null
 
@@ -29,13 +31,16 @@ class ListViewModel(private val repository: Repository) : ViewModel() {
         }
     }
 
-
     fun loadAndCacheData() {
         viewModelScope.launch { repository.loadAndCacheData() }
     }
 
     fun setToDownload(magazine: Magazine?) {
         toDownloadMagazine = magazine
+    }
+
+    fun orderBy(orderBy: OrderBy) {
+        _orderBy.postValue(orderBy)
     }
 
 }

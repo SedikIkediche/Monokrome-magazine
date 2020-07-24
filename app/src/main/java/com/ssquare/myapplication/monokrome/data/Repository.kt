@@ -7,6 +7,8 @@ import com.google.android.gms.tasks.Tasks
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.network.NetworkMagazine
+import com.ssquare.myapplication.monokrome.util.DownloadState
+import com.ssquare.myapplication.monokrome.util.OrderBy
 import com.ssquare.myapplication.monokrome.util.commitLoadDataActive
 import com.ssquare.myapplication.monokrome.util.createUriString
 import kotlinx.coroutines.CoroutineScope
@@ -45,7 +47,7 @@ class Repository private constructor(
     }
 
 
-    fun getCachedData(): MagazineListLiveData = cache.getCachedData()
+    fun getCachedData(orderBy: OrderBy): MagazineListLiveData = cache.getCachedData(orderBy)
 
     fun getMagazine(id: Long) = cache.getMagazine(id)
 

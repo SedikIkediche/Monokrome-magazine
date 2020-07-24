@@ -13,6 +13,8 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ssquare.myapplication.monokrome.databinding.AlertDialogLayoutBinding
 import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
+import com.ssquare.myapplication.monokrome.util.OrderBy.MOST_RECENT
+import com.ssquare.myapplication.monokrome.util.OrderBy.values
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import java.io.File
 import java.net.URI
@@ -20,10 +22,10 @@ import java.net.URI
 
 const val MAGAZINE_ID = "magazine_path"
 const val HEADER_PATH = "header/header.jpg"
-const val REQUEST_CODE: Int = 10
 const val DOWNLOAD_ACTIVE = "download_active"
 const val LOAD_DATA_ACTIVE = "work_active"
 const val DATA_CACHED = "data_cached"
+const val ORDER_BY = "order_by"
 
 const val PDF_TYPE = ".pdf"
 
@@ -33,9 +35,24 @@ const val MAGAZINE_URI = "magazine_uri"
 const val NO_DOWNLOAD = -1
 const val STORAGE_PERMISSION_CODE = 100
 const val NO_PROGRESS = -1
+
 fun toast(context: Context, text: String) {
     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
 }
+
+fun getOrderBy(context: Context): OrderBy {
+    val ordinal =
+        PreferenceManager.getDefaultSharedPreferences(context).getInt(ORDER_BY, MOST_RECENT.ordinal)
+    return values()[ordinal]
+}
+
+fun commitOrderBy(context: Context, orderBy: OrderBy) {
+    PreferenceManager.getDefaultSharedPreferences(context).edit().apply {
+        putInt(ORDER_BY, orderBy.ordinal)
+        apply()
+    }
+}
+
 
 fun isDataCached(context: Context): Boolean =
     PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
@@ -80,6 +97,7 @@ fun commitDownloadActive(context: Context, state: Boolean) {
     }
 }
 
+
 fun createUriString(context: Context, id: Long): String {
     return FILE_PREFIX +
             context.applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path + id.toString() + PDF_TYPE
@@ -97,20 +115,25 @@ fun deleteFile(uri: String): Boolean {
         false
 }
 
-inline fun < T : AppCompatActivity> AlertDialog.showLoading(activity :  T, textId: Int){
+inline fun <T : AppCompatActivity> AlertDialog.showLoading(activity: T, textId: Int) {
     val dialogBinding =
         AlertDialogLayoutBinding.inflate(LayoutInflater.from(activity as AuthActivity))
     dialogBinding.logInTextDialog.text = activity.getString(textId)
-        this.setView(dialogBinding.root)
-        this.setCancelable(false)
-        this.show()
+    this.setView(dialogBinding.root)
+    this.setCancelable(false)
+    this.show()
 }
 
-inline fun AlertDialog.hideDialog(){
+inline fun AlertDialog.hideDialog() {
     this.dismiss()
 }
 
-inline fun < T : AppCompatActivity> showErrorDialog(activity : T, message :String,buttonText : String,title: String){
+inline fun <T : AppCompatActivity> showErrorDialog(
+    activity: T,
+    message: String,
+    buttonText: String,
+    title: String
+) {
     MaterialAlertDialogBuilder(activity)
         .setTitle(title)
         .setMessage(message)
@@ -120,6 +143,6 @@ inline fun < T : AppCompatActivity> showErrorDialog(activity : T, message :Strin
         .show()
 }
 
- fun ConnectivityProvider.NetworkState.hasInternet(): Boolean {
+fun ConnectivityProvider.NetworkState.hasInternet(): Boolean {
     return (this as? ConnectivityProvider.NetworkState.ConnectedState)?.hasInternet == true
 }

@@ -8,8 +8,9 @@ import com.ssquare.myapplication.monokrome.data.Magazine
 @Dao
 interface MagazineDao {
 
-    @Query("SELECT * FROM magazines ORDER BY releaseDate ASC")
-    fun getAll(): LiveData<List<Magazine>>
+
+    @RawQuery(observedEntities = [Magazine::class])
+    fun getAllByOrder(query: SupportSQLiteQuery): LiveData<List<Magazine>>
 
     @Query("SELECT * FROM magazines WHERE id=:id ")
     fun get(id: Long): LiveData<Magazine>

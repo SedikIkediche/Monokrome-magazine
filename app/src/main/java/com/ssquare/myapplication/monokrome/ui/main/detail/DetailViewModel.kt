@@ -1,13 +1,9 @@
 package com.ssquare.myapplication.monokrome.ui.main.detail
 
 import androidx.lifecycle.ViewModel
-import com.ssquare.myapplication.monokrome.data.DownloadState
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
-import com.ssquare.myapplication.monokrome.util.NO_DOWNLOAD
-import com.ssquare.myapplication.monokrome.util.NO_FILE
-import com.ssquare.myapplication.monokrome.util.NO_PROGRESS
-import com.ssquare.myapplication.monokrome.util.deleteFile
+import com.ssquare.myapplication.monokrome.util.*
 
 class DetailViewModel(private val repository: Repository, private val id: Long) :
     ViewModel() {

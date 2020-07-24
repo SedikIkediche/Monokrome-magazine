@@ -2,6 +2,7 @@ package com.ssquare.myapplication.monokrome.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.ssquare.myapplication.monokrome.util.DownloadState
 import com.ssquare.myapplication.monokrome.util.NO_DOWNLOAD
 import com.ssquare.myapplication.monokrome.util.NO_FILE
 

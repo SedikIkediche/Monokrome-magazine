@@ -13,7 +13,7 @@
             name="clickListener"
             type="com.ssquare.myapplication.monokrome.ui.main.detail.DetailClickListener" />
 
-        <import type="com.ssquare.myapplication.monokrome.data.DownloadState" />
+        <import type="com.ssquare.myapplication.monokrome.util.DownloadState" />
 
         <import type="android.view.View" />
 

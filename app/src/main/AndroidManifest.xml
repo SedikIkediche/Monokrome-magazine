@@ -22,14 +22,14 @@
                   android:theme="@style/AuthStyle"/>
         <activity
             android:name="com.ssquare.myapplication.monokrome.ui.splashscreen.SplashActivity"
-            android:theme="@style/SplashTheme">
+            android:theme="@style/SplashTheme" />
+        <activity android:name="com.ssquare.myapplication.monokrome.ui.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.ssquare.myapplication.monokrome.ui.main.MainActivity" />
     </application>
 
 </manifest>

@@ -5,6 +5,6 @@ data class NetworkMagazine(
     val title: String = "",
     val description: String = "",
     val releaseDate: Long = 0,
-    val imageUrl: String = "",
-    val editionUrl: String = ""
+    val imagePath: String = "",
+    val pdfPath: String = ""
 )

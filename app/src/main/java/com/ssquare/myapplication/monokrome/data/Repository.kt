@@ -155,8 +155,8 @@ class Repository private constructor(
                 this.title,
                 this.description,
                 this.releaseDate,
-                this.imageUrl,
-                this.editionUrl,
+                this.imagePath,
+                this.pdfPath,
                 uri,
                 100,
                 downloadState = DownloadState.COMPLETED.ordinal
@@ -167,8 +167,8 @@ class Repository private constructor(
                 this.title,
                 this.description,
                 this.releaseDate,
-                this.imageUrl,
-                this.editionUrl
+                this.imagePath,
+                this.pdfPath
             )
         }
 

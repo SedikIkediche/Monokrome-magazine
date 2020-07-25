@@ -24,6 +24,7 @@ import com.ssquare.myapplication.monokrome.databinding.FragmentDetailBinding
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
+import com.ssquare.myapplication.monokrome.network.MonokromeApi
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
@@ -51,7 +52,12 @@ class DetailFragment : Fragment(), DetailClickListener {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentDetailBinding.inflate(inflater)
-        binding.root.setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.list_item_container_background))
+        binding.root.setBackgroundColor(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.list_item_container_background
+            )
+        )
 
         initDependencies()
         initDownloadUtils()
@@ -67,7 +73,8 @@ class DetailFragment : Fragment(), DetailClickListener {
         val id = requireArguments().getLong(MAGAZINE_ID, -1)
         val database = FirebaseDatabase.getInstance()
         val storage = FirebaseStorage.getInstance()
-        val network = FirebaseServer(database, storage)
+        //val network = FirebaseServer(database, storage)
+        val network = MonokromeApi.retrofitService
         val magazineDao = MagazineDatabase.getInstance(requireContext()).magazineDao
         val headerDao = MagazineDatabase.getInstance(requireContext()).headerDao
         val cache = LocalCache(magazineDao, headerDao)
@@ -100,11 +107,11 @@ class DetailFragment : Fragment(), DetailClickListener {
 
     private fun downloadMagazine(magazine: Magazine) {
         // check for connectivity
-            if (!isLoadDataActive(requireContext())) {
-                downloadUtils.enqueueDownload(magazine)
-            } else {
-                toast(requireContext(), "Loading Data From Server!")
-            }
+        if (!isLoadDataActive(requireContext())) {
+            downloadUtils.enqueueDownload(magazine)
+        } else {
+            toast(requireContext(), "Loading Data From Server!")
+        }
 
     }
 

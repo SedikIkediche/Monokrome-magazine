@@ -3,10 +3,10 @@ package com.ssquare.myapplication.monokrome.data
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.android.gms.tasks.Tasks
 import com.ssquare.myapplication.monokrome.db.LocalCache
-import com.ssquare.myapplication.monokrome.network.FirebaseServer
+import com.ssquare.myapplication.monokrome.network.MonokromeApiService
 import com.ssquare.myapplication.monokrome.network.NetworkMagazine
+import com.ssquare.myapplication.monokrome.network.loadFromServer
 import com.ssquare.myapplication.monokrome.util.DownloadState
 import com.ssquare.myapplication.monokrome.util.OrderBy
 import com.ssquare.myapplication.monokrome.util.commitLoadDataActive
@@ -23,7 +23,7 @@ class Repository private constructor(
     private val context: Context,
     private val scope: CoroutineScope,
     private val cache: LocalCache,
-    private val network: FirebaseServer
+    private val network: MonokromeApiService
 ) {
     private val _networkError = MutableLiveData<Exception>()
     val networkError: LiveData<Exception>
@@ -35,7 +35,7 @@ class Repository private constructor(
             context: Context,
             scope: CoroutineScope,
             cache: LocalCache,
-            network: FirebaseServer
+            network: MonokromeApiService
         ): Repository {
             var instance = INSTANCE
             if (instance == null) {
@@ -120,10 +120,9 @@ class Repository private constructor(
 
     suspend fun loadAndCacheData(): Boolean {
         var resultState = false
-        val task = network.loadFromServer()
+        val result = network.loadFromServer()
         withContext(Dispatchers.IO) {
             commitLoadDataActive(context, true)
-            val result = Tasks.await(task)
             resultState =
                 if (result.header != null && result.magazineList != null && result.exception == null) {
                     val databaseMagazines = result.magazineList.toDatabaseMagazines()
@@ -155,8 +154,8 @@ class Repository private constructor(
                 this.title,
                 this.description,
                 this.releaseDate,
-                this.imagePath,
-                this.pdfPath,
+                this.imageUrl,
+                this.editionUrl,
                 uri,
                 100,
                 downloadState = DownloadState.COMPLETED.ordinal
@@ -167,8 +166,8 @@ class Repository private constructor(
                 this.title,
                 this.description,
                 this.releaseDate,
-                this.imagePath,
-                this.pdfPath
+                this.imageUrl,
+                this.editionUrl
             )
         }
 

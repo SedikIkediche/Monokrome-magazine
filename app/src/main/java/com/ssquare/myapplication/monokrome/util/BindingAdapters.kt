@@ -9,6 +9,8 @@ import androidx.core.view.isVisible
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.GenericTransitionOptions
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.model.GlideUrl
+import com.bumptech.glide.load.model.LazyHeaders
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.getDownloadState
@@ -18,7 +20,14 @@ import java.util.*
 @BindingAdapter("imageUrl")
 fun loadImage(view: ImageView, url: String?) {
     url?.let {
-        Glide.with(view.context).load(url)
+        val header = LazyHeaders.Builder()
+            .addHeader("x-auth-token", AUTH_TOKEN)
+            .build()
+
+        val glideUrl = GlideUrl(url, header)
+
+        Glide.with(view.context)
+            .load(glideUrl)
             .placeholder(
                 ColorDrawable(
                     ContextCompat.getColor(

@@ -28,6 +28,7 @@ import com.ssquare.myapplication.monokrome.databinding.FragmentSearchBinding
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
+import com.ssquare.myapplication.monokrome.network.MonokromeApi
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.ui.main.list.MagazineAdapter
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
@@ -153,7 +154,8 @@ class SearchFragment : Fragment() {
     private fun initDependencies() {
         val database = FirebaseDatabase.getInstance()
         val storage = FirebaseStorage.getInstance()
-        val network = FirebaseServer(database, storage)
+        //val network = FirebaseServer(database, storage)
+        val network = MonokromeApi.retrofitService
         val magazineDao = MagazineDatabase.getInstance(requireContext()).magazineDao
         val headerDao = MagazineDatabase.getInstance(requireContext()).headerDao
         val cache = LocalCache(magazineDao, headerDao)

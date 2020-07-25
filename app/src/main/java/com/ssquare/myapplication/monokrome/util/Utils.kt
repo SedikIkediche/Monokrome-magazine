@@ -19,9 +19,12 @@ import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvide
 import java.io.File
 import java.net.URI
 
+ const val AUTH_TOKEN =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNTk1NTAzMzI0fQ.mzWfcFy4i1HDl7D_J2AF48UC2P_2Mm52hQuBLcWmam0"
 
 const val MAGAZINE_ID = "magazine_path"
-const val HEADER_PATH = "header/header.jpg"
+//const val HEADER_PATH = "header/header.jpg"
+const val HEADER_PATH = "header.jpg"
 const val DOWNLOAD_ACTIVE = "download_active"
 const val LOAD_DATA_ACTIVE = "work_active"
 const val DATA_CACHED = "data_cached"

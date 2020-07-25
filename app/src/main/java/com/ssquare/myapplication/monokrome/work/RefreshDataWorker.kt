@@ -11,6 +11,7 @@ import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.FirebaseServer
+import com.ssquare.myapplication.monokrome.network.MonokromeApi
 import com.ssquare.myapplication.monokrome.util.commitCacheData
 import com.ssquare.myapplication.monokrome.util.isDownloadActive
 import com.ssquare.myapplication.monokrome.util.toast
@@ -51,7 +52,8 @@ class RefreshDataWorker(private val appContext: Context, params: WorkerParameter
     private fun initRepository(): Repository {
         val database = FirebaseDatabase.getInstance()
         val storage = FirebaseStorage.getInstance()
-        val network = FirebaseServer(database, storage)
+        //val network = FirebaseServer(database, storage)
+        val network = MonokromeApi.retrofitService
         val magazineDao = MagazineDatabase.getInstance(appContext).magazineDao
         val headerDao = MagazineDatabase.getInstance(appContext).headerDao
         val cache = LocalCache(magazineDao, headerDao)

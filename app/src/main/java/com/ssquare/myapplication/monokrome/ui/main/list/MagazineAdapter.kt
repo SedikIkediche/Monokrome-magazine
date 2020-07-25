@@ -1,26 +1,15 @@
 package com.ssquare.myapplication.monokrome.ui.main.list
 
-import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.GenericTransitionOptions
-import com.bumptech.glide.Glide
-import com.makeramen.roundedimageview.RoundedImageView
-import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.databinding.HeaderLayoutBinding
 import com.ssquare.myapplication.monokrome.databinding.ListItemBinding
 import com.ssquare.myapplication.monokrome.util.ClickAction
-import kotlinx.android.synthetic.main.list_item.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

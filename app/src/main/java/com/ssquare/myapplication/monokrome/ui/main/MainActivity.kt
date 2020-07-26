@@ -10,16 +10,12 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.databinding.ActivityMainBinding
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
-import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.network.MonokromeApi
-import com.ssquare.myapplication.monokrome.network.MonokromeApiService
 import com.ssquare.myapplication.monokrome.util.DownloadUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -84,9 +80,6 @@ class MainActivity : AppCompatActivity() {
     }
     private fun initDownloadUtils() {
         Log.d("MainActivity", "initDownloadUtils called")
-        val database = FirebaseDatabase.getInstance()
-        val storage = FirebaseStorage.getInstance()
-        //val network = FirebaseServer(database, storage)
         val network = MonokromeApi.retrofitService
         val magazineDao = MagazineDatabase.getInstance(applicationContext).magazineDao
         val headerDao = MagazineDatabase.getInstance(applicationContext).headerDao

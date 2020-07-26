@@ -10,7 +10,6 @@ import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
-import com.ssquare.myapplication.monokrome.network.FirebaseServer
 import com.ssquare.myapplication.monokrome.network.MonokromeApi
 import com.ssquare.myapplication.monokrome.util.commitCacheData
 import com.ssquare.myapplication.monokrome.util.isDownloadActive

@@ -72,7 +72,7 @@ class DownloadUtils private constructor(
 
         override fun onError(download: Download, error: Error, throwable: Throwable?) {
             updateDownloadFailed(download.id, download.fileUri.toString())
-            Log.d("DownloadUtils", "onError called")
+            Log.d("DownloadUtils", "onError called: $error")
         }
 
         override fun onPaused(download: Download) {
@@ -171,10 +171,11 @@ class DownloadUtils private constructor(
     }
 
     fun enqueueDownload(magazine: Magazine) {
-
+        Log.d("DownloadUtils", "Magazine: $magazine")
         val filePath = createFilePath(magazine.id)
         val request = Request(magazine.editionUrl, filePath).apply {
             networkType = NetworkType.ALL
+            addHeader(AUTH_HEADER_KEY, AUTH_TOKEN)
         }
         fetch.enqueue(request,
             Func {

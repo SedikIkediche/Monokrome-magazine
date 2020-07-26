@@ -19,6 +19,7 @@ import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvide
 import java.io.File
 import java.net.URI
 
+const val AUTH_HEADER_KEY = "x-auth-token"
  const val AUTH_TOKEN =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNTk1NTAzMzI0fQ.mzWfcFy4i1HDl7D_J2AF48UC2P_2Mm52hQuBLcWmam0"
 

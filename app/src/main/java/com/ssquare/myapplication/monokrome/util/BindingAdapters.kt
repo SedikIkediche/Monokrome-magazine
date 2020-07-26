@@ -21,7 +21,7 @@ import java.util.*
 fun loadImage(view: ImageView, url: String?) {
     url?.let {
         val header = LazyHeaders.Builder()
-            .addHeader("x-auth-token", AUTH_TOKEN)
+            .addHeader(AUTH_HEADER_KEY, AUTH_TOKEN)
             .build()
 
         val glideUrl = GlideUrl(url, header)

@@ -7,31 +7,23 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.AuthRepository
-import com.ssquare.myapplication.monokrome.databinding.AlertDialogLayoutBinding
 import com.ssquare.myapplication.monokrome.databinding.FragmentLoginBinding
 import com.ssquare.myapplication.monokrome.network.FirebaseAuthServer
 import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
-import com.ssquare.myapplication.monokrome.ui.auth.register.RegisterViewModel
-import com.ssquare.myapplication.monokrome.ui.auth.register.RegisterViewModelFactory
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.hasInternet
 import com.ssquare.myapplication.monokrome.util.hideDialog
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import com.ssquare.myapplication.monokrome.util.showErrorDialog
 import com.ssquare.myapplication.monokrome.util.showLoading
-import kotlinx.android.synthetic.main.fragment_login.view.*
 
 /**
  * A simple [Fragment] subclass.
@@ -153,7 +145,7 @@ class LoginFragment : Fragment() {
 
         }else{
             showErrorDialog(activity as AuthActivity,getString(R.string.connectivity_error_messzge),getString(
-                R.string.clode),getString(R.string.oops))
+                R.string.close),getString(R.string.oops))
         }
 
     }

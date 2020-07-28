@@ -3,6 +3,7 @@ package com.ssquare.myapplication.monokrome.ui.main
 import android.os.Bundle
 import android.util.Log
 import android.view.Window
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
@@ -10,6 +11,8 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
+import com.google.firebase.messaging.FirebaseMessaging
+import com.ssquare.myapplication.monokrome.AppMessagingService.Companion.TOPIC
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.databinding.ActivityMainBinding
@@ -30,23 +33,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
           binding = DataBindingUtil.setContentView(this,R.layout.activity_main)
         initDownloadUtils()
-        NavigationUI.setupWithNavController(
-            binding.navigation,
-            Navigation.findNavController(this,R.id.nav_host_fragment)
-        )
-
-
-        Navigation.findNavController(this,R.id.nav_host_fragment)
-            .addOnDestinationChangedListener { controller, destination, arguments ->
-                when (destination.id) {
-                    R.id.listFragment -> {
-                        binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-                    }else -> {
-                    binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-                }
-                }
-            }
-
+        setupNavigation()
+        subscribeTopic()
 
     }
 
@@ -88,6 +76,38 @@ class MainActivity : AppCompatActivity() {
             applicationContext, CoroutineScope(Dispatchers.Main), cache, network
         )
         downloadUtils = DownloadUtils.getInstance(applicationContext, repository)
+    }
+
+    private fun setupNavigation() {
+        NavigationUI.setupWithNavController(
+            binding.navigation,
+            Navigation.findNavController(this, R.id.nav_host_fragment)
+        )
+
+
+        Navigation.findNavController(this, R.id.nav_host_fragment)
+            .addOnDestinationChangedListener { controller, destination, arguments ->
+                when (destination.id) {
+                    R.id.listFragment -> {
+                        binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                    }
+                    else -> {
+                        binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                    }
+                }
+            }
+    }
+
+    private fun subscribeTopic() {
+        FirebaseMessaging.getInstance().subscribeToTopic(TOPIC)
+            .addOnCompleteListener { task ->
+                var msg = getString(R.string.message_subscribed)
+                if (!task.isSuccessful) {
+                    msg = getString(R.string.message_subscribe_failed)
+                }
+                Log.d("AppMessagingService", msg);
+            }
+        // [END subscribe_topics]
     }
 
 }

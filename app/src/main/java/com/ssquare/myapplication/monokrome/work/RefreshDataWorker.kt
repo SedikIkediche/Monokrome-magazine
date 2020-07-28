@@ -49,9 +49,6 @@ class RefreshDataWorker(private val appContext: Context, params: WorkerParameter
     }
 
     private fun initRepository(): Repository {
-        val database = FirebaseDatabase.getInstance()
-        val storage = FirebaseStorage.getInstance()
-        //val network = FirebaseServer(database, storage)
         val network = MonokromeApi.retrofitService
         val magazineDao = MagazineDatabase.getInstance(appContext).magazineDao
         val headerDao = MagazineDatabase.getInstance(appContext).headerDao

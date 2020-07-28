@@ -37,14 +37,20 @@
     <string name="retry">Retry</string>
     <string name="oops">Oops!</string>
     <string name="connectivity_error_messzge">Please check you connectivity.</string>
-    <string name="clode">Close</string>
     <string name="email_error_message">Pleas Enter a Email</string>
     <string name="password_error_message">Pleas Enter a Password</string>
-    <string name="repeat_passwor_erroe_message">Pleas Repeat The Password</string>
+    <string name="repeat_password_error_message">Pleas Repeat The Password</string>
     <string name="register_dialog_text">Registering...</string>
     <string name="invalid_repeated_password">The repeated password is invalid</string>
     <string name="most_recent">Most Recent</string>
     <string name="a_to_z">A to Z</string>
     <string name="z_to_a">Z to A</string>
     <string name="home">Home</string>
+    <string name="message_subscribe_failed">Failed to subscribe to topic</string>
+    <string name="message_subscribed">Subscribed to topic</string>
+    <string name="new_edition_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="new_edition_notification_channel_name" translatable="true">New edition</string>
+    <string name="new_edition_notification_channel_description" translatable="true">This channel holds the notification that gets sent whenever a new magazine edition is released.</string>
+    <string name="new_edition_title">New edition is released</string>
+    <string name="new_edition_description">Go check it out!</string>
 </resources>

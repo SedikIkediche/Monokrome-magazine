@@ -74,6 +74,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:19.2.1'
     implementation 'com.google.firebase:firebase-storage:19.1.1'
     implementation 'com.google.firebase:firebase-auth:19.3.0'
+    implementation 'com.google.firebase:firebase-messaging:17.3.4'
     kapt "com.github.bumptech.glide:compiler:$glide_version"
 
     //coroutines

@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -27,7 +26,6 @@ import com.ssquare.myapplication.monokrome.util.hideDialog
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import com.ssquare.myapplication.monokrome.util.showErrorDialog
 import com.ssquare.myapplication.monokrome.util.showLoading
-import kotlinx.android.synthetic.main.fragment_register.view.*
 
 /**
  * A simple [Fragment] subclass.
@@ -105,7 +103,7 @@ class RegisterFragment : Fragment() {
 
         binding.registerRepeatPassword.editText?.setOnFocusChangeListener { view, isFocused ->
             if (!isFocused && binding.registerRepeatPassword.editText!!.text!!.isEmpty()) {
-                binding.registerRepeatPassword.error = getString(R.string.repeat_passwor_erroe_message)
+                binding.registerRepeatPassword.error = getString(R.string.repeat_password_error_message)
             }
         }
 
@@ -147,7 +145,7 @@ class RegisterFragment : Fragment() {
                 } else if (editable == binding.registerRepeatPassword.editText?.editableText && binding.registerRepeatPassword.editText!!.text.toString()
                         .isEmpty()
                 ) {
-                    binding.registerRepeatPassword.error = getString(R.string.repeat_passwor_erroe_message)
+                    binding.registerRepeatPassword.error = getString(R.string.repeat_password_error_message)
                 }
 
                 binding.registerButton.isEnabled =
@@ -184,7 +182,7 @@ class RegisterFragment : Fragment() {
             }
         }else{
             showErrorDialog(activity as AuthActivity,getString(R.string.connectivity_error_messzge),getString(
-                            R.string.clode),getString(R.string.oops))
+                            R.string.close),getString(R.string.oops))
         }
 
     }

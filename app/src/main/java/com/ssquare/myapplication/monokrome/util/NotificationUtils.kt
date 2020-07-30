@@ -17,7 +17,7 @@ private val FLAGS = 0
 
 const val CHANNEL_ID = "fcm_default_channel"
 const val NOTIFICATION_ID = 0
-fun NotificationManager.sendNotification(context: Context) {
+fun NotificationManager.sendNotification(context: Context, title: String, contentText: String) {
 
     val intent = Intent(context, MainActivity::class.java)
 
@@ -25,8 +25,8 @@ fun NotificationManager.sendNotification(context: Context) {
 
     val builder = NotificationCompat.Builder(context, CHANNEL_ID)
         .setSmallIcon(R.mipmap.ic_launcher_icon)
-        .setContentTitle(context.getString(R.string.new_edition_title))
-        .setContentText(context.getString(R.string.new_edition_description))
+        .setContentTitle(title)
+        .setContentText(contentText)
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .setAutoCancel(true)
         .setContentIntent(pendingIntent)

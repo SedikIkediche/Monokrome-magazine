@@ -32,7 +32,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
-        Log.d("AppMessagingService", "Intent extras ${intent.extras}")
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         initDownloadUtils()
         setupNavigation()

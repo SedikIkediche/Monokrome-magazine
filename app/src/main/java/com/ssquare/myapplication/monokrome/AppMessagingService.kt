@@ -19,14 +19,12 @@ class AppMessagingService : FirebaseMessagingService() {
 
         remoteMessage?.data?.let {
             Log.d(TAG, "Message data payload: ${it}")
+            val title = it[TITLE_KEY]!!
+            val content = it[DESCRIPTION_KEY]!!
+            sendNotification(title, content)
+            setupRefreshDataWorker()
         }
 
-        remoteMessage?.notification?.let {
-            Log.d(TAG, "Message Notification body: ${it.body}")
-            //sendNotification()
-        }
-        sendNotification()
-        setupRefreshDataWorker()
     }
 
 
@@ -40,12 +38,16 @@ class AppMessagingService : FirebaseMessagingService() {
     }
 
 
-    private fun sendNotification() {
+    private fun sendNotification(title: String, content: String) {
         val notificationManager = ContextCompat.getSystemService(
             applicationContext,
             NotificationManager::class.java
         ) as NotificationManager
-        notificationManager.sendNotification(applicationContext)
+        notificationManager.sendNotification(
+            context = applicationContext,
+            title = title,
+            contentText = content
+        )
     }
 
     private fun setupRefreshDataWorker() {
@@ -64,6 +66,8 @@ class AppMessagingService : FirebaseMessagingService() {
     companion object {
         const val TAG = "AppMessagingService"
         const val TOPIC = "new_edition"
+        const val TITLE_KEY = "title"
+        const val DESCRIPTION_KEY = "description"
     }
 
 }

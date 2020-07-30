@@ -5,8 +5,6 @@ import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.storage.FirebaseStorage
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
@@ -30,7 +28,7 @@ class RefreshDataWorker(private val appContext: Context, params: WorkerParameter
 
     @SuppressLint("RestrictedApi")
     override suspend fun doWork(): Result {
-        Log.d("RefreshDataWorker", "doWork called")
+        Log.d("AppMessagingService", "doWork called")
         val repository = initRepository()
 
 

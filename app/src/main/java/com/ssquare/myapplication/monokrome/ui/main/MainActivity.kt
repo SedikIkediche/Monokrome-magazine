@@ -3,7 +3,6 @@ package com.ssquare.myapplication.monokrome.ui.main
 import android.os.Bundle
 import android.util.Log
 import android.view.Window
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
@@ -11,6 +10,8 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.messaging.FirebaseMessaging
 import com.ssquare.myapplication.monokrome.AppMessagingService.Companion.TOPIC
 import com.ssquare.myapplication.monokrome.R
@@ -26,12 +27,13 @@ import kotlinx.coroutines.Dispatchers
 
 class MainActivity : AppCompatActivity() {
     lateinit var downloadUtils: DownloadUtils
-    private lateinit var binding : ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
-          binding = DataBindingUtil.setContentView(this,R.layout.activity_main)
+        Log.d("AppMessagingService", "Intent extras ${intent.extras}")
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         initDownloadUtils()
         setupNavigation()
         subscribeTopic()
@@ -56,16 +58,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return NavigationUI.navigateUp(this.findNavController(R.id.nav_host_fragment), binding.drawer)
+        return NavigationUI.navigateUp(
+            this.findNavController(R.id.nav_host_fragment),
+            binding.drawer
+        )
     }
 
     override fun onBackPressed() {
         if (binding.drawer.isDrawerOpen(GravityCompat.START)) {
             binding.drawer.closeDrawer(GravityCompat.START)
-        } else{
+        } else {
             super.onBackPressed()
         }
     }
+
     private fun initDownloadUtils() {
         Log.d("MainActivity", "initDownloadUtils called")
         val network = MonokromeApi.retrofitService
@@ -98,16 +104,43 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    private fun checkGooglePlayServices(): Boolean {
+        val status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
+        return if (status != ConnectionResult.SUCCESS) {
+            Log.e("AppMessagingService", "Error")
+            // ask user to update google play services.
+            false
+        } else {
+            Log.i("AppMessagingService", "Google play services updated")
+            true
+        }
+    }
+
     private fun subscribeTopic() {
-        FirebaseMessaging.getInstance().subscribeToTopic(TOPIC)
-            .addOnCompleteListener { task ->
-                var msg = getString(R.string.message_subscribed)
-                if (!task.isSuccessful) {
-                    msg = getString(R.string.message_subscribe_failed)
+        if (checkGooglePlayServices()) {
+            FirebaseMessaging.getInstance().subscribeToTopic(TOPIC)
+                .addOnCompleteListener { task ->
+                    Log.d("AppMessagingService", task.toString())
+                    var msg = getString(R.string.message_subscribe_failed)
+                    if (task.isSuccessful) {
+                        msg = getString(R.string.message_subscribed)
+                    }
+                    Log.d("AppMessagingService", msg)
+                }.addOnFailureListener { exception ->
+                    Log.e(
+                        "AppMessagingService",
+                        getString(R.string.message_subscribe_failed),
+                        exception
+                    )
                 }
-                Log.d("AppMessagingService", msg);
-            }
-        // [END subscribe_topics]
+        } else {
+            Log.d("AppMessagingService", "Error with GooglePlayServices")
+        }
+
+    }
+
+    companion object {
+        private const val TAG = "MainActivity"
     }
 
 }

@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.ssquare.myapplication.monokrome.R
@@ -37,6 +38,10 @@ fun NotificationManager.sendNotification(context: Context) {
         val importance = NotificationManager.IMPORTANCE_HIGH
         val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
             description = descriptionText
+            enableLights(true)
+            lightColor = Color.RED
+            enableVibration(true)
+
         }
         this.createNotificationChannel(channel)
     }

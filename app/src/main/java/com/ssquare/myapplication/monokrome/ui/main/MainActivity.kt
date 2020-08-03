@@ -21,11 +21,15 @@ import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.MonokromeApi
 import com.ssquare.myapplication.monokrome.util.DownloadUtils
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+    @Inject
     lateinit var downloadUtils: DownloadUtils
     private lateinit var binding: ActivityMainBinding
 
@@ -72,7 +76,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initDownloadUtils() {
-        Log.d("MainActivity", "initDownloadUtils called")
+       /* Log.d("MainActivity", "initDownloadUtils called")
         val network = MonokromeApi.retrofitService
         val magazineDao = MagazineDatabase.getInstance(applicationContext).magazineDao
         val headerDao = MagazineDatabase.getInstance(applicationContext).headerDao
@@ -80,7 +84,7 @@ class MainActivity : AppCompatActivity() {
         val repository = Repository.getInstance(
             applicationContext, CoroutineScope(Dispatchers.Main), cache, network
         )
-        downloadUtils = DownloadUtils.getInstance(applicationContext, repository)
+        downloadUtils = DownloadUtils.getInstance(applicationContext, repository)*/
     }
 
     private fun setupNavigation() {

@@ -19,12 +19,13 @@ import java.io.File
 import java.net.URI
 
 
-class Repository private constructor(
+class Repository  constructor(
     private val context: Context,
     private val scope: CoroutineScope,
     private val cache: LocalCache,
     private val network: MonokromeApiService
 ) {
+
     private val _networkError = MutableLiveData<Exception>()
     val networkError: LiveData<Exception>
         get() = _networkError
@@ -50,6 +51,8 @@ class Repository private constructor(
     fun getCachedData(orderBy: OrderBy): MagazineListLiveData = cache.getCachedData(orderBy)
 
     fun getMagazine(id: Long) = cache.getMagazine(id)
+
+    //Download
 
     fun updateFileUri(id: Long, fileUri: String) {
         scope.launch {
@@ -84,7 +87,6 @@ class Repository private constructor(
             }
         }
     }
-
 
     fun updateFileUriByDid(dId: Int, fileUri: String) {
         scope.launch {
@@ -139,6 +141,8 @@ class Repository private constructor(
 
         return resultState
     }
+
+    //map entities
 
     private fun List<NetworkMagazine>.toDatabaseMagazines(): List<Magazine> {
         return this.map {

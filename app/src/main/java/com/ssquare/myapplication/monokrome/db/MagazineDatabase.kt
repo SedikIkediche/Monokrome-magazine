@@ -14,7 +14,7 @@ abstract class MagazineDatabase : RoomDatabase() {
     abstract val magazineDao: MagazineDao
 
     companion object {
-
+        const val DATABASE_NAME =  "database3"
         var INSTANCE: MagazineDatabase? = null
 
         fun getInstance(context: Context): MagazineDatabase {
@@ -23,7 +23,7 @@ abstract class MagazineDatabase : RoomDatabase() {
                 instance = Room.databaseBuilder(
                     context.applicationContext,
                     MagazineDatabase::class.java,
-                    "database3"
+                    DATABASE_NAME
                 ).build()
                 INSTANCE = instance
             }

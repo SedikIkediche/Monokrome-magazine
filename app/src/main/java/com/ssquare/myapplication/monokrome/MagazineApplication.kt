@@ -3,18 +3,20 @@ package com.ssquare.myapplication.monokrome
 import android.app.Application
 import androidx.work.*
 import com.ssquare.myapplication.monokrome.work.RefreshDataWorker
+import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
+@HiltAndroidApp
 class MagazineApplication : Application() {
     private val applicationScope = CoroutineScope(Dispatchers.Default)
 
     override fun onCreate() {
         super.onCreate()
 
-        initPeriodicCache()
+        //initPeriodicCache()
     }
 
     private fun initPeriodicCache() {

@@ -11,8 +11,8 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Headers
 
-private const val BASE_URL = "http://192.168.1.4:3000/api/"
-private const val HEADER_URL = "${BASE_URL}images/$HEADER_PATH"
+ const val BASE_URL = "http://192.168.1.4:3000/api/"
+ const val HEADER_URL = "${BASE_URL}images/$HEADER_PATH"
 
 private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())

@@ -7,9 +7,10 @@ import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.MagazineListLiveData
 import com.ssquare.myapplication.monokrome.util.OrderBy
 import com.ssquare.myapplication.monokrome.util.OrderBy.*
+import javax.inject.Inject
 
 
-class LocalCache(
+class LocalCache @Inject constructor(
     private val magazineDao: MagazineDao,
     private val headerDao: HeaderDao
 ) {

@@ -10,11 +10,15 @@ import com.ssquare.myapplication.monokrome.data.Repository
 import com.tonyodev.fetch2.*
 import com.tonyodev.fetch2core.DownloadBlock
 import com.tonyodev.fetch2core.Func
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.net.URI
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class DownloadUtils private constructor(
-    val context: Context,
+@Singleton
+class DownloadUtils @Inject constructor(
+    @ApplicationContext val context: Context,
     private val repository: Repository
 ) {
 
@@ -126,7 +130,6 @@ class DownloadUtils private constructor(
             Log.d("DownloadUtils", "onWaitingForNetwork called")
         }
     }
-
 
 
     var downloadState = DownloadState.EMPTY

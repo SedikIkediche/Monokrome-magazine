@@ -16,9 +16,9 @@ import java.net.URI
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-class DownloadUtils @Inject constructor(
-    @ApplicationContext val context: Context,
+
+class DownloadUtils(
+    private val context: Context,
     private val repository: Repository
 ) {
 

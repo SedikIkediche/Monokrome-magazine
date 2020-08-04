@@ -19,10 +19,13 @@ class AppMessagingService : FirebaseMessagingService() {
 
         remoteMessage?.data?.let {
             Log.d(TAG, "Message data payload: ${it}")
-            val title = it[TITLE_KEY]!!
-            val content = it[DESCRIPTION_KEY]!!
-            sendNotification(title, content)
-            setupRefreshDataWorker()
+            val title = it[TITLE_KEY]
+            val content = it[DESCRIPTION_KEY]
+            if (title != null && content != null) {
+                sendNotification(title, content)
+                setupRefreshDataWorker()
+            }
+
         }
 
     }

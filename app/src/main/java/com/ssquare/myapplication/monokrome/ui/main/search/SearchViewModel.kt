@@ -1,5 +1,6 @@
 package com.ssquare.myapplication.monokrome.ui.main.search
 
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
@@ -7,7 +8,7 @@ import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.util.*
 
-class SearchViewModel(private val repository: Repository) : ViewModel() {
+class SearchViewModel @ViewModelInject constructor(private val repository: Repository) : ViewModel() {
 
     var toDownloadMagazine: Magazine? = null
     private val _searchInput = MutableLiveData<String>()

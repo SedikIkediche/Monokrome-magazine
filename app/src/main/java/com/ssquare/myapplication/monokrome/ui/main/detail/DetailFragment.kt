@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
@@ -25,6 +26,8 @@ import com.ssquare.myapplication.monokrome.network.MonokromeApi
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * A simple [Fragment] subclass.
@@ -34,19 +37,20 @@ interface DetailClickListener {
     fun downloadOrRead(magazine: Magazine)
 }
 
+@AndroidEntryPoint
 class DetailFragment : Fragment(), DetailClickListener {
 
-
     lateinit var binding: FragmentDetailBinding
-    private lateinit var viewModel: DetailViewModel
-    private val downloadUtils: DownloadUtils by lazy {
-        (activity as MainActivity).downloadUtils
-    }
+    private val viewModel: DetailViewModel by viewModels()
+
+    @Inject
+    lateinit var downloadUtils: DownloadUtils
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        getMagazineId()
         // Inflate the layout for this fragment
         binding = FragmentDetailBinding.inflate(inflater)
         binding.root.setBackgroundColor(
@@ -56,7 +60,6 @@ class DetailFragment : Fragment(), DetailClickListener {
             )
         )
 
-        initDependencies()
         initDownloadUtils()
 
         binding.lifecycleOwner = this
@@ -66,15 +69,9 @@ class DetailFragment : Fragment(), DetailClickListener {
         return binding.root
     }
 
-    private fun initDependencies() {
+    private fun getMagazineId() {
         val id = requireArguments().getLong(MAGAZINE_ID, -1)
-        val network = MonokromeApi.retrofitService
-        val magazineDao = MagazineDatabase.getInstance(requireContext()).magazineDao
-        val headerDao = MagazineDatabase.getInstance(requireContext()).headerDao
-        val cache = LocalCache(magazineDao, headerDao)
-        val repository = Repository.getInstance(requireContext(), lifecycleScope, cache, network)
-        val factory = DetailViewModelFactory(repository, id)
-        viewModel = ViewModelProviders.of(this, factory).get(DetailViewModel::class.java)
+        viewModel.getMagazine(id)
     }
 
 
@@ -112,7 +109,6 @@ class DetailFragment : Fragment(), DetailClickListener {
     private fun showErrorLayout(error: String) {
         toast(requireContext(), error)
     }
-
 
     private fun checkForPermission(magazine: Magazine) {
         viewModel.setToDownload(magazine)

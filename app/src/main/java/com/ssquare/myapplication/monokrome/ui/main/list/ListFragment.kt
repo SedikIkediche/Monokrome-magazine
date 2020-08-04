@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
@@ -28,23 +29,25 @@ import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.DownloadState.*
 import com.ssquare.myapplication.monokrome.util.OrderBy.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * A simple [Fragment] subclass.
  */
+
+@AndroidEntryPoint
 class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener {
+    @Inject
+    lateinit var downloadUtils: DownloadUtils
+    @Inject
+    lateinit var provider: ConnectivityProvider
+    private val viewModel: ListViewModel by viewModels()
     lateinit var binding: FragmentListBinding
-    private lateinit var viewModel: ListViewModel
+
     private lateinit var adapter: MagazineAdapter
     private var isNotConnected = false
-    private val provider: ConnectivityProvider by lazy {
-        ConnectivityProvider.createProvider(
-            requireContext()
-        )
-    }
-    private val downloadUtils: DownloadUtils by lazy {
-        (activity as MainActivity).downloadUtils
-    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,7 +55,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     ): View? {
         binding = FragmentListBinding.inflate(inflater)
         setUpToolbar()
-        initDependencies()
         initRecyclerView()
         initDownloadUtils()
 
@@ -69,16 +71,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         return binding.root
     }
 
-    private fun initDependencies() {
-          val network = MonokromeApi.retrofitService
-        val magazineDao = MagazineDatabase.getInstance(requireContext()).magazineDao
-        val headerDao = MagazineDatabase.getInstance(requireContext()).headerDao
-        val cache = LocalCache(magazineDao, headerDao)
-        val repository = Repository.getInstance(requireContext(), lifecycleScope, cache, network)
-        val factory = ListViewModelFactory(repository)
-        viewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
-    }
-
     private fun initDownloadUtils() {
         downloadUtils.isDownloadRunning.observe(viewLifecycleOwner, Observer { isDownloading ->
             commitDownloadActive(requireContext(), isDownloading)
@@ -93,7 +85,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         setHasOptionsMenu(true)
         addBannerClickListener()
     }
-
 
     private fun checkForPermission(magazine: Magazine) {
         viewModel.setToDownload(magazine)
@@ -243,7 +234,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         }
         adapter = MagazineAdapter(magazineListener, headerListener)
         binding.recyclerview.adapter = adapter
-
     }
 
     private fun navigateToPdf(fileUri: String) {
@@ -265,7 +255,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
             showErrorLayout(getString(R.string.network_down))
         }
     }
-
 
     private fun navigateToDetail(id: Long) {
         val pathBundle = Bundle().apply { putLong(MAGAZINE_ID, id) }

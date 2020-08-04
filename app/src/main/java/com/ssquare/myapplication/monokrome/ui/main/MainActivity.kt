@@ -37,7 +37,6 @@ class MainActivity : AppCompatActivity() {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        initDownloadUtils()
         setupNavigation()
         subscribeTopic()
 
@@ -75,17 +74,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initDownloadUtils() {
-       /* Log.d("MainActivity", "initDownloadUtils called")
-        val network = MonokromeApi.retrofitService
-        val magazineDao = MagazineDatabase.getInstance(applicationContext).magazineDao
-        val headerDao = MagazineDatabase.getInstance(applicationContext).headerDao
-        val cache = LocalCache(magazineDao, headerDao)
-        val repository = Repository.getInstance(
-            applicationContext, CoroutineScope(Dispatchers.Main), cache, network
-        )
-        downloadUtils = DownloadUtils.getInstance(applicationContext, repository)*/
-    }
 
     private fun setupNavigation() {
         NavigationUI.setupWithNavController(

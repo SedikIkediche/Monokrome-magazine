@@ -1,16 +1,18 @@
 package com.ssquare.myapplication.monokrome.ui.main.list
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.hilt.Assisted
+import androidx.hilt.lifecycle.ViewModelInject
+import androidx.lifecycle.*
 import com.ssquare.myapplication.monokrome.data.Magazine
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.util.*
 import kotlinx.coroutines.launch
 
 
-class ListViewModel(private val repository: Repository) : ViewModel() {
+class ListViewModel @ViewModelInject constructor(
+    private val repository: Repository,
+    @Assisted private val savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
     private val _orderBy = MutableLiveData<OrderBy>()
 

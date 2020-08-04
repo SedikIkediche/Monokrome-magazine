@@ -13,6 +13,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
@@ -31,32 +32,30 @@ import com.ssquare.myapplication.monokrome.ui.main.list.MagazineAdapter
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
 /**
  * A simple [Fragment] subclass.
  */
+@AndroidEntryPoint
 class SearchFragment : Fragment() {
-
+    @Inject
+    lateinit var provider: ConnectivityProvider
+    @Inject
+    lateinit var downloadUtils: DownloadUtils
+    private val viewModel: SearchViewModel by viewModels()
     private lateinit var binding: FragmentSearchBinding
-    private lateinit var viewModel: SearchViewModel
     private lateinit var adapter: MagazineAdapter
     private var isNotConnected = false
-    private val provider: ConnectivityProvider by lazy {
-        ConnectivityProvider.createProvider(
-            requireContext()
-        )
-    }
-    private val downloadUtils: DownloadUtils by lazy {
-        (activity as MainActivity).downloadUtils
-    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentSearchBinding.inflate(inflater)
-        initDependencies()
         initDownloadUtils()
         initRecyclerView()
         setUpSearchView()
@@ -75,7 +74,6 @@ class SearchFragment : Fragment() {
         } else {
             showData(it)
         }
-
     }
 
     private fun showErrorLayout(errorText: String) {
@@ -132,7 +130,6 @@ class SearchFragment : Fragment() {
                 viewModel.search(newText)
                 return true
             }
-
         })
     }
 
@@ -148,15 +145,6 @@ class SearchFragment : Fragment() {
         return getSystemService(requireContext(), InputMethodManager::class.java)
     }
 
-    private fun initDependencies() {
-        val network = MonokromeApi.retrofitService
-        val magazineDao = MagazineDatabase.getInstance(requireContext()).magazineDao
-        val headerDao = MagazineDatabase.getInstance(requireContext()).headerDao
-        val cache = LocalCache(magazineDao, headerDao)
-        val repository = Repository.getInstance(requireContext(), lifecycleScope, cache, network)
-        val factory = SearchViewModelFactory(repository)
-        viewModel = ViewModelProviders.of(this, factory).get(SearchViewModel::class.java)
-    }
 
     private fun initRecyclerView() {
         val headerListener = MagazineAdapter.HeaderListener { /*Handle header click */ }
@@ -191,7 +179,6 @@ class SearchFragment : Fragment() {
         }
         adapter = MagazineAdapter(magazineListener, headerListener)
         binding.recyclerViewSearch.adapter = adapter
-
     }
 
     private fun initDownloadUtils() {

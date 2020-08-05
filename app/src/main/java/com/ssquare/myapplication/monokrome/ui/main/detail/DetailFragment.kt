@@ -32,11 +32,6 @@ import javax.inject.Inject
 /**
  * A simple [Fragment] subclass.
  */
-
-interface DetailClickListener {
-    fun downloadOrRead(magazine: Magazine)
-}
-
 @AndroidEntryPoint
 class DetailFragment : Fragment(), DetailClickListener {
 

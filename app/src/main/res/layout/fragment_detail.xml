@@ -11,7 +11,7 @@
 
         <variable
             name="clickListener"
-            type="com.ssquare.myapplication.monokrome.ui.main.detail.DetailClickListener" />
+            type="com.ssquare.myapplication.monokrome.util.DetailClickListener" />
 
         <import type="com.ssquare.myapplication.monokrome.util.DownloadState" />
 

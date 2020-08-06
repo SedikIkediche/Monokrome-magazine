@@ -4,21 +4,18 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.data.AuthRepository
 import com.ssquare.myapplication.monokrome.databinding.FragmentRegisterBinding
-import com.ssquare.myapplication.monokrome.network.FirebaseAuthServer
 import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.hasInternet
@@ -26,21 +23,21 @@ import com.ssquare.myapplication.monokrome.util.hideDialog
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import com.ssquare.myapplication.monokrome.util.showErrorDialog
 import com.ssquare.myapplication.monokrome.util.showLoading
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * A simple [Fragment] subclass.
  */
+@AndroidEntryPoint
 class RegisterFragment : Fragment() {
 
     private lateinit var binding: FragmentRegisterBinding
-    private lateinit var auth : FirebaseAuth
-    private lateinit var database : FirebaseDatabase
-    private lateinit var firebaseAuthServer : FirebaseAuthServer
-    private lateinit var authRepository: AuthRepository
-    private lateinit var registerViewModelFactory: RegisterViewModelFactory
-    private lateinit var registerViewModel: RegisterViewModel
+    private val registerViewModel: RegisterViewModel by viewModels()
     private lateinit var alertDialog: AlertDialog
-    private val provider: ConnectivityProvider by lazy { ConnectivityProvider.createProvider(activity as AuthActivity) }
+
+    @Inject
+    lateinit var provider: ConnectivityProvider
     private var isTheRepeatedPasswordInvalid = false
 
     override fun onCreateView(
@@ -48,24 +45,23 @@ class RegisterFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding =  FragmentRegisterBinding.inflate(inflater)
-
+        binding = FragmentRegisterBinding.inflate(inflater)
         setUpToolbar()
 
-        auth = FirebaseAuth.getInstance()
-        database = FirebaseDatabase.getInstance()
-        firebaseAuthServer = FirebaseAuthServer(auth,database)
-        authRepository = AuthRepository.getInstance(firebaseAuthServer)
-        registerViewModelFactory = RegisterViewModelFactory(authRepository)
-        registerViewModel = ViewModelProviders.of(this,registerViewModelFactory).get(RegisterViewModel::class.java)
-
-        registerViewModel.isUssrCreated.observe(viewLifecycleOwner, Observer {isUserCreated ->
-            if (isUserCreated){
+        registerViewModel.userState.observe(viewLifecycleOwner, Observer { isUserCreated ->
+            Log.d("RegisterFragment", "authTokenOrException: $isUserCreated")
+            if (isUserCreated.authToken != null) {
                 navigateToMainActivity()
-            }else{
+            } else {
                 alertDialog.hideDialog()
-                showErrorDialog(activity as AuthActivity,getString(R.string.information_error_massage),getString(
-                                    R.string.retry),getString(R.string.oops))
+                showErrorDialog(
+                    activity as AuthActivity,
+                    getString(R.string.information_error_massage),
+                    getString(
+                        R.string.retry
+                    ),
+                    getString(R.string.oops)
+                )
             }
         })
 
@@ -85,6 +81,7 @@ class RegisterFragment : Fragment() {
 
         return binding.root
     }
+
     private fun setUpAlertDialog() {
         alertDialog = AlertDialog.Builder(activity as AuthActivity).create()
     }
@@ -103,7 +100,8 @@ class RegisterFragment : Fragment() {
 
         binding.registerRepeatPassword.editText?.setOnFocusChangeListener { view, isFocused ->
             if (!isFocused && binding.registerRepeatPassword.editText!!.text!!.isEmpty()) {
-                binding.registerRepeatPassword.error = getString(R.string.repeat_password_error_message)
+                binding.registerRepeatPassword.error =
+                    getString(R.string.repeat_password_error_message)
             }
         }
 
@@ -124,7 +122,7 @@ class RegisterFragment : Fragment() {
                         .isNotEmpty()
                 ) {
                     binding.registerPassword.error = null
-                    if (isTheRepeatedPasswordInvalid){
+                    if (isTheRepeatedPasswordInvalid) {
                         binding.registerRepeatPassword.error = null
                         isTheRepeatedPasswordInvalid = false
                     }
@@ -132,7 +130,7 @@ class RegisterFragment : Fragment() {
                         .isEmpty()
                 ) {
                     binding.registerPassword.error = getString(R.string.password_error_message)
-                    if (isTheRepeatedPasswordInvalid){
+                    if (isTheRepeatedPasswordInvalid) {
                         binding.registerRepeatPassword.error = null
                         isTheRepeatedPasswordInvalid = false
                     }
@@ -145,7 +143,8 @@ class RegisterFragment : Fragment() {
                 } else if (editable == binding.registerRepeatPassword.editText?.editableText && binding.registerRepeatPassword.editText!!.text.toString()
                         .isEmpty()
                 ) {
-                    binding.registerRepeatPassword.error = getString(R.string.repeat_password_error_message)
+                    binding.registerRepeatPassword.error =
+                        getString(R.string.repeat_password_error_message)
                 }
 
                 binding.registerButton.isEnabled =
@@ -167,24 +166,27 @@ class RegisterFragment : Fragment() {
     }
 
     private fun createNewUser() {
-        if (provider.getNetworkState().hasInternet()){
+        if (provider.getNetworkState().hasInternet()) {
 
             val email = binding.registerEmail.editText?.text.toString()
             val passWord = binding.registerPassword.editText?.text.toString()
             val repeatedPassWord = binding.registerRepeatPassword.editText?.text.toString()
 
-            if (repeatedPassWord == passWord){
-                alertDialog.showLoading(activity as AuthActivity,R.string.register_dialog_text)
-                registerViewModel.registerUser(email,passWord)
-            }else{
-                binding.registerRepeatPassword.error =getString(R.string.invalid_repeated_password)
+            if (repeatedPassWord == passWord) {
+                alertDialog.showLoading(activity as AuthActivity, R.string.register_dialog_text)
+                //registeringUser ****************
+                registerViewModel.registerUser(email, passWord)
+            } else {
+                binding.registerRepeatPassword.error = getString(R.string.invalid_repeated_password)
                 isTheRepeatedPasswordInvalid = true
             }
-        }else{
-            showErrorDialog(activity as AuthActivity,getString(R.string.connectivity_error_messzge),getString(
-                            R.string.close),getString(R.string.oops))
+        } else {
+            showErrorDialog(
+                activity as AuthActivity, getString(R.string.connectivity_error_message), getString(
+                    R.string.close
+                ), getString(R.string.oops)
+            )
         }
-
     }
 
     private fun navigateToMainActivity() {
@@ -200,10 +202,10 @@ class RegisterFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId){
+        return when (item.itemId) {
 
             android.R.id.home -> this.findNavController().navigateUp()
-            else ->  super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

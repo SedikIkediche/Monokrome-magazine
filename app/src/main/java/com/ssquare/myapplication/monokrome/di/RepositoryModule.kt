@@ -1,6 +1,7 @@
 package com.ssquare.myapplication.monokrome.di
 
 import android.content.Context
+import com.ssquare.myapplication.monokrome.data.AuthRepository
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.network.MonokromeApiService
@@ -31,6 +32,13 @@ class RepositoryModule {
         cache: LocalCache,
         network: MonokromeApiService
     ): Repository = Repository(context, scope, cache, network)
+
+    @Singleton
+    @Provides
+    fun provideAuthRepository(
+        @ApplicationContext context: Context,
+        network: MonokromeApiService
+    ): AuthRepository = AuthRepository(context, network)
 
 
 }

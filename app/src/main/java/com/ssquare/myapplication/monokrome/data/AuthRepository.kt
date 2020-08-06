@@ -1,35 +1,43 @@
 package com.ssquare.myapplication.monokrome.data
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
-import com.google.firebase.auth.FirebaseAuth
-import com.ssquare.myapplication.monokrome.network.FirebaseAuthServer
+import com.ssquare.myapplication.monokrome.network.AuthTokenOrException
+import com.ssquare.myapplication.monokrome.network.MonokromeApiService
+import com.ssquare.myapplication.monokrome.network.loginUser
+import com.ssquare.myapplication.monokrome.network.registerUser
+import com.ssquare.myapplication.monokrome.util.NO_AUTH_TOKEN
+import com.ssquare.myapplication.monokrome.util.getAuthToken
+import com.ssquare.myapplication.monokrome.util.storeAuthToken
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
-class AuthRepository private constructor(private val authServer: FirebaseAuthServer) {
+class AuthRepository(
+    private val context: Context,
+    private val network: MonokromeApiService
+) {
 
-    companion object {
+    val _userState = MutableLiveData<AuthTokenOrException>()
 
-        var INSTANCE: AuthRepository? = null
-        fun getInstance(authServer: FirebaseAuthServer): AuthRepository {
-            var instance = INSTANCE
-            if (instance == null) {
-                instance = AuthRepository(authServer)
-                INSTANCE = instance
-            }
-            return instance
-        }
-
+    //check authToken existence
+    fun checkForUserCreation() {
+        //authServer.isUserCreated
     }
 
-   fun checkForUserCreation() = authServer.isUserCreated
+    //check authToken existence
+    fun checkForUserLogin() =
+        getAuthToken(context) != NO_AUTH_TOKEN
 
-   fun checkForUserLogin() = authServer.isUserSignedIn
-
-    fun loginUser(email :String, password : String){
-        authServer.loginUser(email, password)
+    suspend fun loginUser(email: String, password: String) {
+        val auth = network.loginUser(User(email, password))
+        storeAuthToken(context, auth.authToken ?: NO_AUTH_TOKEN)
+        _userState.value = auth
     }
 
-    fun registerUser(email : String, password : String){
-        authServer.registerUser(email, password)
+    suspend fun registerUser(email: String, password: String) {
+        val auth = network.registerUser(User(email, password))
+        storeAuthToken(context, auth.authToken ?: NO_AUTH_TOKEN)
+        _userState.value = auth
     }
 
 }

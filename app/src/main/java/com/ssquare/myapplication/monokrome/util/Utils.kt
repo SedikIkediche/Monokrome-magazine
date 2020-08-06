@@ -20,6 +20,8 @@ import java.io.File
 import java.net.URI
 
 const val AUTH_HEADER_KEY = "x-auth-token"
+const val AUTH_PREF_KEY = "auth_token"
+const val NO_AUTH_TOKEN = "no_auth_token"
  const val AUTH_TOKEN =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNTk1NTAzMzI0fQ.mzWfcFy4i1HDl7D_J2AF48UC2P_2Mm52hQuBLcWmam0"
 
@@ -39,6 +41,27 @@ const val MAGAZINE_URI = "magazine_uri"
 const val NO_DOWNLOAD = -1
 const val STORAGE_PERMISSION_CODE = 100
 const val NO_PROGRESS = -1
+
+fun getAuthToken(context: Context): String {
+    return PreferenceManager.getDefaultSharedPreferences(context).getString(AUTH_PREF_KEY,
+        NO_AUTH_TOKEN) ?: NO_AUTH_TOKEN
+}
+
+fun storeAuthToken(context: Context, authToken: String) {
+    PreferenceManager.getDefaultSharedPreferences(context).edit().apply {
+        putString(AUTH_PREF_KEY, authToken)
+        apply()
+    }
+}
+
+fun deleteAuthToken(context: Context) {
+    PreferenceManager.getDefaultSharedPreferences(context).edit().apply {
+        putString(AUTH_PREF_KEY, NO_AUTH_TOKEN)
+        apply()
+    }
+}
+
+
 
 fun toast(context: Context, text: String) {
     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()

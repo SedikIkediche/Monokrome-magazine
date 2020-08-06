@@ -29,7 +29,7 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideRetrofit(moshi: Moshi): Retrofit = Retrofit.Builder()
-        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
         .baseUrl(BASE_URL)
         .build()
 

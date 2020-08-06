@@ -1,15 +1,28 @@
 package com.ssquare.myapplication.monokrome.ui.auth.login
 
+import androidx.hilt.Assisted
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.ssquare.myapplication.monokrome.data.AuthRepository
+import com.ssquare.myapplication.monokrome.network.AuthTokenOrException
+import kotlinx.coroutines.launch
 
-class LoginViewModel(private val authRepository: AuthRepository) : ViewModel(){
+class LoginViewModel @ViewModelInject constructor(
+    private val authRepository: AuthRepository,
+    @Assisted private val savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
-   private val _isUserSignedIn = authRepository.checkForUserLogin()
+    private val _userState = authRepository._userState
 
-    val isUserSignedIn : LiveData<Boolean>
-          get() = _isUserSignedIn
+    val userState: LiveData<AuthTokenOrException>
+        get() = _userState
 
-    fun logInUser(email : String, password : String) = authRepository.loginUser(email, password)
+    fun logInUser(email: String, password: String) {
+        viewModelScope.launch {
+            authRepository.loginUser(email, password)
+        }
+    }
 }

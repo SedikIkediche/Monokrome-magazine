@@ -4,17 +4,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.data.AuthRepository
 import com.ssquare.myapplication.monokrome.databinding.FragmentLoginBinding
 import com.ssquare.myapplication.monokrome.network.FirebaseAuthServer
 import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
@@ -24,20 +24,20 @@ import com.ssquare.myapplication.monokrome.util.hideDialog
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import com.ssquare.myapplication.monokrome.util.showErrorDialog
 import com.ssquare.myapplication.monokrome.util.showLoading
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * A simple [Fragment] subclass.
  */
+@AndroidEntryPoint
 class LoginFragment : Fragment() {
 
+    @Inject
+    lateinit var provider: ConnectivityProvider
     private lateinit var binding: FragmentLoginBinding
-    private lateinit var auth: FirebaseAuth
-    private lateinit var firebaseAuthServer: FirebaseAuthServer
-    private lateinit var authRepository: AuthRepository
-    private lateinit var loginViewModelFactory: LoginViewModelFactory
-    private lateinit var loginViewModel: LoginViewModel
+    private val loginViewModel: LoginViewModel by viewModels()
     private lateinit var alertDialog: AlertDialog
-    private val provider: ConnectivityProvider by lazy { ConnectivityProvider.createProvider(activity as AuthActivity) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,20 +46,20 @@ class LoginFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentLoginBinding.inflate(inflater)
 
-        auth = FirebaseAuth.getInstance()
-        firebaseAuthServer = FirebaseAuthServer(auth = auth)
-        authRepository = AuthRepository.getInstance(firebaseAuthServer)
-        loginViewModelFactory = LoginViewModelFactory(authRepository)
-        loginViewModel =
-            ViewModelProviders.of(this, loginViewModelFactory).get(LoginViewModel::class.java)
-
-        loginViewModel.isUserSignedIn.observe(viewLifecycleOwner, Observer { isUserSignedIn ->
-            if (isUserSignedIn) {
+        loginViewModel.userState.observe(viewLifecycleOwner, Observer { isUserSignedIn ->
+            Log.d("LoginFragment", "authTokenOrException: $isUserSignedIn")
+            if (isUserSignedIn.authToken != null) {
                 navigateToMainActivity()
-            }else{
+            } else {
                 alertDialog.hideDialog()
-                showErrorDialog(activity as AuthActivity,getString(R.string.information_error_massage),getString(
-                    R.string.retry),getString(R.string.oops))
+                showErrorDialog(
+                    activity as AuthActivity,
+                    getString(R.string.information_error_massage),
+                    getString(
+                        R.string.retry
+                    ),
+                    getString(R.string.oops)
+                )
             }
         })
 
@@ -88,6 +88,7 @@ class LoginFragment : Fragment() {
                 binding.email.error = getString(R.string.email_error_message)
             }
         }
+
         binding.password.editText?.setOnFocusChangeListener { view, isFocused ->
             if (!isFocused && binding.password.editText!!.text!!.isEmpty()) {
                 binding.password.error = getString(R.string.password_error_message)
@@ -117,7 +118,6 @@ class LoginFragment : Fragment() {
                     binding.password.error = getString(R.string.password_error_message)
                 }
 
-
                 binding.loginButton.isEnabled =
                     binding.email.editText!!.text.isNotEmpty()
                             && binding.password.editText!!.text.isNotEmpty()
@@ -135,19 +135,22 @@ class LoginFragment : Fragment() {
     }
 
     private fun signInUser() {
-        if(provider.getNetworkState().hasInternet()){
+        if (provider.getNetworkState().hasInternet()) {
             alertDialog.showLoading(activity as AuthActivity, R.string.log_in_dialog_text)
 
             val email = binding.email.editText?.text.toString()
             val passWord = binding.password.editText?.text.toString()
 
-            loginViewModel.logInUser(email,passWord)
+            //login user
+            loginViewModel.logInUser(email, passWord)
 
-        }else{
-            showErrorDialog(activity as AuthActivity,getString(R.string.connectivity_error_messzge),getString(
-                R.string.close),getString(R.string.oops))
+        } else {
+            showErrorDialog(
+                activity as AuthActivity, getString(R.string.connectivity_error_message), getString(
+                    R.string.close
+                ), getString(R.string.oops)
+            )
         }
-
     }
 
     private fun navigateToMainActivity() {
@@ -158,7 +161,7 @@ class LoginFragment : Fragment() {
     }
 
     override fun onStop() {
-        if (alertDialog.isShowing){
+        if (alertDialog.isShowing) {
             alertDialog.hideDialog()
         }
         super.onStop()

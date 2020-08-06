@@ -16,9 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 class RefreshDataWorker(private val appContext: Context, params: WorkerParameters) :
-    CoroutineWorker(
-        appContext, params
-    ) {
+    CoroutineWorker(appContext, params) {
 
 
     companion object {

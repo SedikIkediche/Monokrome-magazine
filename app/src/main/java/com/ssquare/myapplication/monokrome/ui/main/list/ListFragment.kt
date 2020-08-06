@@ -40,6 +40,7 @@ import javax.inject.Inject
 class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener {
     @Inject
     lateinit var downloadUtils: DownloadUtils
+
     @Inject
     lateinit var provider: ConnectivityProvider
     private val viewModel: ListViewModel by viewModels()

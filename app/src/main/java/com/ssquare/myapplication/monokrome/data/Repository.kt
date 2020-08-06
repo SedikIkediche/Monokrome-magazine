@@ -7,10 +7,7 @@ import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.network.MonokromeApiService
 import com.ssquare.myapplication.monokrome.network.NetworkMagazine
 import com.ssquare.myapplication.monokrome.network.loadFromServer
-import com.ssquare.myapplication.monokrome.util.DownloadState
-import com.ssquare.myapplication.monokrome.util.OrderBy
-import com.ssquare.myapplication.monokrome.util.commitLoadDataActive
-import com.ssquare.myapplication.monokrome.util.createUriString
+import com.ssquare.myapplication.monokrome.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,7 +16,7 @@ import java.io.File
 import java.net.URI
 
 
-class Repository  constructor(
+class Repository constructor(
     private val context: Context,
     private val scope: CoroutineScope,
     private val cache: LocalCache,
@@ -122,7 +119,8 @@ class Repository  constructor(
 
     suspend fun loadAndCacheData(): Boolean {
         var resultState = false
-        val result = network.loadFromServer()
+        val authToken = getAuthToken(context)
+        val result = network.loadFromServer(authToken)
         withContext(Dispatchers.IO) {
             commitLoadDataActive(context, true)
             resultState =
@@ -174,7 +172,6 @@ class Repository  constructor(
                 this.editionUrl
             )
         }
-
     }
 
 }

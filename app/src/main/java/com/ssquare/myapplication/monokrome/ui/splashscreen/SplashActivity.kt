@@ -7,27 +7,24 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
+import com.ssquare.myapplication.monokrome.util.NO_AUTH_TOKEN
+import com.ssquare.myapplication.monokrome.util.getAuthToken
 
 class SplashActivity : AppCompatActivity() {
 
-    private lateinit var auth: FirebaseAuth
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //get auth from sharedPreferences if null or not
+        val authToken = getAuthToken(applicationContext)
 
-        auth = FirebaseAuth.getInstance()
-
-        val currentUser = auth.currentUser
-
-        when (currentUser) {
-            null -> {
+        when (authToken) {
+            NO_AUTH_TOKEN -> {
                 navigateTo(this, AuthActivity::class.java)
             }
             else -> {
                 navigateTo(this, MainActivity::class.java)
             }
         }
-
     }
 
     private fun navigateTo(context: Context, destination: Class<out AppCompatActivity>) {

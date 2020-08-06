@@ -36,8 +36,8 @@
     <string name="information_error_massage">An error happened please check your informations and try again.</string>
     <string name="retry">Retry</string>
     <string name="oops">Oops!</string>
-    <string name="connectivity_error_messzge">Please check you connectivity.</string>
-    <string name="email_error_message">Pleas Enter a Email</string>
+    <string name="connectivity_error_message">Please check you connectivity.</string>
+    <string name="email_error_message">Please Enter a Email</string>
     <string name="password_error_message">Pleas Enter a Password</string>
     <string name="repeat_password_error_message">Pleas Repeat The Password</string>
     <string name="register_dialog_text">Registering...</string>

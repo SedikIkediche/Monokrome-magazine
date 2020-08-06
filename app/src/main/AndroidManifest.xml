@@ -11,28 +11,30 @@
 
 
     <application
-        android:usesCleartextTraffic="true"
         android:name=".MagazineApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher_icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_icon_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
         <activity android:name=".ui.pdf.PdfViewActivity" />
 
         <activity
             android:name="com.ssquare.myapplication.monokrome.ui.auth.AuthActivity"
-                  android:theme="@style/AuthStyle"/>
+            android:theme="@style/AuthStyle" />
         <activity
             android:name="com.ssquare.myapplication.monokrome.ui.splashscreen.SplashActivity"
-            android:theme="@style/SplashTheme" />
-        <activity android:name="com.ssquare.myapplication.monokrome.ui.main.MainActivity">
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name="com.ssquare.myapplication.monokrome.ui.main.MainActivity">
+
         </activity>
 
 
@@ -40,7 +42,7 @@
             android:name=".AppMessagingService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
         <!-- [START fcm_default_icon] -->
@@ -57,13 +59,12 @@
         -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/colorAccent"/> <!-- [END fcm_default_icon] -->
+            android:resource="@color/colorAccent" /> <!-- [END fcm_default_icon] -->
         <!-- [START fcm_default_channel] -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/new_edition_notification_channel_id" />
         <!-- [END fcm_default_channel] -->
-
 
 
     </application>

@@ -25,7 +25,7 @@ class DownloadUtils(
         .build()
 
     private var fetch = Fetch.Impl.getInstance(fetchConfiguration)
-
+    private  var authToken:String? = null
 
     private val listener = object : FetchListener {
 
@@ -105,7 +105,6 @@ class DownloadUtils(
         }
     }
 
-
     var downloadState = DownloadState.EMPTY
 
     private val _isDownloadRunning = MutableLiveData<Boolean>()
@@ -115,6 +114,10 @@ class DownloadUtils(
 
     private fun init() {
         if (fetch.isClosed) fetch = Fetch.Impl.getInstance(fetchConfiguration)
+    }
+
+    fun setToken(token: String?){
+        authToken = token
     }
 
     private fun triggerActiveDownloads() {
@@ -136,6 +139,14 @@ class DownloadUtils(
                         download.fileUri.toString()
                     )
                     Status.FAILED -> updateDownloadFailed(download.id, download.fileUri.toString())
+                    Status.NONE -> {}
+                    Status.QUEUED -> {}
+                    Status.DOWNLOADING -> {}
+                    Status.PAUSED -> {}
+                    Status.CANCELLED -> {}
+                    Status.REMOVED -> {}
+                    Status.DELETED -> {}
+                    Status.ADDED -> {}
                 }
             }
         })
@@ -149,6 +160,10 @@ class DownloadUtils(
         fetch.removeListener(listener)
     }
 
+    fun clear(){
+        authToken = null
+        //clear all downloads from downloadUtils and database and files
+    }
 
     fun close() {
         fetch.close()
@@ -159,7 +174,7 @@ class DownloadUtils(
         val filePath = createFilePath(magazine.id)
         val request = Request(magazine.editionUrl, filePath).apply {
             networkType = NetworkType.ALL
-            addHeader(AUTH_HEADER_KEY, AUTH_TOKEN)
+            addHeader(AUTH_HEADER_KEY, authToken!!)
         }
         fetch.enqueue(request,
             Func {

@@ -54,15 +54,7 @@ class RegisterFragment : Fragment() {
                 if (it.authToken != null) {
                     navigateToMainActivity()
                 } else {
-                    alertDialog.hideDialog()
-                    showErrorDialog(
-                        activity as AuthActivity,
-                        getString(R.string.information_error_massage),
-                        getString(
-                            R.string.retry
-                        ),
-                        getString(R.string.oops)
-                    )
+                    showError()
                 }
             }
         })
@@ -82,6 +74,18 @@ class RegisterFragment : Fragment() {
         setUpAlertDialog()
 
         return binding.root
+    }
+
+    private fun showError() {
+        alertDialog.hideDialog()
+        showErrorDialog(
+            activity as AuthActivity,
+            getString(R.string.information_error_massage),
+            getString(
+                R.string.retry
+            ),
+            getString(R.string.oops)
+        )
     }
 
     private fun setUpAlertDialog() {

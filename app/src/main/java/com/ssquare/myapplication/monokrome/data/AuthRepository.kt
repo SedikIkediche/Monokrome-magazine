@@ -15,30 +15,26 @@ class AuthRepository(
     private val network: MonokromeApiService
 ) {
 
-    private val _userState = MutableLiveData<AuthTokenOrException>()
-    val userState: LiveData<AuthTokenOrException>
-        get() = _userState
 
-
-    suspend fun loginUser(email: String, password: String) {
+    suspend fun loginUser(email: String, password: String): AuthTokenOrException {
         val auth = network.loginUser(User(email, password))
-        _userState.value = auth
         if (auth.authToken != null)
             storeAuthToken(context, auth.authToken)
 
-
+        return auth
     }
 
-    suspend fun registerUser(email: String, password: String) {
+    suspend fun registerUser(email: String, password: String): AuthTokenOrException {
         val auth = network.registerUser(User(email, password))
-        _userState.value = auth
         if (auth.authToken != null)
             storeAuthToken(context, auth.authToken)
+
+        return auth
     }
 
     fun logoutUser() {
         deleteAuthToken(context)
-        _userState.value = null
     }
+
 
 }

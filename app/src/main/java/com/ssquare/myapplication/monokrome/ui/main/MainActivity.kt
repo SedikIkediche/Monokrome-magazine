@@ -20,6 +20,7 @@ import com.ssquare.myapplication.monokrome.data.AuthRepository
 import com.ssquare.myapplication.monokrome.databinding.ActivityMainBinding
 import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 import com.ssquare.myapplication.monokrome.util.DownloadUtils
+import com.ssquare.myapplication.monokrome.util.getAuthToken
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -40,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
         setupDrawerMenuItemClick()
         subscribeTopic()
-
+        downloadUtils.setToken(getAuthToken(applicationContext))
     }
 
     private fun setupDrawerMenuItemClick() {
@@ -72,6 +73,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.logout -> {
                     authRepository.logoutUser()
+                    downloadUtils.clear()
                     FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC)
                     val intent = Intent(this@MainActivity, AuthActivity::class.java)
                     startActivity(intent)

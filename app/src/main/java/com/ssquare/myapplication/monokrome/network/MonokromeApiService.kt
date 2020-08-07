@@ -32,17 +32,16 @@ interface MonokromeApiService {
     suspend fun getIssues(@retrofit2.http.Header(AUTH_HEADER_KEY) token: String?): List<NetworkMagazine>
 
     @POST("users")
-    suspend fun register(@Body userUser: User): String
+    suspend fun register(@Body user: User): String
 
     @POST("auth")
-    suspend fun login(@Body userUser: User): String
+    suspend fun login(@Body user: User): String
 
 }
 
 object MonokromeApi {
     val retrofitService: MonokromeApiService by lazy { retrofit.create(MonokromeApiService::class.java) }
 }
-
 
 suspend fun MonokromeApiService.loadFromServer(authToken: String?): MagazineListOrException {
     return try {

@@ -10,11 +10,8 @@ import com.ssquare.myapplication.monokrome.data.Repository
 import com.tonyodev.fetch2.*
 import com.tonyodev.fetch2core.DownloadBlock
 import com.tonyodev.fetch2core.Func
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.net.URI
-import javax.inject.Inject
-import javax.inject.Singleton
 
 
 class DownloadUtils(
@@ -22,36 +19,13 @@ class DownloadUtils(
     private val repository: Repository
 ) {
 
-    companion object {
-        private var INSTANCE: DownloadUtils? = null
-
-        fun getInstance(
-            context: Context,
-            repository: Repository
-        ): DownloadUtils {
-            var instance = INSTANCE
-            if (instance == null) {
-                Log.d("DownloadUtils", "INSTANCE = $INSTANCE")
-                instance = DownloadUtils(
-                    context.applicationContext,
-                    repository
-                )
-                INSTANCE = instance
-            }
-            return instance
-        }
-
-        fun clear() {
-            INSTANCE = null
-        }
-    }
-
     private val fetchConfiguration = FetchConfiguration.Builder(context)
         .setDownloadConcurrentLimit(10)
         .setProgressReportingInterval(1000)
         .build()
 
-    private val fetch = Fetch.Impl.getInstance(fetchConfiguration)
+    private var fetch = Fetch.Impl.getInstance(fetchConfiguration)
+
 
     private val listener = object : FetchListener {
 
@@ -138,6 +112,11 @@ class DownloadUtils(
     val isDownloadRunning: LiveData<Boolean>
         get() = _isDownloadRunning
 
+
+    private fun init() {
+        if (fetch.isClosed) fetch = Fetch.Impl.getInstance(fetchConfiguration)
+    }
+
     private fun triggerActiveDownloads() {
         fetch.getDownloads(Func { list ->
             val activeDownloadsList =
@@ -147,6 +126,7 @@ class DownloadUtils(
     }
 
     fun registerListener() {
+        init()
         triggerActiveDownloads()
         fetch.getDownloads(Func {
             it.forEach { download ->
@@ -165,6 +145,7 @@ class DownloadUtils(
 
     fun unregisterListener() {
         Log.d("DownloadUtils", "unregisterListener called")
+        init()
         fetch.removeListener(listener)
     }
 

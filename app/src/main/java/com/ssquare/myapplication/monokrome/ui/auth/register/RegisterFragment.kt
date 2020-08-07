@@ -50,18 +50,20 @@ class RegisterFragment : Fragment() {
 
         registerViewModel.userState.observe(viewLifecycleOwner, Observer { isUserCreated ->
             Log.d("RegisterFragment", "authTokenOrException: $isUserCreated")
-            if (isUserCreated.authToken != null) {
-                navigateToMainActivity()
-            } else {
-                alertDialog.hideDialog()
-                showErrorDialog(
-                    activity as AuthActivity,
-                    getString(R.string.information_error_massage),
-                    getString(
-                        R.string.retry
-                    ),
-                    getString(R.string.oops)
-                )
+            isUserCreated?.let {
+                if (it.authToken != null) {
+                    navigateToMainActivity()
+                } else {
+                    alertDialog.hideDialog()
+                    showErrorDialog(
+                        activity as AuthActivity,
+                        getString(R.string.information_error_massage),
+                        getString(
+                            R.string.retry
+                        ),
+                        getString(R.string.oops)
+                    )
+                }
             }
         })
 

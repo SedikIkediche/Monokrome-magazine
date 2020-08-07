@@ -10,19 +10,13 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
-import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.data.getDownloadState
 import com.ssquare.myapplication.monokrome.databinding.FragmentListBinding
-import com.ssquare.myapplication.monokrome.db.LocalCache
-import com.ssquare.myapplication.monokrome.db.MagazineDatabase
-import com.ssquare.myapplication.monokrome.network.MonokromeApi
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
@@ -177,6 +171,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         }
         binding.tryAgainButton.setOnClickListener {
             binding.bannerLayout.visibility = View.GONE
+            viewModel.loadAndCacheData()
         }
     }
 

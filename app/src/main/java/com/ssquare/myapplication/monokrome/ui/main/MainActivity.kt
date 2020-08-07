@@ -1,5 +1,6 @@
 package com.ssquare.myapplication.monokrome.ui.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Window
@@ -15,15 +16,11 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.messaging.FirebaseMessaging
 import com.ssquare.myapplication.monokrome.AppMessagingService.Companion.TOPIC
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.data.Repository
+import com.ssquare.myapplication.monokrome.data.AuthRepository
 import com.ssquare.myapplication.monokrome.databinding.ActivityMainBinding
-import com.ssquare.myapplication.monokrome.db.LocalCache
-import com.ssquare.myapplication.monokrome.db.MagazineDatabase
-import com.ssquare.myapplication.monokrome.network.MonokromeApi
+import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 import com.ssquare.myapplication.monokrome.util.DownloadUtils
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 
 
@@ -31,6 +28,9 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var downloadUtils: DownloadUtils
+
+    @Inject
+    lateinit var authRepository: AuthRepository
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +38,51 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setupNavigation()
+        setupDrawerMenuItemClick()
         subscribeTopic()
+
+    }
+
+    private fun setupDrawerMenuItemClick() {
+        binding.navigation.setNavigationItemSelectedListener {
+            return@setNavigationItemSelectedListener when (it.itemId) {
+                R.id.home -> {
+                    true
+                }
+                R.id.about_us -> {
+                    true
+                }
+                R.id.rate_us -> {
+                    true
+                }
+                R.id.web_site -> {
+                    true
+                }
+                R.id.facebook -> {
+                    true
+                }
+                R.id.instagram -> {
+                    true
+                }
+                R.id.contact_us -> {
+                    true
+                }
+                R.id.settings -> {
+                    true
+                }
+                R.id.logout -> {
+                    authRepository.logoutUser()
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC)
+                    val intent = Intent(this@MainActivity, AuthActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+
+                else -> true
+            }
+
+        }
     }
 
 
@@ -54,7 +98,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         downloadUtils.close()
-        DownloadUtils.clear()
         super.onDestroy()
     }
 
@@ -73,13 +116,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private fun setupNavigation() {
         NavigationUI.setupWithNavController(
             binding.navigation,
             Navigation.findNavController(this, R.id.nav_host_fragment)
         )
-
 
         Navigation.findNavController(this, R.id.nav_host_fragment)
             .addOnDestinationChangedListener { controller, destination, arguments ->

@@ -13,10 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentLoginBinding
-import com.ssquare.myapplication.monokrome.network.FirebaseAuthServer
 import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.hasInternet
@@ -48,18 +46,20 @@ class LoginFragment : Fragment() {
 
         loginViewModel.userState.observe(viewLifecycleOwner, Observer { isUserSignedIn ->
             Log.d("LoginFragment", "authTokenOrException: $isUserSignedIn")
-            if (isUserSignedIn.authToken != null) {
-                navigateToMainActivity()
-            } else {
-                alertDialog.hideDialog()
-                showErrorDialog(
-                    activity as AuthActivity,
-                    getString(R.string.information_error_massage),
-                    getString(
-                        R.string.retry
-                    ),
-                    getString(R.string.oops)
-                )
+            isUserSignedIn?.let {
+                if (it.authToken != null) {
+                    navigateToMainActivity()
+                } else {
+                    alertDialog.hideDialog()
+                    showErrorDialog(
+                        activity as AuthActivity,
+                        getString(R.string.information_error_massage),
+                        getString(
+                            R.string.retry
+                        ),
+                        getString(R.string.oops)
+                    )
+                }
             }
         })
 
@@ -154,7 +154,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun navigateToMainActivity() {
-        val intent = Intent(context, MainActivity::class.java).apply {
+        Intent(context, MainActivity::class.java).apply {
             startActivity(this)
             (activity as AuthActivity).finish()
         }

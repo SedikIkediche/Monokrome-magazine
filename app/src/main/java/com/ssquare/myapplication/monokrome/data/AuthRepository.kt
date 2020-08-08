@@ -1,8 +1,6 @@
 package com.ssquare.myapplication.monokrome.data
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.ssquare.myapplication.monokrome.network.AuthTokenOrException
 import com.ssquare.myapplication.monokrome.network.MonokromeApiService
 import com.ssquare.myapplication.monokrome.network.loginUser

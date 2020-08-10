@@ -4,13 +4,13 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import com.ssquare.myapplication.monokrome.data.Magazine
+import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.util.*
 
 class SearchViewModel @ViewModelInject constructor(private val repository: Repository) : ViewModel() {
 
-    var toDownloadMagazine: Magazine? = null
+    var toDownloadMagazine: DomainMagazine? = null
     private val _searchInput = MutableLiveData<String>()
 
     init {
@@ -25,7 +25,7 @@ class SearchViewModel @ViewModelInject constructor(private val repository: Repos
         _searchInput.postValue(input)
     }
 
-    fun delete(magazine: Magazine) {
+    fun delete(magazine: DomainMagazine) {
         val fileDeleted = deleteFile(magazine.fileUri)
         if (fileDeleted) {
             repository.updateFileUri(magazine.id, NO_FILE)
@@ -35,7 +35,7 @@ class SearchViewModel @ViewModelInject constructor(private val repository: Repos
         }
     }
 
-    fun setToDownload(magazine: Magazine?) {
+    fun setToDownload(magazine: DomainMagazine?) {
         toDownloadMagazine = magazine
     }
 

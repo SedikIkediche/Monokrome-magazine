@@ -3,6 +3,9 @@ package com.ssquare.myapplication.monokrome.data
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
+import com.bumptech.glide.load.model.GlideUrl
+import com.bumptech.glide.load.model.LazyHeaders
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.network.MonokromeApiService
 import com.ssquare.myapplication.monokrome.network.NetworkMagazine
@@ -45,9 +48,19 @@ class Repository constructor(
     }
 
 
-    fun getCachedData(orderBy: OrderBy): MagazineListLiveData = cache.getCachedData(orderBy)
+    fun getCachedData(orderBy: OrderBy): MagazineListLiveData {
+        val header = Transformations.map(cache.getCachedHeader()) {
+            it.toDomainHeader()
+        }
+        val magazines = Transformations.map(cache.getCachedMagazines(orderBy)) {
+            it.toDomainMagazines()
+        }
+        return MagazineListLiveData(header, magazines)
+    }
 
-    fun getMagazine(id: Long) = cache.getMagazine(id)
+    fun getMagazine(id: Long) = Transformations.map(cache.getMagazine(id)) {
+        it.toDomainMagazine()
+    }
 
     //Download
 
@@ -59,7 +72,9 @@ class Repository constructor(
         }
     }
 
-    fun searchResult(search: String?) = cache.searchResult(search)
+    fun searchResult(search: String?) = Transformations.map(cache.searchResult(search)) {
+        it.toDomainMagazines()
+    }
 
     fun updateDownloadProgress(id: Long, progress: Int) {
         scope.launch {
@@ -125,7 +140,7 @@ class Repository constructor(
             commitLoadDataActive(context, true)
             resultState =
                 if (result.header != null && result.magazineList != null && result.exception == null) {
-                    val databaseMagazines = result.magazineList.toDatabaseMagazines()
+                    val databaseMagazines = result.magazineList.toMagazines()
                     cache.refresh(databaseMagazines, result.header)
                     true
                 } else {
@@ -142,10 +157,14 @@ class Repository constructor(
 
     //map entities
 
-    private fun List<NetworkMagazine>.toDatabaseMagazines(): List<Magazine> {
+    private fun List<NetworkMagazine>.toMagazines(): List<Magazine> {
         return this.map {
             it.toMagazine()
         }
+    }
+
+    private fun List<Magazine>.toDomainMagazines(): List<DomainMagazine> {
+        return this.map { it.toDomainMagazine() }
     }
 
     private fun NetworkMagazine.toMagazine(): Magazine {
@@ -173,5 +192,56 @@ class Repository constructor(
             )
         }
     }
+
+    private fun Magazine.toDomainMagazine(): DomainMagazine {
+        return run {
+            val authToken = getAuthToken(context) ?: ""
+            val header = LazyHeaders.Builder().addHeader(AUTH_HEADER_KEY, authToken).build()
+            val glideUrl = GlideUrl(this.imageUrl, header)
+            DomainMagazine(
+                this.id,
+                this.title,
+                this.description,
+                this.releaseDate,
+                glideUrl,
+                this.editionUrl,
+                this.fileUri,
+                this.downloadProgress,
+                this.downloadState
+            )
+        }
+    }
+
+    private fun DomainMagazine.toMagazine(): Magazine {
+        val imageUrl = this.imageUrl?.toStringUrl() ?: ""
+
+        return Magazine(
+            this.id,
+            this.title,
+            this.description,
+            this.releaseDate,
+            imageUrl,
+            this.editionUrl,
+            this.fileUri,
+            this.downloadProgress,
+            this.downloadState
+        )
+    }
+
+    private fun DomainHeader.toHeader(): Header {
+        val imageUrl = this.imageUrl?.toStringUrl() ?: ""
+        return Header(this.id, imageUrl)
+    }
+
+    private fun Header?.toDomainHeader(): DomainHeader? {
+
+        return if (this != null) {
+            val authToken = getAuthToken(context) ?: ""
+            val header = LazyHeaders.Builder().addHeader(AUTH_HEADER_KEY, authToken).build()
+            val glideUrl = GlideUrl(this.imageUrl, header)
+            DomainHeader(this.id, glideUrl)
+        } else null
+    }
+
 
 }

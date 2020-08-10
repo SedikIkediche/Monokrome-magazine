@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import com.ssquare.myapplication.monokrome.data.Magazine
+import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.util.*
 
@@ -19,9 +19,9 @@ class DetailViewModel @ViewModelInject constructor(
     val magazine = Transformations.switchMap(_id) {
         repository.getMagazine(it)
     }
-    var toDownloadMagazine: Magazine? = null
+    var toDownloadMagazine: DomainMagazine? = null
 
-    fun delete(magazine: Magazine) {
+    fun delete(magazine: DomainMagazine) {
         val fileDeleted = deleteFile(magazine.fileUri)
         if (fileDeleted) {
             repository.updateFileUri(magazine.id, NO_FILE)
@@ -31,7 +31,7 @@ class DetailViewModel @ViewModelInject constructor(
         }
     }
 
-    fun setToDownload(magazine: Magazine?) {
+    fun setToDownload(magazine: DomainMagazine?) {
         toDownloadMagazine = magazine
     }
 

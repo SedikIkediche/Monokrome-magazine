@@ -5,7 +5,7 @@ import android.os.Environment
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.ssquare.myapplication.monokrome.data.Magazine
+import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.tonyodev.fetch2.*
 import com.tonyodev.fetch2core.DownloadBlock
@@ -169,14 +169,15 @@ class DownloadUtils(
         fetch.close()
     }
 
-    fun enqueueDownload(magazine: Magazine) {
+    fun enqueueDownload(magazine: DomainMagazine) {
         Log.d("DownloadUtils", "Magazine: $magazine")
         val filePath = createFilePath(magazine.id)
         val request = Request(magazine.editionUrl, filePath).apply {
             networkType = NetworkType.ALL
             addHeader(AUTH_HEADER_KEY, authToken!!)
         }
-        fetch.enqueue(request,
+        fetch.enqueue(
+            request,
             Func {
                 updateDownloadPending(magazine.id, request.id)
             },

@@ -13,17 +13,10 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.lifecycleScope
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.data.Magazine
-import com.ssquare.myapplication.monokrome.data.Repository
+import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.getDownloadState
 import com.ssquare.myapplication.monokrome.databinding.FragmentDetailBinding
-import com.ssquare.myapplication.monokrome.db.LocalCache
-import com.ssquare.myapplication.monokrome.db.MagazineDatabase
-import com.ssquare.myapplication.monokrome.network.MonokromeApi
-import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
 import dagger.hilt.android.AndroidEntryPoint
@@ -91,7 +84,7 @@ class DetailFragment : Fragment(), DetailClickListener {
         })
     }
 
-    private fun downloadMagazine(magazine: Magazine) {
+    private fun downloadMagazine(magazine: DomainMagazine) {
         // check for connectivity
         if (!isLoadDataActive(requireContext())) {
             downloadUtils.enqueueDownload(magazine)
@@ -105,7 +98,7 @@ class DetailFragment : Fragment(), DetailClickListener {
         toast(requireContext(), error)
     }
 
-    private fun checkForPermission(magazine: Magazine) {
+    private fun checkForPermission(magazine: DomainMagazine) {
         viewModel.setToDownload(magazine)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(
@@ -124,7 +117,7 @@ class DetailFragment : Fragment(), DetailClickListener {
         startActivity(intent)
     }
 
-    override fun downloadOrRead(magazine: Magazine) {
+    override fun downloadOrRead(magazine: DomainMagazine) {
         Log.d("DetailFragment", "Button Clicked")
         Log.d("DetailFragment", "downloadState = ${magazine.getDownloadState()}")
         Log.d("DetailFragment", "downloadId = ${magazine.downloadId}")

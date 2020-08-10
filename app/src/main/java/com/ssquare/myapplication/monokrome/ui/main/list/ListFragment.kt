@@ -13,8 +13,8 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.data.Header
-import com.ssquare.myapplication.monokrome.data.Magazine
+import com.ssquare.myapplication.monokrome.data.DomainHeader
+import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.getDownloadState
 import com.ssquare.myapplication.monokrome.databinding.FragmentListBinding
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
@@ -81,7 +81,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         addBannerClickListener()
     }
 
-    private fun checkForPermission(magazine: Magazine) {
+    private fun checkForPermission(magazine: DomainMagazine) {
         viewModel.setToDownload(magazine)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(
@@ -181,7 +181,11 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         commitCacheData(requireContext())
     }
 
-    private fun setupUi(header: Header?, magazines: List<Magazine>?, exception: Exception? = null) {
+    private fun setupUi(
+        header: DomainHeader?,
+        magazines: List<DomainMagazine>?,
+        exception: Exception? = null
+    ) {
         when {
             header == null && magazines.isNullOrEmpty() && exception == null -> {
                 Log.d("ListFragment", "Null Data")
@@ -239,7 +243,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         startActivity(intent)
     }
 
-    private fun downloadMagazine(magazine: Magazine) {
+    private fun downloadMagazine(magazine: DomainMagazine) {
         if (isConnected(requireContext())) {
             if (!isLoadDataActive(requireContext())) {
                 downloadUtils.enqueueDownload(magazine)

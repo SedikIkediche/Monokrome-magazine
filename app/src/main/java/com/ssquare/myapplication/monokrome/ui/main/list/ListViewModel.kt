@@ -3,7 +3,7 @@ package com.ssquare.myapplication.monokrome.ui.main.list
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
-import com.ssquare.myapplication.monokrome.data.Magazine
+import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.util.*
 import kotlinx.coroutines.launch
@@ -20,10 +20,10 @@ class ListViewModel @ViewModelInject constructor(
         repository.getCachedData(it)
     }
     val networkError = repository.networkError
-    var toDownloadMagazine: Magazine? = null
+    var toDownloadMagazine: DomainMagazine? = null
 
 
-    fun delete(magazine: Magazine) {
+    fun delete(magazine: DomainMagazine) {
         val fileDeleted = deleteFile(magazine.fileUri)
         if (fileDeleted) {
             repository.updateFileUri(magazine.id, NO_FILE)
@@ -37,7 +37,7 @@ class ListViewModel @ViewModelInject constructor(
         viewModelScope.launch { repository.loadAndCacheData() }
     }
 
-    fun setToDownload(magazine: Magazine?) {
+    fun setToDownload(magazine: DomainMagazine?) {
         toDownloadMagazine = magazine
     }
 

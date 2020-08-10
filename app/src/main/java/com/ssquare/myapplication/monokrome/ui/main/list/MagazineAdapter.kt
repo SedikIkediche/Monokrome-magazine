@@ -5,8 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.ssquare.myapplication.monokrome.data.Header
-import com.ssquare.myapplication.monokrome.data.Magazine
+import com.ssquare.myapplication.monokrome.data.DomainHeader
+import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.databinding.HeaderLayoutBinding
 import com.ssquare.myapplication.monokrome.databinding.ListItemBinding
 import com.ssquare.myapplication.monokrome.util.ClickAction
@@ -26,11 +26,11 @@ class MagazineAdapter(
 
     private val adapterScope = CoroutineScope(Dispatchers.Default)
     private var items : MutableList<DataItem>?  = null
-    fun addHeaderAndSubmitList(list: List<Magazine>?, header: Header?) {
+    fun addHeaderAndSubmitList(list: List<DomainMagazine>?, header: DomainHeader?) {
         adapterScope.launch {
-              items = when {
+            items = when {
                 (header != null && list != null) ->
-                    listOf(DataItem.HeaderItem(header)) +  list.map { DataItem.MagazineItem(it)}
+                    listOf(DataItem.HeaderItem(header)) + list.map { DataItem.MagazineItem(it) }
                 (header == null && list != null) -> list.map { DataItem.MagazineItem(it) }
                 (header != null && list == null) -> listOf(DataItem.HeaderItem(header))
                 else -> emptyList()
@@ -79,7 +79,7 @@ class MagazineAdapter(
             }
         }
 
-        fun bind(clickListener: HeaderListener, header: Header) {
+        fun bind(clickListener: HeaderListener, header: DomainHeader) {
             binding.clickListener = clickListener
             binding.header = header
         }
@@ -95,11 +95,11 @@ class MagazineAdapter(
         }
 
 
-        fun bind(magazineItem: Magazine, clickListener: MagazineListener) {
+        fun bind(magazine: DomainMagazine, clickListener: MagazineListener) {
 
 
-            binding.magazine = magazineItem
-            binding.clickListener= clickListener
+            binding.magazine = magazine
+            binding.clickListener = clickListener
             binding.executePendingBindings()
         }
 
@@ -116,9 +116,9 @@ class MagazineAdapter(
         }
     }
 
-    class MagazineListener(val clickListener: (magazine: Magazine, action: ClickAction) -> Unit) {
+    class MagazineListener(val clickListener: (magazine: DomainMagazine, action: ClickAction) -> Unit) {
         fun onClick(
-            magazine: Magazine,
+            magazine: DomainMagazine,
             action: ClickAction
         ) = clickListener(magazine, action)
     }
@@ -128,11 +128,11 @@ class MagazineAdapter(
     }
 
     sealed class DataItem {
-        data class MagazineItem(val magazine: Magazine) : DataItem() {
+        data class MagazineItem(val magazine: DomainMagazine) : DataItem() {
             override val id = magazine.id
         }
 
-        data class HeaderItem(val header: Header) : DataItem() {
+        data class HeaderItem(val header: DomainHeader) : DataItem() {
             override val id = Long.MIN_VALUE
         }
 

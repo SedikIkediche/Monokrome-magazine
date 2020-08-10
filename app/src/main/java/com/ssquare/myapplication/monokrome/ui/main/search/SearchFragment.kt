@@ -15,19 +15,12 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.data.Magazine
-import com.ssquare.myapplication.monokrome.data.Repository
+import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.getDownloadState
 import com.ssquare.myapplication.monokrome.databinding.FragmentSearchBinding
-import com.ssquare.myapplication.monokrome.db.LocalCache
-import com.ssquare.myapplication.monokrome.db.MagazineDatabase
-import com.ssquare.myapplication.monokrome.network.MonokromeApi
-import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.ui.main.list.MagazineAdapter
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
@@ -68,7 +61,7 @@ class SearchFragment : Fragment() {
         return binding.root
     }
 
-    private fun setupUi(it: List<Magazine>?) {
+    private fun setupUi(it: List<DomainMagazine>?) {
         if (it.isNullOrEmpty()) {
             showErrorLayout("No items found")
         } else {
@@ -85,7 +78,7 @@ class SearchFragment : Fragment() {
         }
     }
 
-    private fun showData(magazines: List<Magazine>) {
+    private fun showData(magazines: List<DomainMagazine>?) {
         adapter.addHeaderAndSubmitList(magazines, null)
         binding.run {
             recyclerViewSearch.visibility = View.VISIBLE
@@ -189,7 +182,7 @@ class SearchFragment : Fragment() {
         })
     }
 
-    private fun checkForPermission(magazine: Magazine) {
+    private fun checkForPermission(magazine: DomainMagazine) {
         viewModel.setToDownload(magazine)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(
@@ -201,7 +194,7 @@ class SearchFragment : Fragment() {
         }
     }
 
-    private fun downloadMagazine(magazine: Magazine) {
+    private fun downloadMagazine(magazine: DomainMagazine) {
         if (isConnected(requireContext())) {
             if (!isLoadDataActive(requireContext())) {
                 downloadUtils.enqueueDownload(magazine)

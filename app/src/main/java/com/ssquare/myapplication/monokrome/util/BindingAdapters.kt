@@ -10,24 +10,18 @@ import androidx.databinding.BindingAdapter
 import com.bumptech.glide.GenericTransitionOptions
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.model.GlideUrl
-import com.bumptech.glide.load.model.LazyHeaders
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.data.Magazine
+import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.getDownloadState
 import java.util.*
 
 
 @BindingAdapter("imageUrl")
-fun loadImage(view: ImageView, url: String?) {
+fun loadImage(view: ImageView, url: GlideUrl?) {
     url?.let {
-        val header = LazyHeaders.Builder()
-            .addHeader(AUTH_HEADER_KEY, AUTH_TOKEN)
-            .build()
-
-        val glideUrl = GlideUrl(url, header)
 
         Glide.with(view.context)
-            .load(glideUrl)
+            .load(url)
             .placeholder(
                 ColorDrawable(
                     ContextCompat.getColor(
@@ -53,26 +47,26 @@ fun date(view: TextView, timeStamp: Long) {
 //for listFragment
 
 @BindingAdapter("downloadOrRead")
-fun downloadOrCancelOrRead(view: TextView, magazine: Magazine?) {
+fun downloadOrCancelOrRead(view: TextView, magazine: DomainMagazine?) {
     magazine?.let {
         view.text = when (magazine.getDownloadState()) {
-        DownloadState.RUNNING, DownloadState.PENDING, DownloadState.PAUSED -> {
-            view.context.getString(android.R.string.cancel)
-        }
-        DownloadState.EMPTY -> {
-            view.context.getString(R.string.download)
-        }
+            DownloadState.RUNNING, DownloadState.PENDING, DownloadState.PAUSED -> {
+                view.context.getString(android.R.string.cancel)
+            }
+            DownloadState.EMPTY -> {
+                view.context.getString(R.string.download)
+            }
 
-        DownloadState.COMPLETED -> {
-            view.context.getString(R.string.read)
-        }
+            DownloadState.COMPLETED -> {
+                view.context.getString(R.string.read)
+            }
         }
     }
 
 }
 
 @BindingAdapter("previewOrDelete")
-fun previewOrDelete(view: TextView, magazine: Magazine?) {
+fun previewOrDelete(view: TextView, magazine: DomainMagazine?) {
     magazine?.let {
         view.text =
             if (magazine.getDownloadState() == DownloadState.COMPLETED) view.context.getString(R.string.delete) else view.context.getString(
@@ -83,7 +77,7 @@ fun previewOrDelete(view: TextView, magazine: Magazine?) {
 
 
 @BindingAdapter("downloadState")
-fun downloadState(view: TextView, magazine: Magazine?) {
+fun downloadState(view: TextView, magazine: DomainMagazine?) {
     magazine?.let {
         view.text = magazine.getDownloadState().toString()
         view.isVisible = when (magazine.getDownloadState()) {
@@ -94,7 +88,7 @@ fun downloadState(view: TextView, magazine: Magazine?) {
 }
 
 @BindingAdapter("downloadProgress")
-fun downloadProgress(view: TextView, magazine: Magazine?) {
+fun downloadProgress(view: TextView, magazine: DomainMagazine?) {
     magazine?.let {
         view.text = magazine.downloadProgress.toString()
         view.isVisible =

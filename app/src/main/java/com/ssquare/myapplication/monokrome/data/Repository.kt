@@ -1,6 +1,7 @@
 package com.ssquare.myapplication.monokrome.data
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -49,6 +50,7 @@ class Repository constructor(
 
 
     fun getCachedData(orderBy: OrderBy): MagazineListLiveData {
+        Log.d("Repository","getCachedData() called")
         val header = Transformations.map(cache.getCachedHeader()) {
             it.toDomainHeader()
         }
@@ -77,6 +79,7 @@ class Repository constructor(
     }
 
     fun updateDownloadProgress(id: Long, progress: Int) {
+        Log.d("Repository","updateDownloadProgress() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadProgress(id, progress)

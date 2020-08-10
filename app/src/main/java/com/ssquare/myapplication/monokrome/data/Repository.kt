@@ -52,7 +52,7 @@ class Repository constructor(
 
 
     fun getCachedData(orderBy: OrderBy): MagazineListLiveData {
-        Log.d(TAG,"getCachedData() called")
+        Log.d(TAG, "getCachedData() called")
         val header = Transformations.map(cache.getCachedHeader()) {
             it.toDomainHeader()
         }
@@ -69,7 +69,7 @@ class Repository constructor(
     //Download
 
     fun updateFileUri(id: Long, fileUri: String) {
-        Log.d(TAG,"updateFileUri() called")
+        Log.d(TAG, "updateFileUri() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateFileUri(id, fileUri)
@@ -82,7 +82,7 @@ class Repository constructor(
     }
 
     fun updateDownloadProgress(id: Long, progress: Int) {
-        Log.d(TAG,"updateDownloadProgress() called")
+        Log.d(TAG, "updateDownloadProgress() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadProgress(id, progress)
@@ -91,7 +91,7 @@ class Repository constructor(
     }
 
     fun updateDownloadId(id: Long, downloadId: Int) {
-        Log.d(TAG,"updateDownloadId() called")
+        Log.d(TAG, "updateDownloadId() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadId(id, downloadId)
@@ -100,7 +100,7 @@ class Repository constructor(
     }
 
     fun updateDownloadState(id: Long, downloadState: DownloadState) {
-        Log.d(TAG,"updateDownloadState() called")
+        Log.d(TAG, "updateDownloadState() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadState(id, downloadState.ordinal)
@@ -109,7 +109,7 @@ class Repository constructor(
     }
 
     fun updateFileUriByDid(dId: Int, fileUri: String) {
-        Log.d(TAG,"updateFileUriByDid() called")
+        Log.d(TAG, "updateFileUriByDid() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateFileUriByDid(dId, fileUri)
@@ -118,7 +118,7 @@ class Repository constructor(
     }
 
     fun updateDownloadProgressByDid(dId: Int, progress: Int) {
-        Log.d(TAG,"updateDownloadProgressByDid() called")
+        Log.d(TAG, "updateDownloadProgressByDid() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadProgressByDid(dId, progress)
@@ -127,7 +127,7 @@ class Repository constructor(
     }
 
     fun updateDownloadIdByDid(dId: Int, downloadId: Int) {
-        Log.d(TAG,"updateDownloadIdByDid() called")
+        Log.d(TAG, "updateDownloadIdByDid() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadIdByDid(dId, downloadId)
@@ -136,10 +136,10 @@ class Repository constructor(
     }
 
     fun updateDownloadStateByDid(dId: Int, downloadState: DownloadState) {
-        Log.d(TAG,"updateDownloadStateByDid() called")
         scope.launch {
             withContext(Dispatchers.IO) {
-                cache.updateDownloadStateByDid(dId, downloadState.ordinal)
+                val updated = cache.updateDownloadStateByDid(dId, downloadState.ordinal)
+                Log.d(TAG, "updateDownloadStateByDid() called: updated = $updated ************")
             }
         }
     }
@@ -176,7 +176,9 @@ class Repository constructor(
     }
 
     private fun List<Magazine>.toDomainMagazines(): List<DomainMagazine> {
-        return this.map { it.toDomainMagazine() }
+        return this.map {
+            it.toDomainMagazine()
+        }
     }
 
     private fun NetworkMagazine.toMagazine(): Magazine {
@@ -210,16 +212,18 @@ class Repository constructor(
             val authToken = getAuthToken(context) ?: ""
             val header = LazyHeaders.Builder().addHeader(AUTH_HEADER_KEY, authToken).build()
             val glideUrl = GlideUrl(this.imageUrl, header)
+
             DomainMagazine(
-                this.id,
-                this.title,
-                this.description,
-                this.releaseDate,
-                glideUrl,
-                this.editionUrl,
-                this.fileUri,
-                this.downloadProgress,
-                this.downloadState
+                id = this.id,
+                title = this.title,
+                description = this.description,
+                releaseDate = this.releaseDate,
+                imageUrl = glideUrl,
+                editionUrl = this.editionUrl,
+                fileUri = this.fileUri,
+                downloadProgress = this.downloadProgress,
+                downloadId = this.downloadId,
+                downloadState = this.downloadState
             )
         }
     }

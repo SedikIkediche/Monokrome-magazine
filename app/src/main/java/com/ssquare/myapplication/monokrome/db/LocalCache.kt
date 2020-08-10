@@ -83,7 +83,7 @@ class LocalCache @Inject constructor(
     suspend fun updateDownloadIdByDid(dId: Int, downloadId: Int) =
         magazineDao.updateDownloadIdByDid(dId, downloadId)
 
-    suspend fun updateDownloadStateByDid(dId: Int, downloadState: Int) =
+    suspend fun updateDownloadStateByDid(dId: Int, downloadState: Int):Int =
         magazineDao.updateDownloadStateByDid(dId, downloadState)
 
 }

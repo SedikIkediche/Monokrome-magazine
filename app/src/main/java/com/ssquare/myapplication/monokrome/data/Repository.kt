@@ -32,6 +32,8 @@ class Repository constructor(
         get() = _networkError
 
     companion object {
+        private const val TAG = "Repository"
+
         private var INSTANCE: Repository? = null
         fun getInstance(
             context: Context,
@@ -50,7 +52,7 @@ class Repository constructor(
 
 
     fun getCachedData(orderBy: OrderBy): MagazineListLiveData {
-        Log.d("Repository","getCachedData() called")
+        Log.d(TAG,"getCachedData() called")
         val header = Transformations.map(cache.getCachedHeader()) {
             it.toDomainHeader()
         }
@@ -67,6 +69,7 @@ class Repository constructor(
     //Download
 
     fun updateFileUri(id: Long, fileUri: String) {
+        Log.d(TAG,"updateFileUri() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateFileUri(id, fileUri)
@@ -79,7 +82,7 @@ class Repository constructor(
     }
 
     fun updateDownloadProgress(id: Long, progress: Int) {
-        Log.d("Repository","updateDownloadProgress() called")
+        Log.d(TAG,"updateDownloadProgress() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadProgress(id, progress)
@@ -88,6 +91,7 @@ class Repository constructor(
     }
 
     fun updateDownloadId(id: Long, downloadId: Int) {
+        Log.d(TAG,"updateDownloadId() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadId(id, downloadId)
@@ -96,6 +100,7 @@ class Repository constructor(
     }
 
     fun updateDownloadState(id: Long, downloadState: DownloadState) {
+        Log.d(TAG,"updateDownloadState() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadState(id, downloadState.ordinal)
@@ -104,6 +109,7 @@ class Repository constructor(
     }
 
     fun updateFileUriByDid(dId: Int, fileUri: String) {
+        Log.d(TAG,"updateFileUriByDid() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateFileUriByDid(dId, fileUri)
@@ -112,6 +118,7 @@ class Repository constructor(
     }
 
     fun updateDownloadProgressByDid(dId: Int, progress: Int) {
+        Log.d(TAG,"updateDownloadProgressByDid() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadProgressByDid(dId, progress)
@@ -120,6 +127,7 @@ class Repository constructor(
     }
 
     fun updateDownloadIdByDid(dId: Int, downloadId: Int) {
+        Log.d(TAG,"updateDownloadIdByDid() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadIdByDid(dId, downloadId)
@@ -128,6 +136,7 @@ class Repository constructor(
     }
 
     fun updateDownloadStateByDid(dId: Int, downloadState: DownloadState) {
+        Log.d(TAG,"updateDownloadStateByDid() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadStateByDid(dId, downloadState.ordinal)

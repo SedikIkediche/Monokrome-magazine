@@ -86,7 +86,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(
                 arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                STORAGE_PERMISSION_CODE
+                WRITE_EXTERNAL_STORAGE_PERMISSION_CODE
             )
         } else {
             downloadMagazine(magazine)
@@ -98,7 +98,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        if (requestCode == STORAGE_PERMISSION_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == WRITE_EXTERNAL_STORAGE_PERMISSION_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             downloadMagazine(viewModel.toDownloadMagazine!!)
         } else {
             viewModel.setToDownload(null)

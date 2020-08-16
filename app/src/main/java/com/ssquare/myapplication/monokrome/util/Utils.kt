@@ -2,28 +2,27 @@ package com.ssquare.myapplication.monokrome.util
 
 import android.content.Context
 import android.content.Context.CONNECTIVITY_SERVICE
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.net.ConnectivityManager
-import android.os.Environment
+import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ssquare.myapplication.monokrome.databinding.AlertDialogLayoutBinding
-import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 import com.ssquare.myapplication.monokrome.util.OrderBy.MOST_RECENT
 import com.ssquare.myapplication.monokrome.util.OrderBy.values
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
-import java.io.File
-import java.net.URI
+
 
 const val AUTH_HEADER_KEY = "x-auth-token"
 const val AUTH_PREF_KEY = "auth_token"
-//const val NO_AUTH_TOKEN = "no_auth_token"
- const val AUTH_TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNTk1NTAzMzI0fQ.mzWfcFy4i1HDl7D_J2AF48UC2P_2Mm52hQuBLcWmam0"
 
 const val MAGAZINE_ID = "magazine_path"
 //const val HEADER_PATH = "header/header.jpg"
@@ -35,12 +34,16 @@ const val ORDER_BY = "order_by"
 
 const val PDF_TYPE = ".pdf"
 
-const val FILE_PREFIX = "file://"
-const val NO_FILE = "no_file"
+
 const val MAGAZINE_URI = "magazine_uri"
 const val NO_DOWNLOAD = -1
-const val STORAGE_PERMISSION_CODE = 100
 const val NO_PROGRESS = -1
+
+const val WRITE_EXTERNAL_STORAGE_PERMISSION_CODE = 100
+const val READ_EXTERNAL_STORAGE_PERMISSION_CODE = 101
+const val SELECT_IMAGE_CODE = 1
+const val SELECT_FILE_CODE = 2
+const val UPLOAD_CODE = 3
 
 fun getAuthToken(context: Context): String? {
     return PreferenceManager.getDefaultSharedPreferences(context).getString(
@@ -126,27 +129,25 @@ fun commitDownloadActive(context: Context, state: Boolean) {
     }
 }
 
-
-fun createUriString(context: Context, id: Long): String {
-    return FILE_PREFIX +
-            context.applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path + id.toString() + PDF_TYPE
+fun getBitmapFromVectorDrawable(context: Context?, drawableId: Int): Bitmap? {
+    var drawable = ContextCompat.getDrawable(context!!, drawableId)
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+        drawable = DrawableCompat.wrap(drawable!!).mutate()
+    }
+    val bitmap = Bitmap.createBitmap(
+        drawable!!.intrinsicWidth,
+        drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
+    )
+    val canvas = Canvas(bitmap)
+    drawable.setBounds(0, 0, canvas.width, canvas.height)
+    drawable.draw(canvas)
+    return bitmap
 }
 
-
-fun deleteFile(uri: String): Boolean {
-    if (uri == NO_FILE) return false
-    Log.d("ListFragment", "fileUri is: $uri")
-    val file = File(URI.create(uri))
-    return if (file.exists()) {
-        file.delete()
-        true
-    } else
-        false
-}
 
 inline fun <T : AppCompatActivity> AlertDialog.showLoading(activity: T, textId: Int) {
     val dialogBinding =
-        AlertDialogLayoutBinding.inflate(LayoutInflater.from(activity as AuthActivity))
+        AlertDialogLayoutBinding.inflate(LayoutInflater.from(activity))
     dialogBinding.logInTextDialog.text = activity.getString(textId)
     this.setView(dialogBinding.root)
     this.setCancelable(false)

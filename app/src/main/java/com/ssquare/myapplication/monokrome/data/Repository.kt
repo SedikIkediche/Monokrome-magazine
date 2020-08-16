@@ -1,23 +1,22 @@
 package com.ssquare.myapplication.monokrome.data
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
-import com.bumptech.glide.load.model.GlideUrl
-import com.bumptech.glide.load.model.LazyHeaders
 import com.ssquare.myapplication.monokrome.db.LocalCache
-import com.ssquare.myapplication.monokrome.network.MonokromeApiService
-import com.ssquare.myapplication.monokrome.network.NetworkMagazine
-import com.ssquare.myapplication.monokrome.network.loadFromServer
+import com.ssquare.myapplication.monokrome.network.*
 import com.ssquare.myapplication.monokrome.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.net.URI
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import timber.log.Timber
 
 
 class Repository constructor(
@@ -50,25 +49,57 @@ class Repository constructor(
         }
     }
 
+    suspend fun loadAndCacheData(): Boolean {
+        var resultState = false
+        val authToken = getAuthToken(context)
+        val result = network.loadFromServer(authToken)
+        withContext(Dispatchers.IO) {
+            commitLoadDataActive(context, true)
+            resultState =
+                if (result.header != null && result.magazineList != null && result.exception == null) {
+                    val databaseMagazines = result.magazineList.toMagazines(context)
+                    cache.refresh(databaseMagazines, result.header)
+                    true
+                } else {
+                    _networkError.postValue(
+                        result.exception
+                    )
+                    false
+                }
+            commitLoadDataActive(context, false)
+        }
+
+        return resultState
+    }
 
     fun getCachedData(orderBy: OrderBy): MagazineListLiveData {
-        Log.d(TAG, "getCachedData() called")
+        Timber.d("getCachedData() called")
         val header = Transformations.map(cache.getCachedHeader()) {
-            it.toDomainHeader()
+            it.toDomainHeader(context)
         }
         val magazines = Transformations.map(cache.getCachedMagazines(orderBy)) {
-            it.toDomainMagazines()
+            it.toDomainMagazines(context)
         }
         return MagazineListLiveData(header, magazines)
     }
 
     fun getMagazine(id: Long) = Transformations.map(cache.getMagazine(id)) {
-        it.toDomainMagazine()
+        it.toDomainMagazine(context)
+    }
+
+    fun delete(magazine: DomainMagazine) {
+        val fileDeleted = FileUtils.deleteFile(magazine.fileUri)
+        if (fileDeleted) {
+            updateFileUri(magazine.id, FileUtils.NO_FILE)
+            updateDownloadProgress(magazine.id, NO_PROGRESS)
+            updateDownloadId(magazine.id, NO_DOWNLOAD)
+            updateDownloadState(magazine.id, DownloadState.EMPTY)
+        }
     }
 
     //Download
 
-    fun updateFileUri(id: Long, fileUri: String) {
+    private fun updateFileUri(id: Long, fileUri: String) {
         Log.d(TAG, "updateFileUri() called")
         scope.launch {
             withContext(Dispatchers.IO) {
@@ -78,7 +109,7 @@ class Repository constructor(
     }
 
     fun searchResult(search: String?) = Transformations.map(cache.searchResult(search)) {
-        it.toDomainMagazines()
+        it.toDomainMagazines(context)
     }
 
     fun updateDownloadProgress(id: Long, progress: Int) {
@@ -144,120 +175,56 @@ class Repository constructor(
         }
     }
 
-    suspend fun loadAndCacheData(): Boolean {
-        var resultState = false
+    //Upload
+
+    //advanced way
+    suspend fun createIssue(
+        token: String?,
+        title: String,
+        description: String,
+        image: MultipartBody.Part,
+        file: MultipartBody.Part,
+        releaseDate: Long
+    ): NetworkMagazine =
+        network.createIssue(getAuthToken(context), title, description, image, file, releaseDate)
+
+
+    suspend fun uploadImage(imageUri: Uri): ImageOrException {
         val authToken = getAuthToken(context)
-        val result = network.loadFromServer(authToken)
-        withContext(Dispatchers.IO) {
-            commitLoadDataActive(context, true)
-            resultState =
-                if (result.header != null && result.magazineList != null && result.exception == null) {
-                    val databaseMagazines = result.magazineList.toMagazines()
-                    cache.refresh(databaseMagazines, result.header)
-                    true
-                } else {
-                    _networkError.postValue(
-                        result.exception
-                    )
-                    false
-                }
-            commitLoadDataActive(context, false)
-        }
+        val file = FileUtils.getFileFromUri(context, imageUri)!!
+        val mimeType = FileUtils.getTypeFromUri(context, imageUri)!!
+        Log.d(TAG, "file: $file, type: $mimeType")
+        val requestBody = RequestBody.create(MediaType.parse(mimeType), file)
+        val image = MultipartBody.Part.createFormData("image", file.name, requestBody)
+        val imageOrException = network.uploadCover(authToken, image)
+        Log.d(TAG, "Uploading image: ${image.body()} \n result: $imageOrException")
 
-        return resultState
+        return imageOrException
     }
 
-    //map entities
+    suspend fun uploadIssue(
+        title: String,
+        description: String,
+        imageUri: Uri,
+        editionPath: String,
+        releaseDate: Long
+    ): MagazineOrException {
+        val authToken = getAuthToken(context)
+        val imageFile = FileUtils.getFileFromUri(context, imageUri)!!
+        val imageMimeType = FileUtils.getTypeFromUri(context, imageUri)!!
+        val imageRequestBody = RequestBody.create(MediaType.parse(imageMimeType), imageFile)
+        val image = MultipartBody.Part.createFormData("image", imageFile.name, imageRequestBody)
 
-    private fun List<NetworkMagazine>.toMagazines(): List<Magazine> {
-        return this.map {
-            it.toMagazine()
-        }
+        val editionFile = FileUtils.getFileFromPath(editionPath)!!
+        val editionMimeType = FileUtils.getTypeFromPath(editionPath)!!
+        val editionRequestBody = RequestBody.create(MediaType.parse(editionMimeType), editionFile)
+        val edition =
+            MultipartBody.Part.createFormData("edition", editionFile.name, editionRequestBody)
+
+        val magazineOrException =
+            network.uploadIssue(authToken, title, description, image, edition, releaseDate)
+        Log.d(TAG, "Uploading issue: $magazineOrException")
+
+        return magazineOrException
     }
-
-    private fun List<Magazine>.toDomainMagazines(): List<DomainMagazine> {
-        return this.map {
-            it.toDomainMagazine()
-        }
-    }
-
-    private fun NetworkMagazine.toMagazine(): Magazine {
-        val uri = createUriString(context, id)
-        return if (File(URI.create(uri)).exists()) {
-            Magazine(
-                this.id,
-                this.title,
-                this.description,
-                this.releaseDate,
-                this.imageUrl,
-                this.editionUrl,
-                uri,
-                100,
-                downloadState = DownloadState.COMPLETED.ordinal
-            )
-        } else {
-            Magazine(
-                this.id,
-                this.title,
-                this.description,
-                this.releaseDate,
-                this.imageUrl,
-                this.editionUrl
-            )
-        }
-    }
-
-    private fun Magazine.toDomainMagazine(): DomainMagazine {
-        return run {
-            val authToken = getAuthToken(context) ?: ""
-            val header = LazyHeaders.Builder().addHeader(AUTH_HEADER_KEY, authToken).build()
-            val glideUrl = GlideUrl(this.imageUrl, header)
-
-            DomainMagazine(
-                id = this.id,
-                title = this.title,
-                description = this.description,
-                releaseDate = this.releaseDate,
-                imageUrl = glideUrl,
-                editionUrl = this.editionUrl,
-                fileUri = this.fileUri,
-                downloadProgress = this.downloadProgress,
-                downloadId = this.downloadId,
-                downloadState = this.downloadState
-            )
-        }
-    }
-
-    private fun DomainMagazine.toMagazine(): Magazine {
-        val imageUrl = this.imageUrl?.toStringUrl() ?: ""
-
-        return Magazine(
-            this.id,
-            this.title,
-            this.description,
-            this.releaseDate,
-            imageUrl,
-            this.editionUrl,
-            this.fileUri,
-            this.downloadProgress,
-            this.downloadState
-        )
-    }
-
-    private fun DomainHeader.toHeader(): Header {
-        val imageUrl = this.imageUrl?.toStringUrl() ?: ""
-        return Header(this.id, imageUrl)
-    }
-
-    private fun Header?.toDomainHeader(): DomainHeader? {
-
-        return if (this != null) {
-            val authToken = getAuthToken(context) ?: ""
-            val header = LazyHeaders.Builder().addHeader(AUTH_HEADER_KEY, authToken).build()
-            val glideUrl = GlideUrl(this.imageUrl, header)
-            DomainHeader(this.id, glideUrl)
-        } else null
-    }
-
-
 }

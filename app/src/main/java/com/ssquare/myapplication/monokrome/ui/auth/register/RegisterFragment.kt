@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -49,7 +48,6 @@ class RegisterFragment : Fragment() {
         setUpToolbar()
 
         registerViewModel.userState.observe(viewLifecycleOwner, Observer { isUserCreated ->
-            Log.d("RegisterFragment", "authTokenOrException: $isUserCreated")
             isUserCreated?.let {
                 if (it.authToken != null) {
                     navigateToMainActivity()
@@ -80,7 +78,7 @@ class RegisterFragment : Fragment() {
         alertDialog.hideDialog()
         showErrorDialog(
             activity as AuthActivity,
-            getString(R.string.information_error_massage),
+            getString(R.string.credentials_error_massage),
             getString(
                 R.string.retry
             ),

@@ -8,7 +8,6 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.Repository
-import com.ssquare.myapplication.monokrome.util.*
 
 class DetailViewModel @ViewModelInject constructor(
     private val repository: Repository,
@@ -21,15 +20,7 @@ class DetailViewModel @ViewModelInject constructor(
     }
     var toDownloadMagazine: DomainMagazine? = null
 
-    fun delete(magazine: DomainMagazine) {
-        val fileDeleted = deleteFile(magazine.fileUri)
-        if (fileDeleted) {
-            repository.updateFileUri(magazine.id, NO_FILE)
-            repository.updateDownloadProgress(magazine.id, NO_PROGRESS)
-            repository.updateDownloadId(magazine.id, NO_DOWNLOAD)
-            repository.updateDownloadState(magazine.id, DownloadState.EMPTY)
-        }
-    }
+    fun delete(magazine: DomainMagazine) = repository.delete(magazine)
 
     fun setToDownload(magazine: DomainMagazine?) {
         toDownloadMagazine = magazine

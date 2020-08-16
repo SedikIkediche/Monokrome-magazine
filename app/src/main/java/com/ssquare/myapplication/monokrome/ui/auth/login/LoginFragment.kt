@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,6 +22,7 @@ import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvide
 import com.ssquare.myapplication.monokrome.util.showErrorDialog
 import com.ssquare.myapplication.monokrome.util.showLoading
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -45,7 +45,7 @@ class LoginFragment : Fragment() {
         binding = FragmentLoginBinding.inflate(inflater)
 
         loginViewModel.userState.observe(viewLifecycleOwner, Observer { isUserSignedIn ->
-            Log.d("LoginFragment", "authTokenOrException: $isUserSignedIn")
+            Timber.d("authTokenOrException: $isUserSignedIn")
             isUserSignedIn?.let {
                 if (it.authToken != null) {
                     navigateToMainActivity()
@@ -74,7 +74,7 @@ class LoginFragment : Fragment() {
         alertDialog.hideDialog()
         showErrorDialog(
             activity as AuthActivity,
-            getString(R.string.information_error_massage),
+            getString(R.string.credentials_error_massage),
             getString(
                 R.string.retry
             ),

@@ -23,7 +23,6 @@ android {
         versionName "1.0"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
         vectorDrawables.useSupportLibrary = true
 
     }
@@ -119,6 +118,15 @@ dependencies {
     implementation "androidx.hilt:hilt-lifecycle-viewmodel:$hilt_lifecycle"
     implementation "androidx.hilt:hilt-work:$hilt_lifecycle"
     kapt "androidx.hilt:hilt-compiler:$hilt_lifecycle"
+
+    //filePicker
+    implementation 'com.nbsp:materialfilepicker:1.9.1'
+
+    //authO
+    implementation 'com.auth0.android:jwtdecode:2.0.0'
+
+    //timber
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 
 
     testImplementation 'junit:junit:4.12'

@@ -33,7 +33,8 @@
     <string name="repeat_password">Repeat Password</string>
     <string name="sign_up">Sign Up</string>
     <string name="have_an_account">Have an account?</string>
-    <string name="information_error_massage">An error happened please check your informations and try again.</string>
+    <string name="credentials_error_massage">An error happened please check your credentials and try again.</string>
+
     <string name="retry">Retry</string>
     <string name="oops">Oops!</string>
     <string name="connectivity_error_message">Please check you connectivity.</string>
@@ -53,4 +54,6 @@
     <string name="new_edition_notification_channel_description" translatable="true">This channel holds the notification that gets sent whenever a new magazine edition is released.</string>
     <string name="new_edition_title">New edition is released</string>
     <string name="new_edition_description">Go check it out!</string>
+    <string name="upload">upload</string>
+    <string name="uploading">Uploading. . .</string>
 </resources>

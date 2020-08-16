@@ -1,24 +1,71 @@
 package com.ssquare.myapplication.monokrome
 
 import android.app.NotificationManager
-import android.util.Log
+import android.content.Context
 import androidx.core.content.ContextCompat
 import androidx.work.*
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.ssquare.myapplication.monokrome.util.sendNotification
 import com.ssquare.myapplication.monokrome.work.RefreshDataWorker
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 class AppMessagingService : FirebaseMessagingService() {
 
+    companion object {
+        const val TAG = "AppMessagingService"
+        const val TOPIC = "new_edition"
+        const val TITLE_KEY = "title"
+        const val DESCRIPTION_KEY = "description"
+
+
+        private fun checkGooglePlayServices(context: Context): Boolean {
+            val status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)
+            return if (status != ConnectionResult.SUCCESS) {
+                Timber.e("Error")
+                // ask user to update google play services.
+                false
+            } else {
+                Timber.i("Google play services updated")
+                true
+            }
+        }
+
+        fun subscribeTopic(context: Context) {
+            if (checkGooglePlayServices(context)) {
+                FirebaseMessaging.getInstance().subscribeToTopic(TOPIC)
+                    .addOnCompleteListener { task ->
+                        Timber.d(task.toString())
+                        var msg = context.getString(R.string.message_subscribe_failed)
+                        if (task.isSuccessful) {
+                            msg = context.getString(R.string.message_subscribed)
+                        }
+                        Timber.d(msg)
+                    }.addOnFailureListener { exception ->
+                        Timber.e(exception, context.getString(R.string.message_subscribe_failed))
+                    }
+            } else {
+                Timber.d("Error with GooglePlayServices")
+            }
+
+        }
+
+        fun unsubscribeFromTopic() {
+            FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC)
+        }
+    }
+
 
     override fun onMessageReceived(remoteMessage: RemoteMessage?) {
-        Log.d(TAG, "onMessageReceived() called")
-        Log.d(TAG, "From: ${remoteMessage?.from}")
+        Timber.d("onMessageReceived() called")
+        Timber.d("From: ${remoteMessage?.from}")
 
         remoteMessage?.data?.let {
-            Log.d(TAG, "Message data payload: ${it}")
+            Timber.d("Message data payload: $it")
             val title = it[TITLE_KEY]
             val content = it[DESCRIPTION_KEY]
             if (title != null && content != null) {
@@ -32,11 +79,11 @@ class AppMessagingService : FirebaseMessagingService() {
 
 
     override fun onNewToken(token: String?) {
-        Log.d(TAG, "Refreshed token: $token")
+        Timber.d("Refreshed token: $token")
     }
 
     override fun onDeletedMessages() {
-        Log.d(TAG, "Messages deleted")
+        Timber.d("Messages deleted")
 
     }
 
@@ -54,7 +101,7 @@ class AppMessagingService : FirebaseMessagingService() {
     }
 
     private fun setupRefreshDataWorker() {
-        Log.d(TAG, "setupRefreshDataWorker() called")
+        Timber.d("setupRefreshDataWorker() called")
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED).build()
 
@@ -66,11 +113,5 @@ class AppMessagingService : FirebaseMessagingService() {
             .enqueue(cacheWorkRequest)
     }
 
-    companion object {
-        const val TAG = "AppMessagingService"
-        const val TOPIC = "new_edition"
-        const val TITLE_KEY = "title"
-        const val DESCRIPTION_KEY = "description"
-    }
 
 }

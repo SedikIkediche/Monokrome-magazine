@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
             putExtra(Intent.EXTRA_SUBJECT, "Question from the app")
             putExtra(Intent.EXTRA_TEXT, "Hey team,\n")
         }
-        if (intent.resolveActivity(packageManager) == null) {
+        if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
         } else {
             showErrorDialog(

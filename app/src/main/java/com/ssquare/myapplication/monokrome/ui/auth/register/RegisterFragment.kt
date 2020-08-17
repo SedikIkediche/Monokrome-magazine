@@ -20,8 +20,8 @@ import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.hasInternet
 import com.ssquare.myapplication.monokrome.util.hideDialog
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
-import com.ssquare.myapplication.monokrome.util.showErrorDialog
 import com.ssquare.myapplication.monokrome.util.showLoading
+import com.ssquare.myapplication.monokrome.util.showOneButtonDialog
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -76,7 +76,7 @@ class RegisterFragment : Fragment() {
 
     private fun showError() {
         alertDialog.hideDialog()
-        showErrorDialog(
+        showOneButtonDialog(
             activity as AuthActivity,
             getString(R.string.credentials_error_massage),
             getString(
@@ -185,7 +185,7 @@ class RegisterFragment : Fragment() {
                 isTheRepeatedPasswordInvalid = true
             }
         } else {
-            showErrorDialog(
+            showOneButtonDialog(
                 activity as AuthActivity, getString(R.string.connectivity_error_message), getString(
                     R.string.close
                 ), getString(R.string.oops)

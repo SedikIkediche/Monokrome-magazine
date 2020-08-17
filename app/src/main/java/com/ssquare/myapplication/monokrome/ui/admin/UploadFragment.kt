@@ -16,7 +16,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.text.format.DateFormat
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,6 +33,7 @@ import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
@@ -140,13 +140,17 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
 
     private fun showError(message: String) {
         alertDialog.hideDialog()
-        showErrorDialog(
-            activity as MainActivity,
-            message,
-            getString(
+        showTwoButtonDialog(
+            activity = activity as MainActivity,
+            title = getString(R.string.oops),
+            message = message,
+            positiveButtonText = getString(
                 R.string.retry
             ),
-            getString(R.string.oops)
+            negativeButtonText = "Cancel",
+            negativeFun = {
+                navigateUp()
+            }
         )
     }
 
@@ -160,12 +164,19 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
 
     private fun uploadSuccess() {
         alertDialog.hide()
-        viewModel.loadAndCacheData()
-        navigateUp()
+        showOneButtonDialog(
+            activity as MainActivity,
+            "Success",
+            "issue uploaded successfully.",
+            "Ok"
+        ) {
+            viewModel.loadAndCacheData()
+            navigateUp()
+        }
     }
 
     private fun navigateUp() {
-        this.findNavController().navigateUp()
+        this.findNavController().navigate(R.id.action_uploadFragment_to_listFragment)
     }
 
     override fun onRequestPermissionsResult(
@@ -234,7 +245,6 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
         val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
         val currentMonth = calendar.get(Calendar.MONTH)
         val currentYear = calendar.get(Calendar.YEAR)
-        Log.d("UploadFragment", "$currentDay/$currentMonth/$currentYear")
 
         DatePickerDialog(
             context,
@@ -254,7 +264,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     }
 
     private fun setImage(image: Uri?) {
-        Log.d("UploadFragment", "image uri: $image")
+        Timber.d("image uri: $image")
         viewModel.setImage(image)
     }
 

@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.item_upload -> {
-                    findNavController(R.id.nav_host_fragment).navigate(R.id.uploadFragment)
+                    findNavController(R.id.nav_host_fragment).navigate(R.id.action_listFragment_to_uploadFragment)
                     true
                 }
 

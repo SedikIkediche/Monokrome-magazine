@@ -6,7 +6,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.net.ConnectivityManager
 import android.os.Build
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -19,12 +18,14 @@ import com.ssquare.myapplication.monokrome.databinding.AlertDialogLayoutBinding
 import com.ssquare.myapplication.monokrome.util.OrderBy.MOST_RECENT
 import com.ssquare.myapplication.monokrome.util.OrderBy.values
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
+import timber.log.Timber
 
 
 const val AUTH_HEADER_KEY = "x-auth-token"
 const val AUTH_PREF_KEY = "auth_token"
 
 const val MAGAZINE_ID = "magazine_path"
+
 //const val HEADER_PATH = "header/header.jpg"
 const val HEADER_PATH = "header.jpg"
 const val DOWNLOAD_ACTIVE = "download_active"
@@ -65,7 +66,6 @@ fun deleteAuthToken(context: Context) {
         apply()
     }
 }
-
 
 
 fun toast(context: Context, text: String) {
@@ -114,7 +114,7 @@ fun commitLoadDataActive(context: Context, state: Boolean) {
         putBoolean(LOAD_DATA_ACTIVE, state)
         apply()
     }
-    Log.d("Utils", "commitWorkActive called")
+    Timber.d("commitWorkActive called")
 }
 
 fun isDownloadActive(context: Context): Boolean =
@@ -158,16 +158,40 @@ inline fun AlertDialog.hideDialog() {
     this.dismiss()
 }
 
-inline fun <T : AppCompatActivity> showErrorDialog(
+inline fun <T : AppCompatActivity> showOneButtonDialog(
     activity: T,
+    title: String,
     message: String,
-    buttonText: String,
-    title: String
+    positiveButtonText: String,
+    crossinline positiveFun: () -> Unit = {}
 ) {
     MaterialAlertDialogBuilder(activity)
         .setTitle(title)
         .setMessage(message)
-        .setPositiveButton(buttonText) { dialog, which ->
+        .setPositiveButton(positiveButtonText) { dialog, which ->
+            positiveFun()
+            dialog.dismiss()
+        }
+        .show()
+}
+
+inline fun <T : AppCompatActivity> showTwoButtonDialog(
+    activity: T,
+    title: String,
+    message: String,
+    positiveButtonText: String,
+    negativeButtonText: String,
+    crossinline positiveFun: () -> Unit = {},
+    crossinline negativeFun: () -> Unit = {}
+) {
+    MaterialAlertDialogBuilder(activity)
+        .setTitle(title)
+        .setMessage(message)
+        .setPositiveButton(positiveButtonText) { dialog, which ->
+            positiveFun()
+            dialog.dismiss()
+        }.setNegativeButton(negativeButtonText) { dialog, which ->
+            negativeFun()
             dialog.dismiss()
         }
         .show()

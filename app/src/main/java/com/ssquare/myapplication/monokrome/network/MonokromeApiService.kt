@@ -36,19 +36,6 @@ interface MonokromeApiService {
     @POST("auth")
     suspend fun login(@Body user: User): String
 
-    @Multipart
-    @POST("images")
-    suspend fun uploadImage(
-        @retrofit2.http.Header(AUTH_HEADER_KEY) token: String?,
-        @Part image: MultipartBody.Part
-    ): NetworkImage
-
-    @Multipart
-    @POST("files")
-    suspend fun uploadFile(
-        @retrofit2.http.Header(AUTH_HEADER_KEY) token: String?,
-        @Body user: User
-    ): String
 
     @Multipart
     @POST("issues")
@@ -98,17 +85,6 @@ suspend fun MonokromeApiService.loginUser(user: User): AuthTokenOrException {
     }
 }
 
-suspend fun MonokromeApiService.uploadCover(
-    token: String?,
-    image: MultipartBody.Part
-): ImageOrException {
-    return try {
-        val networkImage = this.uploadImage(token, image)
-        ImageOrException(networkImage, null)
-    } catch (exception: Exception) {
-        ImageOrException(null, exception)
-    }
-}
 
 suspend fun MonokromeApiService.uploadIssue(
     token: String?,

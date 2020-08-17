@@ -7,7 +7,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.ssquare.myapplication.monokrome.db.LocalCache
-import com.ssquare.myapplication.monokrome.network.*
+import com.ssquare.myapplication.monokrome.network.MagazineOrException
+import com.ssquare.myapplication.monokrome.network.MonokromeApiService
+import com.ssquare.myapplication.monokrome.network.loadFromServer
+import com.ssquare.myapplication.monokrome.network.uploadIssue
 import com.ssquare.myapplication.monokrome.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -53,6 +56,7 @@ class Repository constructor(
         var resultState = false
         val authToken = getAuthToken(context)
         val result = network.loadFromServer(authToken)
+        Timber.d("load from server: $result")
         withContext(Dispatchers.IO) {
             commitLoadDataActive(context, true)
             resultState =
@@ -170,37 +174,11 @@ class Repository constructor(
         scope.launch {
             withContext(Dispatchers.IO) {
                 val updated = cache.updateDownloadStateByDid(dId, downloadState.ordinal)
-                Log.d(TAG, "updateDownloadStateByDid() called: updated = $updated ************")
+                Timber.d("updateDownloadStateByDid() called: updated = $updated ************")
             }
         }
     }
 
-    //Upload
-
-    //advanced way
-    suspend fun createIssue(
-        token: String?,
-        title: String,
-        description: String,
-        image: MultipartBody.Part,
-        file: MultipartBody.Part,
-        releaseDate: Long
-    ): NetworkMagazine =
-        network.createIssue(getAuthToken(context), title, description, image, file, releaseDate)
-
-
-    suspend fun uploadImage(imageUri: Uri): ImageOrException {
-        val authToken = getAuthToken(context)
-        val file = FileUtils.getFileFromUri(context, imageUri)!!
-        val mimeType = FileUtils.getTypeFromUri(context, imageUri)!!
-        Log.d(TAG, "file: $file, type: $mimeType")
-        val requestBody = RequestBody.create(MediaType.parse(mimeType), file)
-        val image = MultipartBody.Part.createFormData("image", file.name, requestBody)
-        val imageOrException = network.uploadCover(authToken, image)
-        Log.d(TAG, "Uploading image: ${image.body()} \n result: $imageOrException")
-
-        return imageOrException
-    }
 
     suspend fun uploadIssue(
         title: String,
@@ -223,7 +201,7 @@ class Repository constructor(
 
         val magazineOrException =
             network.uploadIssue(authToken, title, description, image, edition, releaseDate)
-        Log.d(TAG, "Uploading issue: $magazineOrException")
+        Timber.d("Uploading issue: $magazineOrException")
 
         return magazineOrException
     }

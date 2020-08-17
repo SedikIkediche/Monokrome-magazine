@@ -53,4 +53,6 @@
     <string name="new_edition_notification_channel_description" translatable="true">This channel holds the notification that gets sent whenever a new magazine edition is released.</string>
     <string name="new_edition_title">New edition is released</string>
     <string name="new_edition_description">Go check it out!</string>
+    <string name="drawer_message_error">you can\'t perform this action!</string>
+    <string name="ok">ok</string>
 </resources>

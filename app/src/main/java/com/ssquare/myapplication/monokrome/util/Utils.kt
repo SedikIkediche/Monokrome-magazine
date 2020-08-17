@@ -42,6 +42,17 @@ const val NO_DOWNLOAD = -1
 const val STORAGE_PERMISSION_CODE = 100
 const val NO_PROGRESS = -1
 
+const val PLAY_STORE = "market://details?id="
+const val PACKAGE_NAME = "com.ssquare.myapplication.monokrome"
+const val WEB_SITE = "https://www.monokromemag.com/"
+const val FACEBOOK_BROWSER = "https://www.facebook.com/Monokromemag"
+const val FACEBOOK_APP = "fb://facewebmodal/f?href="
+const val FACEBOOK_PACKAGE  = "com.facebook.katana"
+const val FACEBOOK_ID = "1816635888599066"
+const val INSTAGRAM_App = "http://instagram.com/_u/monokromemag"
+const val INSTAGRAM_PACKAGE = "com.instagram.android"
+const val INSTAGRAM_BROWSER = "http://instagram.com/monokromemag"
+
 fun getAuthToken(context: Context): String? {
     return PreferenceManager.getDefaultSharedPreferences(context).getString(
         AUTH_PREF_KEY,

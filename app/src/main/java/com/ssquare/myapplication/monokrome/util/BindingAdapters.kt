@@ -36,7 +36,6 @@ fun loadImage(view: ImageView, url: String?) {
                     )
                 )
             )
-            .transition(GenericTransitionOptions.with(R.anim.fade_in))
             .centerCrop()
             .into(view)
     }

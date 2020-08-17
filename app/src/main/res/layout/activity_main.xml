@@ -7,7 +7,7 @@
     <data>
     </data>
 
-    <com.ssquare.myapplication.monokrome.util.CustomDrawerLayout
+    <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -32,16 +32,19 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <com.google.android.material.navigation.NavigationView
-            android:id="@+id/navigation"
-            android:layout_width="@dimen/nav_drawer_width"
-            android:layout_height="match_parent"
-            android:layout_gravity="start"
-            app:itemTextAppearance="@style/TextAppearance.MaterialComponents.Body2"
-            android:background="@color/search_view_background_color"
-            app:headerLayout="@layout/drawer_header_layout"
-            app:menu="@menu/navigation" />
+       <com.google.android.material.navigation.NavigationView
+           android:id="@+id/navigationView"
+           android:layout_width="@dimen/nav_drawer_width"
+           android:layout_gravity="start"
+           android:layout_height="match_parent"
+           app:itemIconTint="@color/navigation_view_item_selector"
+           app:itemTextColor="@color/navigation_view_item_selector"
+           app:itemTextAppearance="@style/TextAppearance.AppCompat.Body2"
+           app:itemBackground="@drawable/navigation_view_item_background"
+           android:background="@color/search_view_background_color"
+           app:headerLayout="@layout/drawer_header_layout"
+           app:menu="@menu/navigation"/>
 
-    </com.ssquare.myapplication.monokrome.util.CustomDrawerLayout>
+    </androidx.drawerlayout.widget.DrawerLayout>
 
 </layout>

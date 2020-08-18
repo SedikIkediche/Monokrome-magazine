@@ -63,6 +63,15 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
                 setupUi(it.first, it.second)
         })
 
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            //if (isDataCached(requireContext())){
+              //  binding.swipeRefreshLayout.isRefreshing=false
+            //}else{
+                cacheData()
+            //}
+
+        }
+
         return binding.root
     }
 

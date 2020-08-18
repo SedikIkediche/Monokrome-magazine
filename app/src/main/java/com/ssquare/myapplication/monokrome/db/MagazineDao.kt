@@ -48,7 +48,7 @@ interface MagazineDao {
     suspend fun updateDownloadIdByDid(dId: Int, downloadId: Int)
 
     @Query("UPDATE magazines SET downloadState=:downloadState WHERE downloadId=:dId")
-    suspend fun updateDownloadStateByDid(dId: Int, downloadState: Int)
+    suspend fun updateDownloadStateByDid(dId: Int, downloadState: Int):Int
 
 
 

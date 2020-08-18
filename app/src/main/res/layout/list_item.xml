@@ -7,7 +7,7 @@
 
         <variable
             name="magazine"
-            type="com.ssquare.myapplication.monokrome.data.Magazine" />
+            type="com.ssquare.myapplication.monokrome.data.DomainMagazine" />
 
         <variable
             name="clickListener"

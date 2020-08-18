@@ -63,4 +63,12 @@
         <item name="colorAccent">@android:color/black</item>
     </style>
 
+    <style name="date_picker_theme" parent="Theme.MaterialComponents.Light.Dialog.MinWidth">
+        <item name="colorPrimary">#000000</item>
+        <item name="colorSecondary">#01579b</item>
+        <item name="colorPrimaryDark">#000000</item>
+        <item name="colorOnPrimary">#ffffff</item>
+        <item name="colorOnSecondary">#002f6c</item>
+    </style>
+
 </resources>

@@ -5,7 +5,7 @@
     <data>
         <variable
             name="header"
-            type="com.ssquare.myapplication.monokrome.data.Header" />
+            type="com.ssquare.myapplication.monokrome.data.DomainHeader" />
 
         <variable
             name="clickListener"

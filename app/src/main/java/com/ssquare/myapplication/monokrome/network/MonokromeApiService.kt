@@ -1,19 +1,18 @@
 package com.ssquare.myapplication.monokrome.network
 
-import android.util.Log
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.User
 import com.ssquare.myapplication.monokrome.util.AUTH_HEADER_KEY
 import com.ssquare.myapplication.monokrome.util.HEADER_PATH
+import okhttp3.MultipartBody
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
+import retrofit2.http.*
+import timber.log.Timber
 
-const val BASE_URL = "http://192.168.1.5:3000/api/"
+const val BASE_URL = "http://192.168.1.4:3000/api/"
 const val HEADER_URL = "${BASE_URL}images/$HEADER_PATH"
 
 private val moshi = Moshi.Builder()
@@ -32,10 +31,23 @@ interface MonokromeApiService {
     suspend fun getIssues(@retrofit2.http.Header(AUTH_HEADER_KEY) token: String?): List<NetworkMagazine>
 
     @POST("users")
-    suspend fun register(@Body userUser: User): String
+    suspend fun register(@Body user: User): String
 
     @POST("auth")
-    suspend fun login(@Body userUser: User): String
+    suspend fun login(@Body user: User): String
+
+
+    @Multipart
+    @POST("issues")
+    suspend fun createIssue(
+        @retrofit2.http.Header(AUTH_HEADER_KEY) token: String?,
+        @Part("title") title: String,
+        @Part("description") description: String,
+        @Part image: MultipartBody.Part,
+        @Part edition: MultipartBody.Part,
+        @Part("releaseDate") releaseDate: Long
+    ): NetworkMagazine
+
 
 }
 
@@ -57,19 +69,36 @@ suspend fun MonokromeApiService.loadFromServer(authToken: String?): MagazineList
 suspend fun MonokromeApiService.registerUser(user: User): AuthTokenOrException {
     return try {
         val authToken = this.register(user)
-        Log.d("RegisterFragment", "authToken: $authToken")
+        Timber.d("authToken: $authToken")
         AuthTokenOrException(authToken, null)
     } catch (exception: Exception) {
-        AuthTokenOrException(null, exception);
+        AuthTokenOrException(null, exception)
     }
 }
 
 suspend fun MonokromeApiService.loginUser(user: User): AuthTokenOrException {
     return try {
         val authToken = this.login(user)
-        Log.d("LoginFragment", "login authToken: $authToken")
+        Timber.d("login authToken: $authToken")
         AuthTokenOrException(authToken, null)
     } catch (exception: Exception) {
-        AuthTokenOrException(null, exception);
+        AuthTokenOrException(null, exception)
+    }
+}
+
+
+suspend fun MonokromeApiService.uploadIssue(
+    token: String?,
+    title: String,
+    description: String,
+    image: MultipartBody.Part,
+    edition: MultipartBody.Part,
+    releaseDate: Long
+): MagazineOrException {
+    return try {
+        val issue = this.createIssue(token, title, description, image, edition, releaseDate)
+        return MagazineOrException(issue, null)
+    } catch (exception: Exception) {
+        MagazineOrException(null, exception)
     }
 }

@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,9 +19,10 @@ import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.hasInternet
 import com.ssquare.myapplication.monokrome.util.hideDialog
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
-import com.ssquare.myapplication.monokrome.util.showErrorDialog
 import com.ssquare.myapplication.monokrome.util.showLoading
+import com.ssquare.myapplication.monokrome.util.showOneButtonDialog
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -45,20 +45,12 @@ class LoginFragment : Fragment() {
         binding = FragmentLoginBinding.inflate(inflater)
 
         loginViewModel.userState.observe(viewLifecycleOwner, Observer { isUserSignedIn ->
-            Log.d("LoginFragment", "authTokenOrException: $isUserSignedIn")
+            Timber.d("authTokenOrException: $isUserSignedIn")
             isUserSignedIn?.let {
                 if (it.authToken != null) {
                     navigateToMainActivity()
                 } else {
-                    alertDialog.hideDialog()
-                    showErrorDialog(
-                        activity as AuthActivity,
-                        getString(R.string.information_error_massage),
-                        getString(
-                            R.string.retry
-                        ),
-                        getString(R.string.oops)
-                    )
+                    showError()
                 }
             }
         })
@@ -76,6 +68,19 @@ class LoginFragment : Fragment() {
         setUpAlertDialog()
 
         return binding.root
+    }
+
+    private fun showError() {
+        alertDialog.hideDialog()
+        showOneButtonDialog(
+            activity as AuthActivity,
+            getString(R.string.credentials_error_massage),
+            getString(
+                R.string.retry
+            ),
+            getString(R.string.oops)
+        )
+
     }
 
     private fun setUpAlertDialog() {
@@ -145,7 +150,7 @@ class LoginFragment : Fragment() {
             loginViewModel.logInUser(email, passWord)
 
         } else {
-            showErrorDialog(
+            showOneButtonDialog(
                 activity as AuthActivity, getString(R.string.connectivity_error_message), getString(
                     R.string.close
                 ), getString(R.string.oops)

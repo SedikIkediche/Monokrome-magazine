@@ -1,10 +1,10 @@
 package com.ssquare.myapplication.monokrome.db
 
 import android.database.DatabaseUtils
+import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.Magazine
-import com.ssquare.myapplication.monokrome.data.MagazineListLiveData
 import com.ssquare.myapplication.monokrome.util.OrderBy
 import com.ssquare.myapplication.monokrome.util.OrderBy.*
 import javax.inject.Inject
@@ -39,11 +39,10 @@ class LocalCache @Inject constructor(
     private fun getAllByOrder(orderBy: OrderBy) =
         magazineDao.getAllByOrder(getQueryByOrder(orderBy))
 
-    fun getCachedData(orderBy: OrderBy): MagazineListLiveData {
-        val header = headerDao.get()
-        val magazines = getAllByOrder(orderBy)
-        return MagazineListLiveData(header, magazines)
-    }
+    fun getCachedMagazines(orderBy: OrderBy): LiveData<List<Magazine>> = getAllByOrder(orderBy)
+
+    fun getCachedHeader(): LiveData<Header> = headerDao.get()
+
 
     private fun getQueryByInput(input: String?): SimpleSQLiteQuery {
         return if (input.isNullOrBlank()) {
@@ -84,7 +83,7 @@ class LocalCache @Inject constructor(
     suspend fun updateDownloadIdByDid(dId: Int, downloadId: Int) =
         magazineDao.updateDownloadIdByDid(dId, downloadId)
 
-    suspend fun updateDownloadStateByDid(dId: Int, downloadState: Int) =
+    suspend fun updateDownloadStateByDid(dId: Int, downloadState: Int):Int =
         magazineDao.updateDownloadStateByDid(dId, downloadState)
 
 }

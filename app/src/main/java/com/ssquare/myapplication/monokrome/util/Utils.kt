@@ -2,22 +2,24 @@ package com.ssquare.myapplication.monokrome.util
 
 import android.content.Context
 import android.content.Context.CONNECTIVITY_SERVICE
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.net.ConnectivityManager
-import android.os.Environment
-import android.util.Log
+import android.os.Build
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ssquare.myapplication.monokrome.databinding.AlertDialogLayoutBinding
-import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 import com.ssquare.myapplication.monokrome.util.OrderBy.MOST_RECENT
 import com.ssquare.myapplication.monokrome.util.OrderBy.values
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
-import java.io.File
-import java.net.URI
+import timber.log.Timber
+
 
 const val AUTH_HEADER_KEY = "x-auth-token"
 const val AUTH_PREF_KEY = "auth_token"
@@ -42,6 +44,23 @@ const val NO_DOWNLOAD = -1
 const val STORAGE_PERMISSION_CODE = 100
 const val NO_PROGRESS = -1
 
+const val WRITE_EXTERNAL_STORAGE_PERMISSION_CODE = 100
+const val READ_EXTERNAL_STORAGE_PERMISSION_CODE = 101
+const val SELECT_IMAGE_CODE = 1
+const val SELECT_FILE_CODE = 2
+const val UPLOAD_CODE = 3
+
+const val PLAY_STORE = "market://details?id="
+const val PACKAGE_NAME = "com.ssquare.myapplication.monokrome"
+const val WEB_SITE = "https://www.monokromemag.com/"
+const val FACEBOOK_BROWSER = "https://www.facebook.com/Monokromemag"
+const val FACEBOOK_APP = "fb://facewebmodal/f?href="
+const val FACEBOOK_PACKAGE  = "com.facebook.katana"
+const val FACEBOOK_ID = "1816635888599066"
+const val INSTAGRAM_App = "http://instagram.com/_u/monokromemag"
+const val INSTAGRAM_PACKAGE = "com.instagram.android"
+const val INSTAGRAM_BROWSER = "http://instagram.com/monokromemag"
+
 fun getAuthToken(context: Context): String? {
     return PreferenceManager.getDefaultSharedPreferences(context).getString(
         AUTH_PREF_KEY,
@@ -62,7 +81,6 @@ fun deleteAuthToken(context: Context) {
         apply()
     }
 }
-
 
 
 fun toast(context: Context, text: String) {
@@ -111,7 +129,7 @@ fun commitLoadDataActive(context: Context, state: Boolean) {
         putBoolean(LOAD_DATA_ACTIVE, state)
         apply()
     }
-    Log.d("Utils", "commitWorkActive called")
+    Timber.d("commitWorkActive called")
 }
 
 fun isDownloadActive(context: Context): Boolean =
@@ -126,27 +144,25 @@ fun commitDownloadActive(context: Context, state: Boolean) {
     }
 }
 
-
-fun createUriString(context: Context, id: Long): String {
-    return FILE_PREFIX +
-            context.applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path + id.toString() + PDF_TYPE
+fun getBitmapFromVectorDrawable(context: Context?, drawableId: Int): Bitmap? {
+    var drawable = ContextCompat.getDrawable(context!!, drawableId)
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+        drawable = DrawableCompat.wrap(drawable!!).mutate()
+    }
+    val bitmap = Bitmap.createBitmap(
+        drawable!!.intrinsicWidth,
+        drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
+    )
+    val canvas = Canvas(bitmap)
+    drawable.setBounds(0, 0, canvas.width, canvas.height)
+    drawable.draw(canvas)
+    return bitmap
 }
 
-
-fun deleteFile(uri: String): Boolean {
-    if (uri == NO_FILE) return false
-    Log.d("ListFragment", "fileUri is: $uri")
-    val file = File(URI.create(uri))
-    return if (file.exists()) {
-        file.delete()
-        true
-    } else
-        false
-}
 
 inline fun <T : AppCompatActivity> AlertDialog.showLoading(activity: T, textId: Int) {
     val dialogBinding =
-        AlertDialogLayoutBinding.inflate(LayoutInflater.from(activity as AuthActivity))
+        AlertDialogLayoutBinding.inflate(LayoutInflater.from(activity))
     dialogBinding.logInTextDialog.text = activity.getString(textId)
     this.setView(dialogBinding.root)
     this.setCancelable(false)
@@ -157,16 +173,40 @@ inline fun AlertDialog.hideDialog() {
     this.dismiss()
 }
 
-inline fun <T : AppCompatActivity> showErrorDialog(
+inline fun <T : AppCompatActivity> showOneButtonDialog(
     activity: T,
+    title: String,
     message: String,
-    buttonText: String,
-    title: String
+    positiveButtonText: String,
+    crossinline positiveFun: () -> Unit = {}
 ) {
     MaterialAlertDialogBuilder(activity)
         .setTitle(title)
         .setMessage(message)
-        .setPositiveButton(buttonText) { dialog, which ->
+        .setPositiveButton(positiveButtonText) { dialog, which ->
+            positiveFun()
+            dialog.dismiss()
+        }
+        .show()
+}
+
+inline fun <T : AppCompatActivity> showTwoButtonDialog(
+    activity: T,
+    title: String,
+    message: String,
+    positiveButtonText: String,
+    negativeButtonText: String,
+    crossinline positiveFun: () -> Unit = {},
+    crossinline negativeFun: () -> Unit = {}
+) {
+    MaterialAlertDialogBuilder(activity)
+        .setTitle(title)
+        .setMessage(message)
+        .setPositiveButton(positiveButtonText) { dialog, which ->
+            positiveFun()
+            dialog.dismiss()
+        }.setNegativeButton(negativeButtonText) { dialog, which ->
+            negativeFun()
             dialog.dismiss()
         }
         .show()

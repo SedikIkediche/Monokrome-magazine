@@ -23,7 +23,20 @@
 
         <activity
             android:name="com.ssquare.myapplication.monokrome.ui.auth.AuthActivity"
-            android:theme="@style/AuthStyle" />
+            android:theme="@style/AuthStyle">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="monokrome.page.link"
+                    android:scheme="https" />
+            </intent-filter>
+
+        </activity>
+
         <activity
             android:name="com.ssquare.myapplication.monokrome.ui.splashscreen.SplashActivity"
             android:theme="@style/SplashTheme">
@@ -33,9 +46,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.ssquare.myapplication.monokrome.ui.main.MainActivity">
 
-        </activity>
+        <activity android:name="com.ssquare.myapplication.monokrome.ui.main.MainActivity" />
 
 
         <service

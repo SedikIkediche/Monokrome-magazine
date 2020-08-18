@@ -20,6 +20,21 @@
             android:icon="@drawable/ic_rate"/>
     </group>
 
+    <item
+        android:id="@+id/admin"
+        android:title="Admin">
+         <menu>
+             <group
+                 android:id="@+id/admin_group"
+                 android:checkableBehavior="single">
+                 <item
+                     android:id="@+id/upload"
+                     android:title="Upload"
+                     android:icon="@drawable/ic_upload"/>
+             </group>
+         </menu>
+    </item>
+
    <item
        android:id="@+id/communication"
        android:title="communication">

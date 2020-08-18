@@ -7,7 +7,10 @@ import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import timber.log.Timber.DebugTree
 import java.util.concurrent.TimeUnit
+
 
 @HiltAndroidApp
 class MagazineApplication : Application() {
@@ -15,7 +18,7 @@ class MagazineApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-
+        Timber.plant(DebugTree())
         //initPeriodicCache()
     }
 

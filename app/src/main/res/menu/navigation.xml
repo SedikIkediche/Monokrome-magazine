@@ -1,82 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+
+
     <group
         android:id="@+id/information_group"
         android:checkableBehavior="single">
         <item
             android:id="@+id/home"
-            android:icon="@drawable/ic_home"
-            android:title="Home" />
+            android:title="Home"
+            android:icon="@drawable/ic_home"/>
         <item
             android:id="@+id/about_us"
-            android:icon="@drawable/ic_info"
-            android:title="About Us" />
+            android:title="About Us"
+            android:icon="@drawable/ic_info"/>
         <item
             android:id="@+id/rate_us"
-            android:icon="@drawable/ic_rate"
-            android:title="Rate Us" />
+            android:title="Rate Us"
+            android:icon="@drawable/ic_rate"/>
     </group>
 
     <item
-        android:id="@+id/item_admin"
+        android:id="@+id/admin"
         android:title="Admin">
-        <menu>
-            <group
-                android:id="@+id/admin_group"
-                android:checkableBehavior="single">
-                <item
-                    android:id="@+id/item_upload"
-                    android:icon="@drawable/ic_upload"
-                    android:title="Upload" />
-
-            </group>
-        </menu>
-
+         <menu>
+             <group
+                 android:id="@+id/admin_group"
+                 android:checkableBehavior="single">
+                 <item
+                     android:id="@+id/upload"
+                     android:title="Upload"
+                     android:icon="@drawable/ic_upload"/>
+             </group>
+         </menu>
     </item>
 
+   <item
+       android:id="@+id/communication"
+       android:title="communication">
 
-    <item
-        android:id="@+id/communication"
-        android:title="Communication">
+       <menu>
+           <group
+               android:id="@+id/communication_group"
+               android:checkableBehavior="single">
+               <item
+                   android:id="@+id/web_site"
+                   android:title="Web Site"
+                   android:icon="@drawable/ic_web_site"/>
+               <item
+                   android:id="@+id/facebook"
+                   android:title="Facebook"
+                   android:icon="@drawable/ic_facebook"/>
+               <item
+                   android:id="@+id/instagram"
+                   android:title="Instagram"
+                   android:icon="@drawable/ic_instagram"/>
+               <item
+                   android:id="@+id/contact_us"
+                   android:title="Contact Us"
+                   android:icon="@drawable/ic_contact"/>
+           </group>
+       </menu>
 
-        <menu>
-            <group
-                android:id="@+id/communication_group"
-                android:checkableBehavior="single">
-                <item
-                    android:id="@+id/web_site"
-                    android:icon="@drawable/ic_web_site"
-                    android:title="Web Site" />
-                <item
-                    android:id="@+id/facebook"
-                    android:icon="@drawable/ic_facebook"
-                    android:title="Facebook" />
-                <item
-                    android:id="@+id/instagram"
-                    android:icon="@drawable/ic_instagram"
-                    android:title="Instagram" />
-                <item
-                    android:id="@+id/contact_us"
-                    android:icon="@drawable/ic_contact"
-                    android:title="Contact Us" />
-            </group>
-        </menu>
-
-    </item>
+   </item>
 
     <group
         android:id="@+id/settings_group"
         android:checkableBehavior="single">
         <item
             android:id="@+id/settings"
-            android:icon="@drawable/ic_settings"
-            android:title="Settings" />
+            android:title="Settings"
+            android:icon="@drawable/ic_settings"/>
         <item
             android:id="@+id/logout"
-            android:icon="@drawable/ic_logout"
-            android:title="Log Out" />
+            android:title="Log Out"
+            android:icon="@drawable/ic_logout"/>
     </group>
+
 
 
 </menu>

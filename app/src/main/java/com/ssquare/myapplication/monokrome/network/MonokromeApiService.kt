@@ -55,13 +55,14 @@ object MonokromeApi {
     val retrofitService: MonokromeApiService by lazy { retrofit.create(MonokromeApiService::class.java) }
 }
 
+
 suspend fun MonokromeApiService.loadFromServer(authToken: String?): MagazineListOrException {
     return try {
         val header = Header(imageUrl = HEADER_URL)
         val issues = this.getIssues(authToken)
         MagazineListOrException(issues, header, null)
     } catch (exception: Exception) {
-        MagazineListOrException(null, null, exception)
+        MagazineListOrException(null, null, exception);
     }
 }
 

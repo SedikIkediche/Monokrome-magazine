@@ -30,7 +30,6 @@ fun loadImage(view: ImageView, url: GlideUrl?) {
                     )
                 )
             )
-            .transition(GenericTransitionOptions.with(R.anim.fade_in))
             .centerCrop()
             .into(view)
     }

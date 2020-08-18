@@ -56,4 +56,6 @@
     <string name="new_edition_description">Go check it out!</string>
     <string name="upload">upload</string>
     <string name="uploading">Uploading. . .</string>
+    <string name="drawer_message_error">you can\'t perform this action!</string>
+    <string name="ok">ok</string>
 </resources>

@@ -62,7 +62,8 @@ suspend fun MonokromeApiService.loadFromServer(authToken: String?): MagazineList
         val issues = this.getIssues(authToken)
         MagazineListOrException(issues, header, null)
     } catch (exception: Exception) {
-        MagazineListOrException(null, null, exception);
+        Timber.e(exception, "Monokrome Api Http exception")
+        MagazineListOrException(null, null, exception)
     }
 }
 
@@ -72,6 +73,7 @@ suspend fun MonokromeApiService.registerUser(user: User): AuthTokenOrException {
         Timber.d("authToken: $authToken")
         AuthTokenOrException(authToken, null)
     } catch (exception: Exception) {
+        Timber.e(exception, "Monokrome Api Http exception")
         AuthTokenOrException(null, exception)
     }
 }
@@ -82,6 +84,7 @@ suspend fun MonokromeApiService.loginUser(user: User): AuthTokenOrException {
         Timber.d("login authToken: $authToken")
         AuthTokenOrException(authToken, null)
     } catch (exception: Exception) {
+        Timber.e(exception, "Monokrome Api Http exception")
         AuthTokenOrException(null, exception)
     }
 }
@@ -99,6 +102,7 @@ suspend fun MonokromeApiService.uploadIssue(
         val issue = this.createIssue(token, title, description, image, edition, releaseDate)
         return MagazineOrException(issue, null)
     } catch (exception: Exception) {
+        Timber.e(exception, "Monokrome Api Http exception")
         MagazineOrException(null, exception)
     }
 }

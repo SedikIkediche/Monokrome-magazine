@@ -2,7 +2,6 @@ package com.ssquare.myapplication.monokrome.ui.main
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -38,6 +37,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        downloadUtils.setToken(getAuthToken(this))
         setupNavigation()
         setupDrawerMenuItemClick()
         subscribeTopic(this)
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
                 }
                 R.id.web_site -> {
                     closeDrawer()
-                    openWebSite()
+                    openWebSite(WEB_SITE)
                     true
                 }
                 R.id.facebook -> {
@@ -122,31 +122,13 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
 
     private fun openInstagram() {
         val uri = Uri.parse(INSTAGRAM_App)
-        val insta = Intent(Intent.ACTION_VIEW, uri)
-        insta.setPackage(INSTAGRAM_PACKAGE)
+        val instagramIntent = Intent(Intent.ACTION_VIEW, uri)
+        instagramIntent.setPackage(INSTAGRAM_PACKAGE)
 
-        val list =
-            packageManager.queryIntentActivities(
-                intent,
-                PackageManager.MATCH_DEFAULT_ONLY
-            )
-        if (list.size > 0) {
-            startActivity(insta)
+        if (instagramIntent.resolveActivity(packageManager) != null) {
+            startActivity(instagramIntent)
         } else {
-            val intent = Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse(INSTAGRAM_BROWSER)
-            )
-            if (intent.resolveActivity(packageManager) != null) {
-                startActivity(intent)
-            } else {
-                showOneButtonDialog(
-                    this,
-                    message = getString(R.string.drawer_message_error),
-                    positiveButtonText = getString(R.string.ok),
-                    title = getString(R.string.oops)
-                )
-            }
+            openWebSite(INSTAGRAM_BROWSER)
         }
     }
 
@@ -167,10 +149,10 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
         }
     }
 
-    private fun openWebSite() {
+    private fun openWebSite(url: String) {
         val intent = Intent(
             Intent.ACTION_VIEW,
-            Uri.parse(WEB_SITE)
+            Uri.parse(url)
         )
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)

@@ -1,5 +1,6 @@
 package com.ssquare.myapplication.monokrome.ui.main
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -125,9 +126,9 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
         val instagramIntent = Intent(Intent.ACTION_VIEW, uri)
         instagramIntent.setPackage(INSTAGRAM_PACKAGE)
 
-        if (instagramIntent.resolveActivity(packageManager) != null) {
+        try {
             startActivity(instagramIntent)
-        } else {
+        } catch (exception: ActivityNotFoundException) {
             openWebSite(INSTAGRAM_BROWSER)
         }
     }

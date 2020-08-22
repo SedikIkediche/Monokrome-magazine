@@ -12,7 +12,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
 import timber.log.Timber
 
-const val BASE_URL = "http://192.168.1.4:3000/api/"
+const val BASE_URL = "http://192.168.1.6:3000/api/"
 const val HEADER_URL = "${BASE_URL}images/$HEADER_PATH"
 
 private val moshi = Moshi.Builder()
@@ -47,8 +47,6 @@ interface MonokromeApiService {
         @Part edition: MultipartBody.Part,
         @Part("releaseDate") releaseDate: Long
     ): NetworkMagazine
-
-
 }
 
 object MonokromeApi {
@@ -84,7 +82,7 @@ suspend fun MonokromeApiService.loginUser(user: User): AuthTokenOrException {
         Timber.d("login authToken: $authToken")
         AuthTokenOrException(authToken, null)
     } catch (exception: Exception) {
-        Timber.e(exception, "Monokrome Api Http exception")
+        Timber.e("Monokrome Api Http exception: ${exception.message}")
         AuthTokenOrException(null, exception)
     }
 }

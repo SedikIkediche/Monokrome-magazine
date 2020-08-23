@@ -17,6 +17,7 @@ import com.ssquare.myapplication.monokrome.data.DomainHeader
 import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.getDownloadState
 import com.ssquare.myapplication.monokrome.databinding.FragmentListBinding
+import com.ssquare.myapplication.monokrome.network.Error
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
@@ -184,19 +185,19 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     private fun setupUi(
         header: DomainHeader?,
         magazines: List<DomainMagazine>?,
-        exception: Exception? = null
+        error: Error? = null
     ) {
         when {
-            header == null && magazines.isNullOrEmpty() && exception == null -> {
+            header == null && magazines.isNullOrEmpty() && error == null -> {
                 Log.d("ListFragment", "Null Data")
                 return
             }
-            header != null && !magazines.isNullOrEmpty() && exception == null -> {
+            header != null && !magazines.isNullOrEmpty() && error == null -> {
                 adapter.addHeaderAndSubmitList(magazines, header)
                 showData()
             }
-            exception != null -> {
-                showError("Something wrong happened: $exception")
+            error != null -> {
+                showError(error.message)
             }
         }
     }
@@ -277,7 +278,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         }
     }
 
-    private fun showError(errorText: String) {
+    private fun showError(errorText: String?) {
         binding.run {
             shimmerLayout.visibility = View.GONE
             shimmerLayout.stopShimmer()
@@ -298,10 +299,10 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         }
     }
 
-    private fun showErrorLayout(errorText: String) {
+    private fun showErrorLayout(errorText: String?) {
         binding.run {
             errorContainer.visibility = View.VISIBLE
-            textError.text = errorText
+            textError.text = errorText ?: getString(R.string.general_error)
             bannerLayout.visibility = View.VISIBLE
             onlineIndicator.visibility = View.VISIBLE
             isNotConnected = true

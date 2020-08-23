@@ -66,11 +66,11 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
 
         viewModel.uploadState.observe(viewLifecycleOwner, Observer {
             it?.let {
-                if (it.magazine != null && it.exception == null) {
+                if (it.magazine != null && it.error == null) {
                     //hide
                     uploadSuccess()
-                } else if (it.magazine == null && it.exception != null) {
-                    showErrorDialog(it.exception.message!!)
+                } else if (it.magazine == null && it.error != null) {
+                    showErrorDialog(it.error.message!!)
                 }
             }
         })

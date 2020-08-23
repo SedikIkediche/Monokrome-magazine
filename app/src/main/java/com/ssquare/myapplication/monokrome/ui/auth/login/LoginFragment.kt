@@ -47,10 +47,10 @@ class LoginFragment : Fragment() {
         loginViewModel.userState.observe(viewLifecycleOwner, Observer { isUserSignedIn ->
             Timber.d("authTokenOrException: $isUserSignedIn")
             isUserSignedIn?.let {
-                if (it.authToken != null) {
+                if (it.authToken != null && it.error == null) {
                     navigateToMainActivity()
-                } else {
-                    showError()
+                } else if (it.authToken == null && it.error != null) {
+                    showError(it.error.message)
                 }
             }
         })
@@ -70,11 +70,11 @@ class LoginFragment : Fragment() {
         return binding.root
     }
 
-    private fun showError() {
+    private fun showError(errorMessage: String?) {
         alertDialog.hideDialog()
         showOneButtonDialog(
             activity as AuthActivity,
-            message = getString(R.string.credentials_error_massage),
+            message = errorMessage ?: getString(R.string.credentials_error_massage),
             positiveButtonText = getString(
                 R.string.retry
             ),

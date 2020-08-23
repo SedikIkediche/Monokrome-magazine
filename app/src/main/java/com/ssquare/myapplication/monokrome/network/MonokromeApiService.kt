@@ -7,6 +7,7 @@ import com.ssquare.myapplication.monokrome.data.User
 import com.ssquare.myapplication.monokrome.util.AUTH_HEADER_KEY
 import com.ssquare.myapplication.monokrome.util.HEADER_PATH
 import okhttp3.MultipartBody
+import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
@@ -20,7 +21,7 @@ private val moshi = Moshi.Builder()
     .build()
 
 private val retrofit = Retrofit.Builder()
-    .addConverterFactory(MoshiConverterFactory.create(moshi))
+    .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
     .baseUrl(BASE_URL)
     .build()
 
@@ -54,53 +55,36 @@ object MonokromeApi {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-suspend fun MonokromeApiService.loadFromServer(authToken: String?): MagazineListOrException {
+suspend fun MonokromeApiService.loadFromServer(authToken: String?): MagazineListOrError {
     return try {
         val header = Header(imageUrl = HEADER_URL)
         val issues = this.getIssues(authToken)
-        MagazineListOrException(issues, header, null)
-    } catch (exception: Exception) {
-        Timber.e(exception, "Monokrome Api Http exception")
-        MagazineListOrException(null, null, exception)
+        MagazineListOrError(issues, header, null)
+    } catch (throwable: Throwable) {
+        Timber.e(throwable, "Monokrome Api Http exception")
+        MagazineListOrError(null, null, throwable.convertToError())
     }
 }
 
-suspend fun MonokromeApiService.registerUser(user: User): AuthTokenOrException {
+suspend fun MonokromeApiService.registerUser(user: User): AuthTokenOrError {
     return try {
         val authToken = this.register(user)
         Timber.d("authToken: $authToken")
-        AuthTokenOrException(authToken, null)
-    } catch (exception: Exception) {
-        Timber.e(exception, "Monokrome Api Http exception")
-        AuthTokenOrException(null, exception)
+        AuthTokenOrError(authToken, null)
+    } catch (throwable: Throwable) {
+        Timber.e(throwable, "Monokrome Api Http exception")
+        AuthTokenOrError(null, throwable.convertToError())
     }
 }
 
-suspend fun MonokromeApiService.loginUser(user: User): AuthTokenOrException {
+suspend fun MonokromeApiService.loginUser(user: User): AuthTokenOrError {
     return try {
         val authToken = this.login(user)
         Timber.d("login authToken: $authToken")
-        AuthTokenOrException(authToken, null)
-    } catch (exception: Exception) {
-        Timber.e("Monokrome Api Http exception: ${exception.message}")
-        AuthTokenOrException(null, exception)
+        AuthTokenOrError(authToken, null)
+    } catch (throwable: Throwable) {
+        Timber.e("Monokrome Api Http exception: ${throwable.message}")
+        AuthTokenOrError(null, throwable.convertToError())
     }
 }
 
@@ -112,12 +96,23 @@ suspend fun MonokromeApiService.uploadIssue(
     image: MultipartBody.Part,
     edition: MultipartBody.Part,
     releaseDate: Long
-): MagazineOrException {
+): MagazineOrError {
     return try {
         val issue = this.createIssue(token, title, description, image, edition, releaseDate)
-        return MagazineOrException(issue, null)
-    } catch (exception: Exception) {
-        Timber.e(exception, "Monokrome Api Http exception")
-        MagazineOrException(null, exception)
+        return MagazineOrError(issue, null)
+    } catch (throwable: Throwable) {
+        Timber.e(throwable, "Monokrome Api Http exception")
+        MagazineOrError(null, throwable.convertToError())
+    }
+}
+
+
+fun Throwable.convertToError(): Error {
+    return when (this) {
+        is HttpException -> {
+            val errorMessage = this.response()?.errorBody()?.string()
+            Error(errorMessage)
+        }
+        else -> Error(this.message)
     }
 }

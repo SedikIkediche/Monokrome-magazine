@@ -2,44 +2,44 @@ package com.ssquare.myapplication.monokrome.network
 
 import com.ssquare.myapplication.monokrome.data.Header
 
-data class AuthTokenOrException(
+data class AuthTokenOrError(
     val authToken: String?,
-    val exception: Exception?
+    val error: Error?
 ) {
     init {
-        if (authToken == null && exception == null) {
-            throw IllegalArgumentException("Both data and exception can't be null")
-        } else if (authToken != null && exception != null) {
-            throw IllegalArgumentException("Both data and exception can't be non-null")
+        if (authToken == null && error == null) {
+            throw IllegalArgumentException("Both data and error can't be null")
+        } else if (authToken != null && error != null) {
+            throw IllegalArgumentException("Both data and error can't be non-null")
         }
     }
 }
 
 
-data class MagazineListOrException(
+data class MagazineListOrError(
     val magazineList: List<NetworkMagazine>?,
     val header: Header?,
-    val exception: Exception?
+    val error: Error?
 ) {
     init {
-        if (magazineList == null && header == null && exception == null) {
-            throw IllegalArgumentException("Both data and exception can't be null")
-        } else if (magazineList != null && header == null && exception != null) {
-            throw IllegalArgumentException("Both data and exception can't be non-null")
+        if (magazineList == null && header == null && error == null) {
+            throw IllegalArgumentException("Both data and error can't be null")
+        } else if (magazineList != null && header == null && error != null) {
+            throw IllegalArgumentException("Both data and error can't be non-null")
         }
     }
 }
 
 
-data class MagazineOrException(
+data class MagazineOrError(
     val magazine: NetworkMagazine?,
-    val exception: Exception?
+    val error: Error?
 ) {
     init {
-        if (magazine == null && exception == null) {
-            throw IllegalArgumentException("Both data and exception can't be null")
-        } else if (magazine != null && exception != null) {
-            throw IllegalArgumentException("Both data and exception can't be non-null")
+        if (magazine == null && error == null) {
+            throw IllegalArgumentException("Both data and error can't be null")
+        } else if (magazine != null && error != null) {
+            throw IllegalArgumentException("Both data and error can't be non-null")
         }
     }
 }

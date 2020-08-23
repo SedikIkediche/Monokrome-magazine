@@ -58,4 +58,5 @@
     <string name="uploading">Uploading. . .</string>
     <string name="drawer_message_error">you can\'t perform this action!</string>
     <string name="ok">ok</string>
+    <string name="general_error">Something Wrong Happened.</string>
 </resources>

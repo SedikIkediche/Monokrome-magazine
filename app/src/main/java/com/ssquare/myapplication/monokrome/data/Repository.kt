@@ -7,10 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.ssquare.myapplication.monokrome.db.LocalCache
-import com.ssquare.myapplication.monokrome.network.MagazineOrException
-import com.ssquare.myapplication.monokrome.network.MonokromeApiService
-import com.ssquare.myapplication.monokrome.network.loadFromServer
-import com.ssquare.myapplication.monokrome.network.uploadIssue
+import com.ssquare.myapplication.monokrome.network.*
 import com.ssquare.myapplication.monokrome.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,8 +26,8 @@ class Repository constructor(
     private val network: MonokromeApiService
 ) {
 
-    private val _networkError = MutableLiveData<Exception>()
-    val networkError: LiveData<Exception>
+    private val _networkError = MutableLiveData<Error>()
+    val networkError: LiveData<Error>
         get() = _networkError
 
     companion object {
@@ -61,13 +58,13 @@ class Repository constructor(
             withContext(Dispatchers.IO) {
                 commitLoadDataActive(context, true)
                 resultState =
-                    if (result.header != null && result.magazineList != null && result.exception == null) {
+                    if (result.header != null && result.magazineList != null && result.error == null) {
                         val databaseMagazines = result.magazineList.toMagazines(context)
                         cache.refresh(databaseMagazines, result.header)
                         true
                     } else {
                         _networkError.postValue(
-                            result.exception
+                            result.error
                         )
                         false
                     }
@@ -187,7 +184,7 @@ class Repository constructor(
         imageUri: Uri,
         editionPath: String,
         releaseDate: Long
-    ): MagazineOrException {
+    ): MagazineOrError {
         val authToken = getAuthToken(context)
         val imageFile = FileUtils.getFileFromUri(context, imageUri)!!
         val imageMimeType = FileUtils.getTypeFromUri(context, imageUri)!!

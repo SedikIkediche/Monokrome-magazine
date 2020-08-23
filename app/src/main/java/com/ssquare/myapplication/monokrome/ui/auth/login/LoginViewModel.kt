@@ -4,7 +4,7 @@ import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.ssquare.myapplication.monokrome.data.AuthRepository
-import com.ssquare.myapplication.monokrome.network.AuthTokenOrException
+import com.ssquare.myapplication.monokrome.network.AuthTokenOrError
 import kotlinx.coroutines.launch
 
 class LoginViewModel @ViewModelInject constructor(
@@ -12,8 +12,8 @@ class LoginViewModel @ViewModelInject constructor(
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _userState = MutableLiveData<AuthTokenOrException>()
-    val userState: LiveData<AuthTokenOrException>
+    private val _userState = MutableLiveData<AuthTokenOrError>()
+    val userState: LiveData<AuthTokenOrError>
         get() = _userState
 
 

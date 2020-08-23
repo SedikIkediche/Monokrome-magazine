@@ -1,7 +1,7 @@
 package com.ssquare.myapplication.monokrome.data
 
 import android.content.Context
-import com.ssquare.myapplication.monokrome.network.AuthTokenOrException
+import com.ssquare.myapplication.monokrome.network.AuthTokenOrError
 import com.ssquare.myapplication.monokrome.network.MonokromeApiService
 import com.ssquare.myapplication.monokrome.network.loginUser
 import com.ssquare.myapplication.monokrome.network.registerUser
@@ -15,7 +15,7 @@ class AuthRepository(
 ) {
 
 
-    suspend fun loginUser(email: String, password: String): AuthTokenOrException {
+    suspend fun loginUser(email: String, password: String): AuthTokenOrError {
         val auth = network.loginUser(User(email, password))
         if (auth.authToken != null)
             storeAuthToken(context, auth.authToken)
@@ -23,7 +23,7 @@ class AuthRepository(
         return auth
     }
 
-    suspend fun registerUser(email: String, password: String): AuthTokenOrException {
+    suspend fun registerUser(email: String, password: String): AuthTokenOrError {
         val auth = network.registerUser(User(email, password))
         Timber.d("authToken: $auth")
         if (auth.authToken != null)

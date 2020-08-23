@@ -49,10 +49,10 @@ class RegisterFragment : Fragment() {
 
         registerViewModel.userState.observe(viewLifecycleOwner, Observer { isUserCreated ->
             isUserCreated?.let {
-                if (it.authToken != null) {
+                if (it.authToken != null && it.error == null) {
                     navigateToMainActivity()
-                } else {
-                    showError()
+                } else if (it.authToken == null && it.error != null) {
+                    showError(it.error.message)
                 }
             }
         })
@@ -74,16 +74,17 @@ class RegisterFragment : Fragment() {
         return binding.root
     }
 
-    private fun showError() {
+    private fun showError(errorMessage: String?) {
         alertDialog.hideDialog()
         showOneButtonDialog(
             activity as AuthActivity,
-            message = getString(R.string.credentials_error_massage),
+            message = errorMessage ?: getString(R.string.credentials_error_massage),
             positiveButtonText = getString(
                 R.string.retry
             ),
             title = getString(R.string.oops)
         )
+
     }
 
     private fun setUpAlertDialog() {
@@ -185,14 +186,7 @@ class RegisterFragment : Fragment() {
                 isTheRepeatedPasswordInvalid = true
             }
         } else {
-            showOneButtonDialog(
-                activity as AuthActivity,
-                message = getString(R.string.connectivity_error_message),
-                positiveButtonText = getString(
-                    R.string.close
-                ),
-                title = getString(R.string.oops)
-            )
+            showError(getString(R.string.connectivity_error_message))
         }
     }
 

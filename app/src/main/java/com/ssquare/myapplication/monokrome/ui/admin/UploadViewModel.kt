@@ -5,7 +5,8 @@ import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.ssquare.myapplication.monokrome.data.Repository
-import com.ssquare.myapplication.monokrome.network.MagazineOrException
+import com.ssquare.myapplication.monokrome.network.Error
+import com.ssquare.myapplication.monokrome.network.MagazineOrError
 import kotlinx.coroutines.launch
 
 class UploadViewModel @ViewModelInject constructor(
@@ -33,8 +34,8 @@ class UploadViewModel @ViewModelInject constructor(
     val releaseDate: LiveData<Long>
         get() = _releaseDate
 
-    private val _uploadState = MutableLiveData<MagazineOrException>()
-    val uploadState: LiveData<MagazineOrException>
+    private val _uploadState = MutableLiveData<MagazineOrError>()
+    val uploadState: LiveData<MagazineOrError>
         get() = _uploadState
 
     init {
@@ -75,7 +76,7 @@ class UploadViewModel @ViewModelInject constructor(
             }
         } else {
             _uploadState.value =
-                MagazineOrException(null, Exception("All entries must not be null."))
+                MagazineOrError(null, Error("All entries must not be null."))
         }
     }
 

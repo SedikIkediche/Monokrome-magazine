@@ -77,12 +77,9 @@ class UploadViewModel @ViewModelInject constructor(
             _uploadState.value =
                 MagazineOrException(null, Exception("All entries must not be null."))
         }
-
     }
 
-    fun loadAndCacheData() {
-        viewModelScope.launch { repository.loadAndCacheData() }
-    }
+    fun loadAndCacheData() = repository.loadAndCacheData()
 
 
 }

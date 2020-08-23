@@ -20,6 +20,7 @@ import com.ssquare.myapplication.monokrome.databinding.FragmentDetailBinding
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -119,9 +120,9 @@ class DetailFragment : Fragment(), DetailClickListener {
     }
 
     override fun downloadOrRead(magazine: DomainMagazine) {
-        Log.d("DetailFragment", "Button Clicked")
-        Log.d("DetailFragment", "downloadState = ${magazine.getDownloadState()}")
-        Log.d("DetailFragment", "downloadId = ${magazine.downloadId}")
+        Timber.d("Button Clicked")
+        Timber.d("downloadState = ${magazine.getDownloadState()}")
+        Timber.d("downloadId = ${magazine.downloadId}")
         when (magazine.getDownloadState()) {
             DownloadState.EMPTY -> {
                 //download

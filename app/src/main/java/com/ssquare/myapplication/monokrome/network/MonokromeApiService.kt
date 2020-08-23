@@ -54,6 +54,23 @@ object MonokromeApi {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 suspend fun MonokromeApiService.loadFromServer(authToken: String?): MagazineListOrException {
     return try {
         val header = Header(imageUrl = HEADER_URL)

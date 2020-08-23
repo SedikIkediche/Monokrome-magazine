@@ -52,27 +52,28 @@ class Repository constructor(
         }
     }
 
-    suspend fun loadAndCacheData(): Boolean {
+    fun loadAndCacheData(): Boolean {
         var resultState = false
-        val authToken = getAuthToken(context)
-        val result = network.loadFromServer(authToken)
-        Timber.d("load from server: $result")
-        withContext(Dispatchers.IO) {
-            commitLoadDataActive(context, true)
-            resultState =
-                if (result.header != null && result.magazineList != null && result.exception == null) {
-                    val databaseMagazines = result.magazineList.toMagazines(context)
-                    cache.refresh(databaseMagazines, result.header)
-                    true
-                } else {
-                    _networkError.postValue(
-                        result.exception
-                    )
-                    false
-                }
-            commitLoadDataActive(context, false)
+        scope.launch {
+            val authToken = getAuthToken(context)
+            val result = network.loadFromServer(authToken)
+            Timber.d("load from server: $result")
+            withContext(Dispatchers.IO) {
+                commitLoadDataActive(context, true)
+                resultState =
+                    if (result.header != null && result.magazineList != null && result.exception == null) {
+                        val databaseMagazines = result.magazineList.toMagazines(context)
+                        cache.refresh(databaseMagazines, result.header)
+                        true
+                    } else {
+                        _networkError.postValue(
+                            result.exception
+                        )
+                        false
+                    }
+                commitLoadDataActive(context, false)
+            }
         }
-
         return resultState
     }
 

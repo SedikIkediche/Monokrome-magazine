@@ -70,7 +70,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
                     //hide
                     uploadSuccess()
                 } else if (it.magazine == null && it.exception != null) {
-                    showError(it.exception.message!!)
+                    showErrorDialog(it.exception.message!!)
                 }
             }
         })
@@ -138,7 +138,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
         binding.image.setImageBitmap(imageBitmap)
     }
 
-    private fun showError(message: String) {
+    private fun showErrorDialog(message: String) {
         alertDialog.hideDialog()
         showTwoButtonDialog(
             activity = activity as MainActivity,
@@ -153,6 +153,8 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             }
         )
     }
+
+    private fun handleError(exception:Exception){}
 
     private fun setUpAlertDialog() {
         alertDialog = AlertDialog.Builder(requireContext()).create()
@@ -176,7 +178,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     }
 
     private fun navigateUp() {
-        this.findNavController().navigate(R.id.action_uploadFragment_to_listFragment)
+        this.findNavController().navigateUp()
     }
 
     override fun onRequestPermissionsResult(
@@ -270,11 +272,10 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
 
     private fun setFile(path: String?) {
         val fileType = FileUtils.getTypeFromPath(path)
-        toast(requireContext(), fileType!!)
-        if (fileType == "application/pdf") {
+        if (fileType == FileUtils.MIME_TYPE_PDF) {
             viewModel.setFile(path)
         } else {
-            showError("Document format must be pdf")
+            showErrorDialog("Document format must be pdf")
         }
 
     }
@@ -303,8 +304,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             showLoading()
             viewModel.upload()
         } else {
-            //show error (no internet)
-            toast(requireContext(), "No internet")
+            showErrorDialog(getString(R.string.connectivity_error_message))
         }
 
     }

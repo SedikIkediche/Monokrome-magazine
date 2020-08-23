@@ -25,9 +25,8 @@ class ListViewModel @ViewModelInject constructor(
 
     fun delete(magazine: DomainMagazine) = repository.delete(magazine)
 
-    fun loadAndCacheData() {
-        viewModelScope.launch { repository.loadAndCacheData() }
-    }
+    fun loadAndCacheData() = repository.loadAndCacheData()
+
 
     fun setToDownload(magazine: DomainMagazine?) {
         toDownloadMagazine = magazine

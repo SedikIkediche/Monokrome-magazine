@@ -23,6 +23,7 @@ class FileUtils {
         private const val TAG = "FileUtils"
         private const val FILE_PREFIX = "file://"
         const val NO_FILE = "no_file"
+        const val MIME_TYPE_PDF = "application/pdf"
 
         fun deleteFile(uri: String): Boolean {
             if (uri == NO_FILE) return false

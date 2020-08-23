@@ -78,11 +78,11 @@ class RegisterFragment : Fragment() {
         alertDialog.hideDialog()
         showOneButtonDialog(
             activity as AuthActivity,
-            getString(R.string.credentials_error_massage),
-            getString(
+            message = getString(R.string.credentials_error_massage),
+            positiveButtonText = getString(
                 R.string.retry
             ),
-            getString(R.string.oops)
+            title = getString(R.string.oops)
         )
     }
 
@@ -186,9 +186,12 @@ class RegisterFragment : Fragment() {
             }
         } else {
             showOneButtonDialog(
-                activity as AuthActivity, getString(R.string.connectivity_error_message), getString(
+                activity as AuthActivity,
+                message = getString(R.string.connectivity_error_message),
+                positiveButtonText = getString(
                     R.string.close
-                ), getString(R.string.oops)
+                ),
+                title = getString(R.string.oops)
             )
         }
     }

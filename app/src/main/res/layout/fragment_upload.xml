@@ -59,7 +59,7 @@
                     android:maxHeight="300dp"
                     android:scaleType="centerCrop"
                     app:riv_corner_radius="4dp"
-                    app:srcCompat="@drawable/ic_add_image" />
+                    />
             </FrameLayout>
 
             <!--added for download state and progress -->

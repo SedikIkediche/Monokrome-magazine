@@ -55,7 +55,7 @@ class LoginFragment : Fragment() {
             }
         })
 
-        setTextFieldsListeners()
+        setTextFieldsListeners2()
 
         binding.loginButton.setOnClickListener {
             signInUser()
@@ -96,13 +96,13 @@ class LoginFragment : Fragment() {
     }
 
     private fun setTextFieldsListeners() {
-        binding.email.editText?.setOnFocusChangeListener { _, isFocused ->
+        binding.email.editText?.setOnFocusChangeListener { view, isFocused ->
             if (!isFocused && binding.password.editText?.isFocused == true && binding.email.editText!!.text!!.isEmpty()) {
                 binding.email.error = getString(R.string.email_error_message)
             }
         }
 
-        binding.password.editText?.setOnFocusChangeListener { _, isFocused ->
+        binding.password.editText?.setOnFocusChangeListener { view, isFocused ->
             if (!isFocused && binding.password.editText!!.text!!.isEmpty()) {
                 binding.password.error = getString(R.string.password_error_message)
             }
@@ -111,23 +111,88 @@ class LoginFragment : Fragment() {
         val textWatcher = object : TextWatcher {
 
             override fun afterTextChanged(editable: Editable?) {
-                if (editable == binding.email.editText?.editableText && binding.email.editText!!.text.toString()
+                if (editable.toString() == binding.email.editText?.text.toString() && binding.email.editText!!.text.toString()
                         .isNotEmpty()
                 ) {
                     binding.email.error = null
-                } else if (editable == binding.email.editText?.editableText && binding.email.editText!!.text.toString()
+                } else if (editable.toString() == binding.email.editText?.text.toString() && binding.email.editText!!.text.toString()
                         .isEmpty()
                 ) {
                     binding.email.error = getString(R.string.email_error_message)
                 }
 
-                if (editable == binding.password.editText?.editableText && binding.password.editText!!.text.toString()
+                if (editable.toString() == binding.password.editText?.text.toString() && binding.password.editText!!.text.toString()
                         .isNotEmpty()
                 ) {
                     binding.password.error = null
-                } else if (editable == binding.password.editText?.editableText && binding.password.editText!!.text.toString()
+                } else if (editable.toString() == binding.password.editText?.text.toString() && binding.password.editText!!.text.toString()
                         .isEmpty()
                 ) {
+                    binding.password.error = getString(R.string.password_error_message)
+                }
+
+                binding.loginButton.isEnabled =
+                    binding.email.editText!!.text.isNotEmpty()
+                            && binding.password.editText!!.text.isNotEmpty()
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+        }
+
+        binding.email.editText?.addTextChangedListener(textWatcher)
+        binding.password.editText?.addTextChangedListener(textWatcher)
+    }
+
+
+    private fun setTextFieldsListeners2() {
+        binding.email.editText?.setOnFocusChangeListener { _, isFocused ->
+            Timber.d("email OnFocusChangeListener called")
+            if (!isFocused && binding.password.editText?.isFocused == true && binding.email.editText!!.text!!.isEmpty()) {
+                binding.email.error = getString(R.string.email_error_message)
+            }
+        }
+
+        binding.password.editText?.setOnFocusChangeListener { _, isFocused ->
+            Timber.d("password OnFocusChangeListener called")
+            if (!isFocused && binding.password.editText!!.text!!.isEmpty()) {
+                binding.password.error = getString(R.string.password_error_message)
+            }
+        }
+
+        val emailTextWatcher = object : TextWatcher {
+
+            override fun afterTextChanged(editable: Editable?) {
+                Timber.d("email afterTextChanged() called")
+                if (binding.email.editText!!.text.toString().isNotEmpty()) {
+                    binding.email.error = null
+                } else if (binding.email.editText!!.text.toString().isEmpty()) {
+                    binding.email.error = getString(R.string.email_error_message)
+                }
+
+                binding.loginButton.isEnabled =
+                    binding.email.editText!!.text.isNotEmpty()
+                            && binding.password.editText!!.text.isNotEmpty()
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+        }
+
+        val passwordTextWatcher = object : TextWatcher {
+
+            override fun afterTextChanged(editable: Editable?) {
+                 Timber.d("password afterTextChanged() called")
+                if (binding.password.editText!!.text.toString().isNotEmpty()) {
+                    binding.password.error = null
+                } else if (binding.password.editText!!.text.toString().isEmpty()) {
                     binding.password.error = getString(R.string.password_error_message)
                 }
 
@@ -141,13 +206,12 @@ class LoginFragment : Fragment() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
 
-
             }
-
         }
 
-        binding.email.editText?.addTextChangedListener(textWatcher)
-        binding.password.editText?.addTextChangedListener(textWatcher)
+        binding.email.editText?.addTextChangedListener(emailTextWatcher)
+        binding.password.editText?.addTextChangedListener(passwordTextWatcher)
+
     }
 
     private fun clearTextFieldsListeners() {

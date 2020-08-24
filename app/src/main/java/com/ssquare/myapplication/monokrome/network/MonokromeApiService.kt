@@ -88,7 +88,6 @@ suspend fun MonokromeApiService.loginUser(user: User): AuthTokenOrError {
     }
 }
 
-
 suspend fun MonokromeApiService.uploadIssue(
     token: String?,
     title: String,
@@ -105,7 +104,6 @@ suspend fun MonokromeApiService.uploadIssue(
         MagazineOrError(null, throwable.convertToError())
     }
 }
-
 
 fun Throwable.convertToError(): Error {
     return when (this) {

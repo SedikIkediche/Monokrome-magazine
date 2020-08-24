@@ -70,6 +70,14 @@ class LoginFragment : Fragment() {
         return binding.root
     }
 
+    override fun onStop() {
+        if (alertDialog.isShowing) {
+            alertDialog.hideDialog()
+        }
+        super.onStop()
+    }
+
+
     private fun showError(errorMessage: String?) {
         alertDialog.hideDialog()
         showOneButtonDialog(
@@ -88,13 +96,13 @@ class LoginFragment : Fragment() {
     }
 
     private fun setTextFieldsListeners() {
-        binding.email.editText?.setOnFocusChangeListener { view, isFocused ->
-            if (!isFocused && binding.email.editText!!.text!!.isEmpty()) {
+        binding.email.editText?.setOnFocusChangeListener { _, isFocused ->
+            if (!isFocused && binding.password.editText?.isFocused == true && binding.email.editText!!.text!!.isEmpty()) {
                 binding.email.error = getString(R.string.email_error_message)
             }
         }
 
-        binding.password.editText?.setOnFocusChangeListener { view, isFocused ->
+        binding.password.editText?.setOnFocusChangeListener { _, isFocused ->
             if (!isFocused && binding.password.editText!!.text!!.isEmpty()) {
                 binding.password.error = getString(R.string.password_error_message)
             }
@@ -128,15 +136,32 @@ class LoginFragment : Fragment() {
                             && binding.password.editText!!.text.isNotEmpty()
             }
 
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
 
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+
             }
+
         }
 
         binding.email.editText?.addTextChangedListener(textWatcher)
         binding.password.editText?.addTextChangedListener(textWatcher)
+    }
+
+    private fun clearTextFieldsListeners() {
+        Timber.d("clearTextFieldsListeners() called")
+        binding.email.run {
+            error = null
+            editText?.onFocusChangeListener = null
+
+        }
+
+        binding.password.run {
+            error = null
+            editText?.onFocusChangeListener = null
+        }
     }
 
     private fun signInUser() {
@@ -168,10 +193,4 @@ class LoginFragment : Fragment() {
         }
     }
 
-    override fun onStop() {
-        if (alertDialog.isShowing) {
-            alertDialog.hideDialog()
-        }
-        super.onStop()
-    }
 }

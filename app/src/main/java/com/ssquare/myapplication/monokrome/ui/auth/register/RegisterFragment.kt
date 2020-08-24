@@ -23,7 +23,6 @@ import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvide
 import com.ssquare.myapplication.monokrome.util.showLoading
 import com.ssquare.myapplication.monokrome.util.showOneButtonDialog
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -93,7 +92,9 @@ class RegisterFragment : Fragment() {
     }
 
     private fun setTextFieldsListeners() {
+        binding.registerEmail.editText?.requestFocus()
         binding.registerEmail.editText?.setOnFocusChangeListener { _, isFocused ->
+
             if (!isFocused && binding.registerEmail.editText!!.text!!.isEmpty()) {
                 binding.registerEmail.error = getString(R.string.email_error_message)
             }
@@ -114,9 +115,11 @@ class RegisterFragment : Fragment() {
 
             override fun afterTextChanged(editable: Editable?) {
 
-                if (editable.toString() == binding.registerEmail.editText?.text.toString() && binding.registerEmail.editText!!.text.toString().isNotEmpty()) {
+                if (editable.toString() == binding.registerEmail.editText?.text.toString() && binding.registerEmail.editText!!.text.toString()
+                        .isNotEmpty()
+                ) {
                     binding.registerEmail.error = null
-                } else if (editable.toString() == binding.registerEmail.editText?.text.toString() && binding.registerEmail.editText!!.text.toString()
+                } else if (binding.registerEmail.editText!!.isFocused && editable.toString() == binding.registerEmail.editText?.text.toString() && binding.registerEmail.editText!!.text.toString()
                         .isEmpty()
                 ) {
                     binding.registerEmail.error = getString(R.string.email_error_message)
@@ -130,7 +133,7 @@ class RegisterFragment : Fragment() {
                         binding.registerRepeatPassword.error = null
                         isTheRepeatedPasswordInvalid = false
                     }
-                } else if (editable.toString() == binding.registerPassword.editText?.text.toString() && binding.registerPassword.editText!!.text.toString()
+                } else if (binding.registerPassword.editText!!.isFocused && editable.toString() == binding.registerPassword.editText?.text.toString() && binding.registerPassword.editText!!.text.toString()
                         .isEmpty()
                 ) {
                     binding.registerPassword.error = getString(R.string.password_error_message)
@@ -144,7 +147,7 @@ class RegisterFragment : Fragment() {
                         .isNotEmpty()
                 ) {
                     binding.registerRepeatPassword.error = null
-                } else if (editable.toString() == binding.registerRepeatPassword.editText?.text.toString() && binding.registerRepeatPassword.editText!!.text.toString()
+                } else if (binding.registerRepeatPassword.editText!!.isFocused && editable.toString() == binding.registerRepeatPassword.editText?.text.toString() && binding.registerRepeatPassword.editText!!.text.toString()
                         .isEmpty()
                 ) {
                     binding.registerRepeatPassword.error =

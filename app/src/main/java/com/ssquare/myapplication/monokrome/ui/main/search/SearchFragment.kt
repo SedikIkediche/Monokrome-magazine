@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -21,11 +22,13 @@ import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.getDownloadState
 import com.ssquare.myapplication.monokrome.databinding.FragmentSearchBinding
+import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.ui.main.list.MagazineAdapter
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
 
@@ -53,12 +56,21 @@ class SearchFragment : Fragment() {
         initRecyclerView()
         setUpSearchView()
         setUpNavigateUpButton()
-
+        setContainerBackgroundColor()
         viewModel.searchResult.observe(viewLifecycleOwner, Observer {
             setupUi(it)
         })
 
         return binding.root
+    }
+
+    private fun setContainerBackgroundColor() {
+        binding.root.setBackgroundColor(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.list_item_container_background
+            )
+        )
     }
 
     private fun setupUi(it: List<DomainMagazine>?) {
@@ -197,7 +209,7 @@ class SearchFragment : Fragment() {
     private fun downloadMagazine(magazine: DomainMagazine) {
         if (isConnected(requireContext())) {
             if (!isLoadDataActive(requireContext())) {
-                downloadUtils.enqueueDownload(magazine)
+                downloadUtils.enqueueDownload(magazine, getAuthToken(requireContext()))
             } else {
                 toast(requireContext(), "Loading Data From Server!")
             }
@@ -214,7 +226,7 @@ class SearchFragment : Fragment() {
 
     private fun navigateToPdf(fileUri: String) {
         val intent = Intent(context, PdfViewActivity::class.java).apply {
-            putExtra(MAGAZINE_URI, fileUri)
+            putExtra(PDF_FILE_NAME, getPdfFileName(fileUri))
         }
         startActivity(intent)
     }

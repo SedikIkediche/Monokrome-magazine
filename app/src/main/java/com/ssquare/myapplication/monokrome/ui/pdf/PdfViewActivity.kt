@@ -3,6 +3,7 @@ package com.ssquare.myapplication.monokrome.ui.pdf
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener
@@ -11,32 +12,31 @@ import com.github.barteksc.pdfviewer.listener.OnPageErrorListener
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle
 import com.shockwave.pdfium.PdfDocument.Bookmark
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.util.FileUtils
-import com.ssquare.myapplication.monokrome.util.MAGAZINE_URI
+import com.ssquare.myapplication.monokrome.util.*
 import kotlinx.android.synthetic.main.activity_pdf_view.*
 import timber.log.Timber
+import java.io.File
 
 class PdfViewActivity : AppCompatActivity(),
     OnPageChangeListener,
     OnLoadCompleteListener,
     OnPageErrorListener {
     var pageNumber = 0
-    var pdfFileName: String? = null
-    val fileUri: Uri by lazy {
-        intent.extras!!.getString(MAGAZINE_URI, FileUtils.NO_FILE).toUri()
+    val pdfFileName: String by lazy {
+        intent.extras!!.getString(PDF_FILE_NAME, FileUtils.NO_FILE)
     }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pdf_view)
-        displayFromUri(applicationContext, fileUri)
+        displayFromUri(applicationContext, pdfFileName)
     }
 
 
-    private fun displayFromUri(context: Context, uri: Uri) {
-        pdfFileName = FileUtils.getFileNameFromUri(context, uri)
-        pdfView.fromUri(uri)
+    private fun displayFromUri(context: Context, pdfFileName: String) {
+
+        pdfView.fromFile(File(PDF_FILES_PATH + pdfFileName))
             .defaultPage(pageNumber)
             .onPageChange(this)
             .enableAnnotationRendering(true)

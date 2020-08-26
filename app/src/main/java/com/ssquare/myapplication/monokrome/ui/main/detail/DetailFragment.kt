@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.getDownloadState
@@ -42,21 +43,32 @@ class DetailFragment : Fragment(), DetailClickListener {
         getMagazineId()
         // Inflate the layout for this fragment
         binding = FragmentDetailBinding.inflate(inflater)
-        binding.root.setBackgroundColor(
-            ContextCompat.getColor(
-                requireContext(),
-                R.color.list_item_container_background
-            )
-        )
+        setContainerBackgroundColor()
 
         initDownloadUtils()
 
+        closeButtonClickListener()
 
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         binding.clickListener = this
 
         return binding.root
+    }
+
+    private fun setContainerBackgroundColor() {
+        binding.root.setBackgroundColor(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.list_item_container_background
+            )
+        )
+    }
+
+    private fun closeButtonClickListener() {
+        binding.buttonClose.setOnClickListener {
+            this.findNavController().navigateUp()
+        }
     }
 
     private fun getMagazineId() {
@@ -89,7 +101,7 @@ class DetailFragment : Fragment(), DetailClickListener {
     private fun downloadMagazine(magazine: DomainMagazine) {
         // check for connectivity
         if (!isLoadDataActive(requireContext())) {
-            downloadUtils.enqueueDownload(magazine)
+            downloadUtils.enqueueDownload(magazine, getAuthToken(requireContext()))
         } else {
             toast(requireContext(), "Loading Data From Server!")
         }
@@ -114,7 +126,7 @@ class DetailFragment : Fragment(), DetailClickListener {
 
     private fun navigateToPdf(fileUri: String) {
         val intent = Intent(context, PdfViewActivity::class.java).apply {
-            putExtra(MAGAZINE_URI, fileUri)
+            putExtra(PDF_FILE_NAME, getPdfFileName(fileUri))
         }
         startActivity(intent)
     }

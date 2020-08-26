@@ -14,4 +14,7 @@
     <color name="error_container_background">#eeeeee</color>
     <color name="white">#FFFFFF</color>
     <color name="navigation_view_background_color">#f3e5f5</color>
+    <color name="image_view_tint_color">#B3000000</color>
+    <color name="progress_bar_background_color">#4Dffffff</color>
+    <color name="upload_edit_text_color">#8C000000</color>
 </resources>

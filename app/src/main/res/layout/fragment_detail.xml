@@ -26,7 +26,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#eeeeee"
+            android:background="@color/list_item_container_background"
             android:padding="16dp"
             tools:context=".DetailFragment">
 
@@ -34,7 +34,7 @@
                 android:id="@+id/button_close"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="4dp"
+                android:background="?attr/actionBarItemBackground"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_close" />
@@ -45,6 +45,7 @@
                 android:layout_height="300dp"
                 android:layout_marginTop="20dp"
                 android:scaleType="centerCrop"
+                app:imageTint="@{viewModel.magazine}"
                 app:imageUrl="@{viewModel.magazine.imageUrl}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -52,40 +53,58 @@
                 app:riv_corner_radius="4dp"
                 tools:src="@drawable/list_item_picture_test" />
 
-            <!--added for download state and progress -->
-
-            <TextView
-                android:id="@+id/text_download_state"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:textColor="@android:color/white"
-                app:downloadState="@{viewModel.magazine}"
+            <com.mikhaellopez.circularprogressbar.CircularProgressBar
+                android:id="@+id/circularProgressBar"
+                android:layout_width="86dp"
+                android:layout_height="86dp"
+                android:layout_marginBottom="30dp"
+                app:cpb_background_progressbar_color="@color/progress_bar_background_color"
+                app:cpb_background_progressbar_width="3dp"
+                app:cpb_progress_direction="to_left"
+                app:cpb_progressbar_color="@android:color/white"
+                app:cpb_progressbar_width="3dp"
+                app:cpb_progress_max="100"
+                app:cpb_round_border="true"
+                app:progressTrucking="@{viewModel.magazine}"
                 app:layout_constraintBottom_toBottomOf="@id/image"
                 app:layout_constraintEnd_toEndOf="@id/image"
                 app:layout_constraintStart_toStartOf="@id/image"
                 app:layout_constraintTop_toTopOf="@id/image" />
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/three_dots"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:scaleType="centerCrop"
+                app:layout_constraintBottom_toBottomOf="@id/circularProgressBar"
+                app:layout_constraintEnd_toEndOf="@id/circularProgressBar"
+                app:layout_constraintStart_toStartOf="@id/circularProgressBar"
+                app:layout_constraintTop_toTopOf="@id/circularProgressBar"
+                app:threeDots="@{viewModel.magazine}"
+                app:lottie_autoPlay="true"
+                app:lottie_fileName="three_white_dots.json"
+                app:lottie_loop="true" />
 
             <TextView
                 android:id="@+id/text_download_progress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
+                android:textStyle="bold"
+                android:textSize="18sp"
                 android:textColor="@android:color/white"
                 app:downloadProgress="@{viewModel.magazine}"
                 app:layout_constraintBottom_toBottomOf="@id/image"
                 app:layout_constraintEnd_toEndOf="@id/image"
                 app:layout_constraintStart_toStartOf="@id/image"
-                app:layout_constraintTop_toBottomOf="@id/text_download_state" />
-
-            <!--added for download state and progress -->
+                app:layout_constraintTop_toBottomOf="@id/circularProgressBar" />
 
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:text="FREE"
+                android:text="@string/free"
                 android:textColor="@android:color/black"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -114,8 +133,9 @@
                 android:paddingStart="22dp"
                 android:paddingEnd="22dp"
                 android:textSize="12sp"
+                android:textColor="@android:color/white"
                 app:backgroundTint="@color/list_item_buttons_text_color"
-                app:downloadOrRead="@{viewModel.magazine}"
+                app:downloadOrReadDetail="@{viewModel.magazine}"
                 app:layout_constraintBottom_toBottomOf="@+id/button_delete"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/button_delete"
@@ -131,8 +151,9 @@
                 android:paddingEnd="22dp"
                 android:text="@string/delete"
                 android:textSize="12sp"
+                android:textColor="@android:color/white"
                 android:visibility="@{viewModel.magazine.downloadState == DownloadState.COMPLETED.ordinal() ? View.VISIBLE : View.GONE}"
-                app:backgroundTint="@color/list_item_buttons_text_color"
+                app:backgroundTint="@android:color/holo_red_dark"
                 app:layout_constraintBottom_toBottomOf="@+id/text_release_date"
                 app:layout_constraintEnd_toStartOf="@id/button_download_read"
                 app:layout_constraintTop_toTopOf="@+id/textView" />

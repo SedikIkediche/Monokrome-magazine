@@ -9,7 +9,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -20,20 +22,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.nbsp.materialfilepicker.MaterialFilePicker
-import com.nbsp.materialfilepicker.ui.FilePickerActivity
+import com.bumptech.glide.Glide
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentUploadBinding
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
 import java.util.*
 import javax.inject.Inject
 
@@ -54,7 +66,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
         binding = FragmentUploadBinding.inflate(inflater)
         initLayout()
         setUpAlertDialog()
-
+        setContainerBackgroundColor()
 
         viewModel.image.observe(viewLifecycleOwner, Observer { image ->
             image?.let { displayImage(it) }
@@ -66,11 +78,13 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
 
         viewModel.uploadState.observe(viewLifecycleOwner, Observer {
             it?.let {
-                if (it.magazine != null && it.error == null) {
+                if (it.magazine != null && it.exception == null) {
                     //hide
                     uploadSuccess()
-                } else if (it.magazine == null && it.error != null) {
-                    showErrorDialog(it.error.message!!)
+                    deleteTempCachedFile()
+                } else if (it.magazine == null && it.exception != null) {
+                    showError(it.exception.message!!)
+                    deleteTempCachedFile()
                 }
             }
         })
@@ -79,7 +93,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             it?.let { displayReleaseDate(it) }
         })
 
-        binding.image.setOnClickListener {
+        binding.containerImage.setOnClickListener {
             checkForPermission(SELECT_IMAGE_CODE)
         }
 
@@ -104,7 +118,24 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             selectDate(requireContext())
         }
 
+        closeButtonClickListener()
+
         return binding.root
+    }
+
+    private fun deleteTempCachedFile(){
+        requireContext().cacheDir.listFiles()?.forEach {file ->
+             file.delete()
+        }
+    }
+
+    private fun setContainerBackgroundColor() {
+        binding.root.setBackgroundColor(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.list_item_container_background
+            )
+        )
     }
 
     override fun onStart() {
@@ -117,18 +148,24 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
         provider.removeListener(this)
     }
 
+    private fun closeButtonClickListener() {
+        binding.buttonClose.setOnClickListener {
+            this.findNavController().navigateUp()
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         when {
             requestCode == SELECT_FILE_CODE && resultCode == RESULT_OK -> {
                 data ?: throw IllegalArgumentException("data must not be null")
-                val path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH)
-                setFile(path)
+                val path = data.data!!
+                setFile(FileUtils.createTempFileInCache(FileUtils.getDisplayName(path,requireContext()),requireContext(),path))
             }
             resultCode == RESULT_OK && data != null && data.data != null && requestCode == SELECT_IMAGE_CODE -> {
                 val uri = data.data
-                setImage(uri)
+                   setImage(uri)
             }
         }
     }
@@ -221,25 +258,35 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             action = Intent.ACTION_PICK
             type = "image/*"
         }
-        startActivityForResult(intent, SELECT_IMAGE_CODE)
+        if (intent.resolveActivity(requireActivity().packageManager) != null) {
+            startActivityForResult(intent, SELECT_IMAGE_CODE)
+        } else {
+            showOneButtonDialog(
+                activity as MainActivity,
+                message = getString(R.string.install_gallery_app),
+                positiveButtonText = getString(R.string.ok),
+                title = getString(R.string.oops)
+            )
+        }
     }
 
     private fun selectFile() {
-        val externalStorage = Environment.getExternalStorageDirectory()
-        MaterialFilePicker()
-            .withSupportFragment(this)
-            // With cross icon on the right side of toolbar for closing picker straight away
-            .withCloseMenu(true)
-            // Showing hidden files
-            .withHiddenFiles(false)
-            .withRootPath(externalStorage.absolutePath)
-            // Want to choose only jpg images
-            //.withFilter(Pattern.compile(".*\\.(jpg|jpeg)$"))
-            // Don't apply filter to directories names
-            .withFilterDirectories(false)
-            .withTitle("Choose File")
-            .withRequestCode(SELECT_FILE_CODE)
-            .start()
+
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/pdf"
+        }
+
+        if (intent.resolveActivity(requireActivity().packageManager) != null) {
+            startActivityForResult(intent, SELECT_FILE_CODE)
+        } else {
+            showOneButtonDialog(
+                activity as MainActivity,
+                message = getString(R.string.intall_file_manager),
+                positiveButtonText = getString(R.string.ok),
+                title = getString(R.string.oops)
+            )
+        }
     }
 
     private fun selectDate(context: Context) {

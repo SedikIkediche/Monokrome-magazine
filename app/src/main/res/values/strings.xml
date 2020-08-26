@@ -60,7 +60,7 @@
     <string name="ok">ok</string>
     <string name="general_error">Something Wrong Happened.</string>
 
-    <!--error messages-->
+    <!--backend error messages-->
     <string name="internal_server_error">Internal Server Error.</string>
     <string name="error_no_image_uploaded">No images were uploaded.</string>
     <string name="error_image_format">Image should be png/jpeg format.</string>
@@ -81,6 +81,12 @@
     <string name="error_connection_abort">Software caused connection abort</string>
     <string name="password_length_error_message">Password must be at least 5 characters long</string>
     <string name="repeated_password_match_error">Does not match password</string>
+
+    <!--custom error messages-->
+
+    <string name="custom_error_email_registered">There is already an account with this email.</string>
+    <string name="custom_error_email_does_not_exist">No account with given email.</string>
+    <string name="custom_invalid_password">invalid password</string>
 
 
 </resources>

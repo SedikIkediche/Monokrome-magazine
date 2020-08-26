@@ -15,6 +15,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentRegisterBinding
+import com.ssquare.myapplication.monokrome.network.Error
 import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.*
@@ -50,7 +51,7 @@ class RegisterFragment : Fragment() {
                 if (it.authToken != null && it.error == null) {
                     navigateToMainActivity()
                 } else if (it.authToken == null && it.error != null) {
-                    showError(it.error.message)
+                    handleError(it.error)
                 }
             }
         })
@@ -70,6 +71,13 @@ class RegisterFragment : Fragment() {
         setUpAlertDialog()
 
         return binding.root
+    }
+
+    private fun handleError(error: Error) {
+        when (error.code) {
+            400 -> showError(getString(R.string.custom_error_email_registered))
+            else -> showError(getString(R.string.internal_server_error))
+        }
     }
 
     private fun showError(errorMessage: String?) {

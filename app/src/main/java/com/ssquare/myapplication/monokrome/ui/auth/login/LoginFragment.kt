@@ -14,6 +14,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentLoginBinding
+import com.ssquare.myapplication.monokrome.network.Error
 import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.*
@@ -47,7 +48,7 @@ class LoginFragment : Fragment() {
                 if (it.authToken != null && it.error == null) {
                     navigateToMainActivity()
                 } else if (it.authToken == null && it.error != null) {
-                    showError(it.error.message)
+                    handleError(it.error)
                 }
             }
         })
@@ -75,6 +76,13 @@ class LoginFragment : Fragment() {
         super.onStop()
     }
 
+    private fun handleError(error: Error) {
+        when (error.code) {
+            400 -> showError(getString(R.string.custom_invalid_password))
+            404 -> showError(getString(R.string.custom_error_email_does_not_exist))
+            else -> showError(getString(R.string.internal_server_error))
+        }
+    }
 
     private fun showError(errorMessage: String?) {
         alertDialog.hideDialog()

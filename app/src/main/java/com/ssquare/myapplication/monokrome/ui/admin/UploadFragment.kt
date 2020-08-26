@@ -9,13 +9,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.text.format.DateFormat
 import android.view.LayoutInflater
@@ -24,28 +21,17 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentUploadBinding
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.io.BufferedOutputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.OutputStream
 import java.util.*
 import javax.inject.Inject
 
@@ -78,12 +64,12 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
 
         viewModel.uploadState.observe(viewLifecycleOwner, Observer {
             it?.let {
-                if (it.magazine != null && it.exception == null) {
+                if (it.magazine != null && it.error == null) {
                     //hide
                     uploadSuccess()
                     deleteTempCachedFile()
-                } else if (it.magazine == null && it.exception != null) {
-                    showError(it.exception.message!!)
+                } else if (it.magazine == null && it.error != null) {
+                    showErrorDialog(it.error.message!!)
                     deleteTempCachedFile()
                 }
             }
@@ -124,8 +110,10 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     }
 
     private fun deleteTempCachedFile(){
-        requireContext().cacheDir.listFiles()?.forEach {file ->
-             file.delete()
+        requireContext().cacheDir.listFiles()?.forEach { file ->
+            if (FileUtils.getTypeFromPath(file.path) == "application/pdf") {
+                file.delete()
+            }
         }
     }
 

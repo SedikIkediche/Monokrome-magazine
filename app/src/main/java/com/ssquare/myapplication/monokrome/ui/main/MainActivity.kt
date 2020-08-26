@@ -3,7 +3,6 @@ package com.ssquare.myapplication.monokrome.ui.main
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
@@ -155,14 +154,6 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
         binding.navigationView.setCheckedItem(R.id.home)
     }
 
-    override fun onStop() {
-        super.onStop()
-    }
-
-    override fun onStart() {
-        super.onStart()
-    }
-
     override fun onDestroy() {
         downloadUtils.unregisterListener()
         downloadUtils.close()
@@ -240,7 +231,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
             }
             R.id.web_site -> {
                 setHomeChecked()
-                openWebSite()
+                openWebSite(WEB_SITE)
             }
             R.id.facebook -> {
                 setHomeChecked()

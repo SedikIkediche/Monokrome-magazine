@@ -64,11 +64,15 @@ const val INSTAGRAM_PACKAGE = "com.instagram.android"
 const val INSTAGRAM_BROWSER = "http://instagram.com/monokromemag"
 
 fun isEmailValid(target: CharSequence): Boolean {
-    return android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches()
+    val isValidEmail = android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches()
+    Timber.d("email: $target, is valid email: $isValidEmail")
+    return isValidEmail
 }
 
 fun isPasswordValid(target: CharSequence): Boolean {
-    return target.isNotEmpty() && target.length > 5
+    val isValid = target.isNotEmpty() && target.length >= 5
+    Timber.d("password: $target, is valid password: $isValid")
+    return isValid
 }
 
 fun getAuthToken(context: Context): String? {

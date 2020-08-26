@@ -172,9 +172,8 @@ class RegisterFragment : Fragment() {
 
 
                 binding.registerButton.isEnabled =
-                    email.trim().isNotEmpty()
-                            && password.trim().isNotEmpty()
-                            && repeatedPassword.trim().isNotEmpty()
+                    isEmailValid(email.trim())
+                            && isPasswordValid(password.trim())
                             && password.trim() == repeatedPassword.trim()
             }
 

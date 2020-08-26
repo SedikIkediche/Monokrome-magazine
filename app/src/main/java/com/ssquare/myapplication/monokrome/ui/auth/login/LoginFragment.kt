@@ -16,11 +16,8 @@ import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentLoginBinding
 import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
-import com.ssquare.myapplication.monokrome.util.hasInternet
-import com.ssquare.myapplication.monokrome.util.hideDialog
+import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
-import com.ssquare.myapplication.monokrome.util.showLoading
-import com.ssquare.myapplication.monokrome.util.showOneButtonDialog
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import javax.inject.Inject
@@ -98,14 +95,18 @@ class LoginFragment : Fragment() {
 
     private fun setTextFieldsListeners() {
         binding.email.editText?.setOnFocusChangeListener { _, isFocused ->
-            if (!isFocused && binding.password.editText?.isFocused == true && binding.email.editText!!.text!!.trim().isEmpty()) {
+            if (!isFocused && binding.password.editText?.isFocused == true && !isEmailValid(binding.email.editText!!.text!!.trim())) {
                 binding.email.error = getString(R.string.email_error_message)
             }
         }
 
         binding.password.editText?.setOnFocusChangeListener { _, isFocused ->
-            if (!isFocused && binding.password.editText!!.text!!.trim().isEmpty()) {
-                binding.password.error = getString(R.string.password_error_message)
+            if (!isFocused) {
+                if (binding.password.editText!!.text!!.trim().isEmpty()) {
+                    binding.password.error = getString(R.string.password_empty_error_message)
+                } else if (binding.password.editText!!.text!!.trim().length < 5) {
+                    binding.password.error = getString(R.string.password_length_error_message)
+                }
             }
         }
 
@@ -113,21 +114,22 @@ class LoginFragment : Fragment() {
 
             override fun afterTextChanged(editable: Editable?) {
 
-                if (editable.toString() == binding.email.editText?.text.toString() && binding.email.editText!!.text.trim().toString()
-                        .isNotEmpty()
+                val email = binding.email.editText?.text.toString()
+                val password = binding.password.editText?.text.toString()
+
+                if (editable.toString() == email && email.trim().isNotEmpty()
                 ) {
                     binding.email.error = null
                 }
 
-                if (editable.toString() == binding.password.editText?.text.toString() && binding.password.editText!!.text.trim().toString()
-                        .isNotEmpty()
+                if (editable.toString() == password && password.trim().isNotEmpty()
                 ) {
                     binding.password.error = null
                 }
 
                 binding.loginButton.isEnabled =
-                    binding.email.editText!!.text.trim().isNotEmpty()
-                            && binding.password.editText!!.text.trim().isNotEmpty()
+                    isEmailValid(email.trim())
+                            && isPasswordValid(password.trim())
             }
 
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {

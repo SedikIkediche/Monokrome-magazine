@@ -23,11 +23,13 @@ import timber.log.Timber
 
 const val AUTH_HEADER_KEY = "x-auth-token"
 const val AUTH_PREF_KEY = "auth_token"
+
 //const val NO_AUTH_TOKEN = "no_auth_token"
- const val AUTH_TOKEN =
+const val AUTH_TOKEN =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNTk1NTAzMzI0fQ.mzWfcFy4i1HDl7D_J2AF48UC2P_2Mm52hQuBLcWmam0"
 
 const val MAGAZINE_ID = "magazine_path"
+
 //const val HEADER_PATH = "header/header.jpg"
 const val HEADER_PATH = "header.jpg"
 const val DOWNLOAD_ACTIVE = "download_active"
@@ -55,11 +57,19 @@ const val PACKAGE_NAME = "com.ssquare.myapplication.monokrome"
 const val WEB_SITE = "https://www.monokromemag.com/"
 const val FACEBOOK_BROWSER = "https://www.facebook.com/Monokromemag"
 const val FACEBOOK_APP = "fb://facewebmodal/f?href="
-const val FACEBOOK_PACKAGE  = "com.facebook.katana"
+const val FACEBOOK_PACKAGE = "com.facebook.katana"
 const val FACEBOOK_ID = "1816635888599066"
 const val INSTAGRAM_App = "http://instagram.com/_u/monokromemag"
 const val INSTAGRAM_PACKAGE = "com.instagram.android"
 const val INSTAGRAM_BROWSER = "http://instagram.com/monokromemag"
+
+fun isEmailValid(target: CharSequence): Boolean {
+    return android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches()
+}
+
+fun isPasswordValid(target: CharSequence): Boolean {
+    return target.isNotEmpty() && target.length > 5
+}
 
 fun getAuthToken(context: Context): String? {
     return PreferenceManager.getDefaultSharedPreferences(context).getString(

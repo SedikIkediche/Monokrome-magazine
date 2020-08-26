@@ -38,8 +38,8 @@
     <string name="retry">Retry</string>
     <string name="oops">Oops!</string>
     <string name="connectivity_error_message">Please check you connectivity.</string>
-    <string name="email_error_message">Please Enter Email</string>
-    <string name="password_error_message">Please Enter Password</string>
+    <string name="email_error_message">Please enter a valid Email</string>
+    <string name="password_empty_error_message">Please Enter Password</string>
     <string name="repeat_password_error_message">Please Repeat Password</string>
     <string name="register_dialog_text">Registering…</string>
     <string name="invalid_repeated_password">The repeated password is invalid</string>
@@ -79,6 +79,8 @@
     <string name="error_email_length">"email" length must be at least 5 characters long</string>
     <string name="error_email_format">"email" must be a valid email</string>
     <string name="error_connection_abort">Software caused connection abort</string>
+    <string name="password_length_error_message">Password must be at least 5 characters long</string>
+    <string name="repeated_password_match_error">Does not match password</string>
 
 
 </resources>

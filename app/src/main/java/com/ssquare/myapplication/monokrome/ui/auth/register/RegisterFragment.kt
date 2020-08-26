@@ -17,12 +17,10 @@ import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentRegisterBinding
 import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
-import com.ssquare.myapplication.monokrome.util.hasInternet
-import com.ssquare.myapplication.monokrome.util.hideDialog
+import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
-import com.ssquare.myapplication.monokrome.util.showLoading
-import com.ssquare.myapplication.monokrome.util.showOneButtonDialog
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -37,7 +35,7 @@ class RegisterFragment : Fragment() {
 
     @Inject
     lateinit var provider: ConnectivityProvider
-    private var isTheRepeatedPasswordInvalid = false
+    private var isRepeatedPasswordValid = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -93,21 +91,37 @@ class RegisterFragment : Fragment() {
 
     private fun setTextFieldsListeners() {
         binding.registerEmail.editText?.requestFocus()
-        binding.registerEmail.editText?.setOnFocusChangeListener { _, isFocused ->
 
-            if (!isFocused && binding.registerEmail.editText!!.text!!.trim().isEmpty()) {
+        binding.registerEmail.editText?.setOnFocusChangeListener { _, isFocused ->
+            if (!isFocused && !isEmailValid(binding.registerEmail.editText!!.text!!.trim())) {
                 binding.registerEmail.error = getString(R.string.email_error_message)
             }
         }
         binding.registerPassword.editText?.setOnFocusChangeListener { _, isFocused ->
-            if (!isFocused && binding.registerPassword.editText!!.text!!.trim().isEmpty()) {
-                binding.registerPassword.error = getString(R.string.password_error_message)
+            if (!isFocused) {
+                if (binding.registerPassword.editText!!.text!!.trim().isEmpty()) {
+                    binding.registerPassword.error =
+                        getString(R.string.password_empty_error_message)
+                } else if (binding.registerPassword.editText!!.text!!.trim().length < 5) {
+                    binding.registerPassword.error =
+                        getString(R.string.password_length_error_message)
+                }
             }
         }
         binding.registerRepeatPassword.editText?.setOnFocusChangeListener { _, isFocused ->
-            if (!isFocused && binding.registerRepeatPassword.editText!!.text!!.trim().isEmpty()) {
-                binding.registerRepeatPassword.error =
-                    getString(R.string.repeat_password_error_message)
+            if (isFocused && !isRepeatedPasswordValid) {
+                isRepeatedPasswordValid = true
+            } else if (!isFocused) {
+                if (binding.registerRepeatPassword.editText!!.text!!.trim().isEmpty()) {
+                    binding.registerRepeatPassword.error =
+                        getString(R.string.repeat_password_error_message)
+                } else if (binding.registerPassword.editText!!.text!!.toString() != binding.registerRepeatPassword.editText!!.text!!.toString()
+                ) {
+                    Timber.d("part called 1")
+                    binding.registerRepeatPassword.error =
+                        getString(R.string.repeated_password_match_error)
+                }
+
             }
         }
 
@@ -115,40 +129,53 @@ class RegisterFragment : Fragment() {
 
             override fun afterTextChanged(editable: Editable?) {
 
-                if (editable.toString() == binding.registerEmail.editText?.text.toString() && binding.registerEmail.editText!!.text.trim().toString()
-                        .isNotEmpty()
-                ) {
+                val email = binding.registerEmail.editText?.text.toString()
+                val password = binding.registerPassword.editText?.text.toString()
+                val repeatedPassword = binding.registerRepeatPassword.editText?.text.toString()
+
+                if (editable.toString() == email && email.trim().isNotEmpty()) {
                     binding.registerEmail.error = null
                 }
 
-                if (editable.toString() == binding.registerPassword.editText?.text.toString() && binding.registerPassword.editText!!.text.trim().toString()
-                        .isNotEmpty()
-                ) {
-                    binding.registerPassword.error = null
-                    if (isTheRepeatedPasswordInvalid) {
-                        binding.registerRepeatPassword.error = null
-                        isTheRepeatedPasswordInvalid = false
-                    }
-                } else if (binding.registerPassword.editText!!.isFocused && editable.toString() == binding.registerPassword.editText?.text.toString() && binding.registerPassword.editText!!.text.trim().toString()
-                        .isEmpty()
-                ) {
-                    if (isTheRepeatedPasswordInvalid) {
-                        binding.registerRepeatPassword.error = null
-                        isTheRepeatedPasswordInvalid = false
+
+                if (editable.toString() == password) {
+
+                    if (password.trim().isNotEmpty()) {
+                        binding.registerPassword.error = null
+                    } else if (password.trim().isEmpty()
+                        && isRepeatedPasswordValid && password != repeatedPassword
+                    ) {
+                        Timber.d("part called 3")
+                        binding.registerRepeatPassword.error =
+                            getString(R.string.repeated_password_match_error)
                     }
                 }
 
-                if (editable.toString() == binding.registerRepeatPassword.editText?.text.toString() && binding.registerRepeatPassword.editText!!.text.trim().toString()
+                // is repeated empty
+                if (editable.toString() == repeatedPassword && isRepeatedPasswordValid && repeatedPassword.trim()
+                        .isEmpty()
+                ) {
+
+                    binding.registerRepeatPassword.error =
+                        getString(R.string.repeat_password_error_message)
+                }
+
+                // comparing password and repeated
+                if (password == repeatedPassword && isRepeatedPasswordValid) {
+                    binding.registerRepeatPassword.error = null
+                } else if (password != repeatedPassword && isRepeatedPasswordValid && repeatedPassword.trim()
                         .isNotEmpty()
                 ) {
-                    binding.registerRepeatPassword.error = null
+                    binding.registerRepeatPassword.error =
+                        getString(R.string.repeated_password_match_error)
                 }
 
 
                 binding.registerButton.isEnabled =
-                    binding.registerEmail.editText!!.text.trim().isNotEmpty()
-                            && binding.registerPassword.editText!!.text.trim().isNotEmpty()
-                            && binding.registerRepeatPassword.editText!!.text.trim().isNotEmpty()
+                    email.trim().isNotEmpty()
+                            && password.trim().isNotEmpty()
+                            && repeatedPassword.trim().isNotEmpty()
+                            && password.trim() == repeatedPassword.trim()
             }
 
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -176,7 +203,6 @@ class RegisterFragment : Fragment() {
                 registerViewModel.registerUser(email, passWord)
             } else {
                 binding.registerRepeatPassword.error = getString(R.string.invalid_repeated_password)
-                isTheRepeatedPasswordInvalid = true
             }
         } else {
             showError(getString(R.string.connectivity_error_message))

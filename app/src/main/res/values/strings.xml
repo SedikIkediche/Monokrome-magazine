@@ -23,7 +23,7 @@
     <string name="category">CATEGORY</string>
     <string name="art">Art</string>
     <string name="description">DESCRIPTION</string>
-    <string name="log_in_dialog_text">Logging in...</string>
+    <string name="log_in_dialog_text">Logging in…</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="forget_password">Forget Password?</string>
@@ -41,7 +41,7 @@
     <string name="email_error_message">Please Enter Email</string>
     <string name="password_error_message">Please Enter Password</string>
     <string name="repeat_password_error_message">Please Repeat Password</string>
-    <string name="register_dialog_text">Registering...</string>
+    <string name="register_dialog_text">Registering…</string>
     <string name="invalid_repeated_password">The repeated password is invalid</string>
     <string name="most_recent">Most Recent</string>
     <string name="a_to_z">A to Z</string>
@@ -59,4 +59,26 @@
     <string name="drawer_message_error">you can\'t perform this action!</string>
     <string name="ok">ok</string>
     <string name="general_error">Something Wrong Happened.</string>
+
+    <!--error messages-->
+    <string name="internal_server_error">Internal Server Error.</string>
+    <string name="error_no_image_uploaded">No images were uploaded.</string>
+    <string name="error_image_format">Image should be png/jpeg format.</string>
+    <string name="error_no_file_uploaded">No files were uploaded.</string>
+    <string name="error_no_file_format">file should be pdf format.</string>
+    <string name="error_uploading_image">error uploading image to wanted directory.</string>
+    <string name="error_uploading_file">error uploading file to wanted directory.</string>
+    <string name="error_user_already_registered">User already registered.</string>
+    <string name="error_access_denied">Access denied.</string>
+    <string name="error_invalid_email_or_password">Invalid email or password.</string>
+    <string name="error_no_valid_token">Access denied. No token provided.</string>
+
+    <string name="error_password_length">"password" length must be at least 5 characters long</string>
+    <string name="error_password_empty">"password" is not allowed to be empty</string>
+    <string name="error_email_empty">"email" is not allowed to be empty</string>
+    <string name="error_email_length">"email" length must be at least 5 characters long</string>
+    <string name="error_email_format">"email" must be a valid email</string>
+    <string name="error_connection_abort">Software caused connection abort</string>
+
+
 </resources>

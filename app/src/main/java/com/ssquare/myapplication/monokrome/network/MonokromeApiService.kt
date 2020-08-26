@@ -7,13 +7,14 @@ import com.ssquare.myapplication.monokrome.data.User
 import com.ssquare.myapplication.monokrome.util.AUTH_HEADER_KEY
 import com.ssquare.myapplication.monokrome.util.HEADER_PATH
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
 import timber.log.Timber
 
-const val BASE_URL = "http://192.168.1.6:3000/api/"
+const val BASE_URL = "http://192.168.1.4:3000/api/"
 const val HEADER_URL = "${BASE_URL}images/$HEADER_PATH"
 
 private val moshi = Moshi.Builder()
@@ -42,8 +43,8 @@ interface MonokromeApiService {
     @POST("issues")
     suspend fun createIssue(
         @retrofit2.http.Header(AUTH_HEADER_KEY) token: String?,
-        @Part("title") title: String,
-        @Part("description") description: String,
+        @Part("title") title: RequestBody,
+        @Part("description") description: RequestBody,
         @Part image: MultipartBody.Part,
         @Part edition: MultipartBody.Part,
         @Part("releaseDate") releaseDate: Long
@@ -97,7 +98,14 @@ suspend fun MonokromeApiService.uploadIssue(
     releaseDate: Long
 ): MagazineOrError {
     return try {
-        val issue = this.createIssue(token, title, description, image, edition, releaseDate)
+        val issue = this.createIssue(
+            token,
+            createPartFromString(title),
+            createPartFromString(description),
+            image,
+            edition,
+            releaseDate
+        )
         return MagazineOrError(issue, null)
     } catch (throwable: Throwable) {
         Timber.e(throwable, "Monokrome Api Http exception")
@@ -105,9 +113,16 @@ suspend fun MonokromeApiService.uploadIssue(
     }
 }
 
+private fun createPartFromString(text: String): RequestBody {
+    return RequestBody.create(
+        MultipartBody.FORM, text
+    )
+}
+
 fun Throwable.convertToError(): Error {
     return when (this) {
         is HttpException -> {
+            Timber.d("Http error code:${this.code()}")
             val errorMessage = this.response()?.errorBody()?.string()
             Error(errorMessage)
         }

@@ -98,13 +98,13 @@ class LoginFragment : Fragment() {
 
     private fun setTextFieldsListeners() {
         binding.email.editText?.setOnFocusChangeListener { _, isFocused ->
-            if (!isFocused && binding.password.editText?.isFocused == true && binding.email.editText!!.text!!.isEmpty()) {
+            if (!isFocused && binding.password.editText?.isFocused == true && binding.email.editText!!.text!!.trim().isEmpty()) {
                 binding.email.error = getString(R.string.email_error_message)
             }
         }
 
         binding.password.editText?.setOnFocusChangeListener { _, isFocused ->
-            if (!isFocused && binding.password.editText!!.text!!.isEmpty()) {
+            if (!isFocused && binding.password.editText!!.text!!.trim().isEmpty()) {
                 binding.password.error = getString(R.string.password_error_message)
             }
         }
@@ -113,29 +113,21 @@ class LoginFragment : Fragment() {
 
             override fun afterTextChanged(editable: Editable?) {
 
-                if (editable.toString() == binding.email.editText?.text.toString() && binding.email.editText!!.text.toString()
+                if (editable.toString() == binding.email.editText?.text.toString() && binding.email.editText!!.text.trim().toString()
                         .isNotEmpty()
                 ) {
                     binding.email.error = null
-                } else if (binding.email.editText!!.isFocused && editable.toString() == binding.email.editText?.text.toString() && binding.email.editText!!.text.toString()
-                        .isEmpty()
-                ) {
-                    binding.email.error = getString(R.string.email_error_message)
                 }
 
-                if (editable.toString() == binding.password.editText?.text.toString() && binding.password.editText!!.text.toString()
+                if (editable.toString() == binding.password.editText?.text.toString() && binding.password.editText!!.text.trim().toString()
                         .isNotEmpty()
                 ) {
                     binding.password.error = null
-                } else if (binding.password.editText!!.isFocused && editable.toString() == binding.password.editText?.text.toString() && binding.password.editText!!.text.toString()
-                        .isEmpty()
-                ) {
-                    binding.password.error = getString(R.string.password_error_message)
                 }
 
                 binding.loginButton.isEnabled =
-                    binding.email.editText!!.text.isNotEmpty()
-                            && binding.password.editText!!.text.isNotEmpty()
+                    binding.email.editText!!.text.trim().isNotEmpty()
+                            && binding.password.editText!!.text.trim().isNotEmpty()
             }
 
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -154,8 +146,8 @@ class LoginFragment : Fragment() {
         if (provider.getNetworkState().hasInternet()) {
             alertDialog.showLoading(activity as AuthActivity, R.string.log_in_dialog_text)
 
-            val email = binding.email.editText?.text.toString()
-            val passWord = binding.password.editText?.text.toString()
+            val email = binding.email.editText?.text.toString().trim()
+            val passWord = binding.password.editText?.text.toString().trim()
 
             //login user
             loginViewModel.logInUser(email, passWord)

@@ -154,7 +154,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
         )
     }
 
-    private fun handleError(exception:Exception){}
+    private fun handleError(exception: Exception) {}
 
     private fun setUpAlertDialog() {
         alertDialog = AlertDialog.Builder(requireContext()).create()
@@ -297,8 +297,8 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
 
     private fun upload() {
         if (isConnected) {
-            val title = binding.textTitle.text.toString()
-            val description = binding.textDescription.text.toString()
+            val title = binding.textTitle.text.toString().trim()
+            val description = binding.textDescription.text.toString().trim()
             viewModel.setTitle(title)
             viewModel.setDescription(description)
             showLoading()

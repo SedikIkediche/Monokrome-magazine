@@ -2,9 +2,11 @@ package com.ssquare.myapplication.monokrome.util
 
 import android.content.Context
 import android.content.Context.CONNECTIVITY_SERVICE
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.net.ConnectivityManager
+import android.net.Uri
 import android.os.Build
 import android.view.LayoutInflater
 import android.widget.Toast
@@ -39,7 +41,8 @@ const val PDF_TYPE = ".pdf"
 
 const val FILE_PREFIX = "file://"
 const val NO_FILE = "no_file"
-const val MAGAZINE_URI = "magazine_uri"
+const val PDF_FILE_NAME = "pdf_file_name"
+const val PDF_FILES_PATH = "/storage/emulated/0/Android/data/com.ssquare.myapplication.monokrome/files/Download/Downloads_PDF/"
 const val NO_DOWNLOAD = -1
 const val STORAGE_PERMISSION_CODE = 100
 const val NO_PROGRESS = -1
@@ -206,12 +209,16 @@ inline fun <T : AppCompatActivity> showTwoButtonDialog(
             positiveFun()
             dialog.dismiss()
         }.setNegativeButton(negativeButtonText) { dialog, which ->
-            negativeFun()
             dialog.dismiss()
+            negativeFun()
         }
         .show()
 }
 
 fun ConnectivityProvider.NetworkState.hasInternet(): Boolean {
     return (this as? ConnectivityProvider.NetworkState.ConnectedState)?.hasInternet == true
+}
+
+fun getPdfFileName(fileUrl : String) : String?{
+    return Uri.parse(fileUrl).lastPathSegment
 }

@@ -7,12 +7,17 @@ import android.database.DatabaseUtils
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.FileUtils
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
+import androidx.room.util.FileUtil
+import com.google.android.gms.common.util.IOUtils
 import com.ssquare.myapplication.monokrome.BuildConfig.DEBUG
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.net.URI
 
 
@@ -204,7 +209,50 @@ class FileUtils {
         private fun isDownloadsDocument(uri: Uri): Boolean {
             return "com.android.providers.downloads.documents" == uri.authority
         }
+
+        fun getDisplayName(path: Uri, context: Context): String {
+
+            val uriString: String = path.toString()
+            val myFile = File(uriString)
+            var displayName: String? = null
+
+            if (uriString.startsWith("content://")) {
+                var cursor: Cursor? = null
+                try {
+                    cursor =
+                        context.contentResolver.query(path, null, null, null, null)
+                    if (cursor != null && cursor.moveToFirst()) {
+                        displayName =
+                            cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+                    }
+                } finally {
+                    cursor?.close()
+                }
+            } else if (uriString.startsWith("file://")) {
+                displayName = myFile.name
+            }
+            return displayName!!
+        }
+
+        fun createTempFileInCache(displayName: String, context: Context, path: Uri): String {
+
+            val parcelFileDescriptor = context.contentResolver.openFileDescriptor(path, "r", null)
+
+            var file: File? = null
+            parcelFileDescriptor?.let {
+                val inputStream = FileInputStream(parcelFileDescriptor.fileDescriptor)
+                file = File(context.cacheDir, displayName)
+                val outputStream = FileOutputStream(file)
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    FileUtils.copy(inputStream,outputStream)
+                }else{
+                    IOUtils.copyStream(inputStream, outputStream)
+                }
+
+            }
+            return file?.path!!
+        }
+
     }
-
-
 }

@@ -104,7 +104,7 @@ class Repository constructor(
     //Download
 
     private fun updateFileUri(id: Long, fileUri: String) {
-        Log.d(TAG, "updateFileUri() called")
+        Timber.d("updateFileUri() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateFileUri(id, fileUri)
@@ -116,8 +116,8 @@ class Repository constructor(
         it.toDomainMagazines(context)
     }
 
-    fun updateDownloadProgress(id: Long, progress: Int) {
-        Log.d(TAG, "updateDownloadProgress() called")
+    private fun updateDownloadProgress(id: Long, progress: Int) {
+        Timber.d("updateDownloadProgress() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadProgress(id, progress)
@@ -125,8 +125,8 @@ class Repository constructor(
         }
     }
 
-    fun updateDownloadId(id: Long, downloadId: Int) {
-        Log.d(TAG, "updateDownloadId() called")
+    private fun updateDownloadId(id: Long, downloadId: Int) {
+        Timber.d("updateDownloadId() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadId(id, downloadId)
@@ -134,8 +134,8 @@ class Repository constructor(
         }
     }
 
-    fun updateDownloadState(id: Long, downloadState: DownloadState) {
-        Log.d(TAG, "updateDownloadState() called")
+    private fun updateDownloadState(id: Long, downloadState: DownloadState) {
+        Timber.d("updateDownloadState() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadState(id, downloadState.ordinal)
@@ -143,8 +143,30 @@ class Repository constructor(
         }
     }
 
+    fun updateDownloadStateProgressId(id: Long, downloadState: DownloadState,downloadId: Int,progress: Int) {
+        Timber.d("updateDownloadStateProgressId() called")
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                cache.updateDownloadState(id, downloadState.ordinal)
+                cache.updateDownloadId(id, downloadId)
+                cache.updateDownloadProgress(id, progress)
+            }
+        }
+    }
+
+    fun updateDownloadStateIdUriByDid(dId: Int, fileUri: String,downloadId: Int, downloadState: DownloadState) {
+        Timber.d("updateDownloadStateIdUriByDid() called")
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                cache.updateFileUriByDid(dId, fileUri)
+                val updated = cache.updateDownloadStateByDid(dId, downloadState.ordinal)
+                cache.updateDownloadIdByDid(dId, downloadId)
+            }
+        }
+    }
+
     fun updateFileUriByDid(dId: Int, fileUri: String) {
-        Log.d(TAG, "updateFileUriByDid() called")
+        Timber.d("updateFileUriByDid() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateFileUriByDid(dId, fileUri)
@@ -153,7 +175,7 @@ class Repository constructor(
     }
 
     fun updateDownloadProgressByDid(dId: Int, progress: Int) {
-        Log.d(TAG, "updateDownloadProgressByDid() called")
+        Timber.d("updateDownloadProgressByDid() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadProgressByDid(dId, progress)
@@ -162,7 +184,7 @@ class Repository constructor(
     }
 
     fun updateDownloadIdByDid(dId: Int, downloadId: Int) {
-        Log.d(TAG, "updateDownloadIdByDid() called")
+        Timber.d("updateDownloadIdByDid() called")
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateDownloadIdByDid(dId, downloadId)
@@ -179,6 +201,17 @@ class Repository constructor(
         }
     }
 
+    fun updateDownloadStateIdProgressByDid(dId: Int, downloadState: DownloadState,downloadId: Int,progress: Int) {
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                val updated = cache.updateDownloadStateByDid(dId, downloadState.ordinal)
+                cache.updateDownloadProgressByDid(dId, progress)
+                cache.updateDownloadIdByDid(dId, downloadId)
+                Timber.d("updateDownloadStateIdProgressByDid() called: updated = $updated ************")
+            }
+        }
+    }
+
 
     suspend fun uploadIssue(
         title: String,
@@ -189,7 +222,7 @@ class Repository constructor(
     ): MagazineOrException {
         val authToken = getAuthToken(context)
         val imageFile = FileUtils.getFileFromUri(context, imageUri)!!
-        val imageMimeType = FileUtils.getTypeFromUri(context, imageUri)!!
+        val imageMimeType = "image/jpeg"//FileUtils.getTypeFromUri(context, imageUri)!!
         val imageRequestBody = RequestBody.create(MediaType.parse(imageMimeType), imageFile)
         val image = MultipartBody.Part.createFormData("image", imageFile.name, imageRequestBody)
 

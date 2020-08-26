@@ -50,7 +50,4 @@ interface MagazineDao {
     @Query("UPDATE magazines SET downloadState=:downloadState WHERE downloadId=:dId")
     suspend fun updateDownloadStateByDid(dId: Int, downloadState: Int):Int
 
-
-
-
 }

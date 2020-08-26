@@ -1,12 +1,22 @@
 package com.ssquare.myapplication.monokrome.util
 
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
 import android.os.Environment
+import androidx.core.os.EnvironmentCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.preference.PreferenceManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.Repository
+import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.tonyodev.fetch2.*
+import com.tonyodev.fetch2.database.DownloadInfo
+import com.tonyodev.fetch2.database.FetchDatabaseManager
+import com.tonyodev.fetch2.database.FetchDatabaseManagerImpl
+import com.tonyodev.fetch2.database.FetchDatabaseManagerWrapper
 import com.tonyodev.fetch2core.DownloadBlock
 import com.tonyodev.fetch2core.Func
 import timber.log.Timber
@@ -22,10 +32,16 @@ class DownloadUtils(
     private val fetchConfiguration = FetchConfiguration.Builder(context)
         .setDownloadConcurrentLimit(10)
         .setProgressReportingInterval(1000)
+        .enableAutoStart(false)
         .build()
 
     private var fetch = Fetch.Impl.getInstance(fetchConfiguration)
-    private  var authToken:String? = null
+    private var errorCallback: (() -> Unit)? = null
+    private var isMainActivityCreated = false
+
+    fun setErrorCallback(errorCallback: () -> Unit){
+        this.errorCallback = errorCallback
+    }
 
     private val listener = object : FetchListener {
 
@@ -40,7 +56,8 @@ class DownloadUtils(
 
         override fun onCompleted(download: Download) {
             updateDownloadCompleted(download.id, download.fileUri.toString())
-            Timber.d("onCompleted called")
+            download.file
+            Timber.d("onCompleted called $download.file")
         }
 
         override fun onDeleted(download: Download) {
@@ -50,6 +67,7 @@ class DownloadUtils(
 
         override fun onError(download: Download, error: Error, throwable: Throwable?) {
             updateDownloadFailed(download.id, download.fileUri.toString())
+            errorCallback?.invoke()
             Timber.d("onError called: $error")
         }
 
@@ -80,10 +98,14 @@ class DownloadUtils(
             triggerActiveDownloads()
             Timber.d("onDownloadBlockUpdated called")
         }
-
         override fun onRemoved(download: Download) {
-            updateDownloadFailed(download.id, download.fileUri.toString())
-            Timber.d("onRemoved called")
+          if (isMainActivityCreated){
+              getActiveDownloadWhenActivityCreated()
+              isMainActivityCreated = false
+          }else{
+              updateDownloadFailed(download.id, download.fileUri.toString())
+              Timber.d("onRemoved called")
+          }
         }
 
         override fun onResumed(download: Download) {
@@ -105,47 +127,30 @@ class DownloadUtils(
         }
     }
 
-    var downloadState = DownloadState.EMPTY
-
-    private val _isDownloadRunning = MutableLiveData<Boolean>()
-    val isDownloadRunning: LiveData<Boolean>
-        get() = _isDownloadRunning
-
-
-    private fun init() {
-        if (fetch.isClosed) fetch = Fetch.Impl.getInstance(fetchConfiguration)
-    }
-
-    fun setToken(token: String?){
-        authToken = token
-    }
-
-    private fun triggerActiveDownloads() {
-        fetch.getDownloads(Func { list ->
-            val activeDownloadsList =
-                list.filter { it.status == Status.QUEUED || it.status == Status.DOWNLOADING || it.status == Status.PAUSED }
-            _isDownloadRunning.postValue(activeDownloadsList.isNotEmpty())
-        })
-    }
-
-    fun registerListener() {
-        init()
-        triggerActiveDownloads()
+    private fun getActiveDownloadWhenActivityCreated() {
         fetch.getDownloads(Func {
             it.forEach { download ->
                 when (download.status) {
-                    Status.COMPLETED -> updateDownloadCompleted(
-                        download.id,
-                        download.fileUri.toString()
-                    )
-                    Status.FAILED -> updateDownloadFailed(download.id, download.fileUri.toString())
+                    Status.COMPLETED -> {
+                    }
+                    Status.FAILED -> {
+                    }
                     Status.NONE -> {
                     }
                     Status.QUEUED -> {
+                        updateDownloadFailed(download.id, download.fileUri.toString())
+                        Timber.d("onRemoved called")
+                        Timber.d("from QUEUED")
                     }
                     Status.DOWNLOADING -> {
+                        updateDownloadFailed(download.id, download.fileUri.toString())
+                        Timber.d("onRemoved called")
+                        Timber.d("from DOWNLOADING")
                     }
                     Status.PAUSED -> {
+                        updateDownloadFailed(download.id, download.fileUri.toString())
+                        Timber.d("onRemoved called")
+                        Timber.d("from PAUSED")
                     }
                     Status.CANCELLED -> {
                     }
@@ -158,26 +163,54 @@ class DownloadUtils(
                 }
             }
         })
+    }
+
+    var downloadState = DownloadState.EMPTY
+
+    private val _isDownloadRunning = MutableLiveData<Boolean>()
+    val isDownloadRunning: LiveData<Boolean>
+        get() = _isDownloadRunning
+
+
+    private fun init() {
+        if (fetch.isClosed) fetch = Fetch.Impl.getInstance(fetchConfiguration)
+    }
+
+    private fun triggerActiveDownloads() {
+        fetch.getDownloads(Func { list ->
+            val activeDownloadsList =
+                list.filter { it.status == Status.QUEUED || it.status == Status.DOWNLOADING || it.status == Status.PAUSED }
+            _isDownloadRunning.postValue(activeDownloadsList.isNotEmpty())
+        })
+    }
+
+    fun setIsMainActivityCreated(){
+        isMainActivityCreated = true
+    }
+
+    fun registerListener() {
+        init()
         Timber.d("registerListener called")
         fetch.addListener(listener)
     }
 
-    fun unregisterListener() {
-        Timber.d("unregisterListener called")
-        init()
-        fetch.removeListener(listener)
+    fun removeActiveDownloads(){
+        //triggerActiveDownloads()
+        fetch.cancelAll()
+        fetch.removeAll()
     }
 
-    fun clear(){
-        authToken = null
-        //clear all downloads from downloadUtils and database and files
+    fun unregisterListener() {
+        Timber.d("unregisterListener called")
+      //  init()
+        fetch.removeListener(listener)
     }
 
     fun close() {
         fetch.close()
     }
 
-    fun enqueueDownload(magazine: DomainMagazine) {
+    fun enqueueDownload(magazine: DomainMagazine,authToken : String? ) {
         Timber.d("Magazine: $magazine")
         val filePath = createFilePath(magazine.id)
         val request = Request(magazine.editionUrl, filePath).apply {
@@ -198,9 +231,7 @@ class DownloadUtils(
 
     private fun updateDownloadPending(magazineId: Long, downloadId: Int) {
         updateState(DownloadState.PENDING)
-        repository.updateDownloadProgress(magazineId, 0)
-        repository.updateDownloadState(magazineId, DownloadState.PENDING)
-        repository.updateDownloadId(magazineId, downloadId)
+        repository.updateDownloadStateProgressId(magazineId, DownloadState.PENDING,downloadId,0)
     }
 
     private fun updateDownloadStarted(dId: Int) {
@@ -225,19 +256,16 @@ class DownloadUtils(
 
     private fun updateDownloadCompleted(dId: Int, fileUri: String) {
         updateState(DownloadState.EMPTY)
-        repository.updateDownloadStateByDid(dId, DownloadState.COMPLETED)
-        repository.updateFileUriByDid(dId, fileUri)
-        repository.updateDownloadIdByDid(dId, NO_DOWNLOAD)
+        repository.updateDownloadStateIdUriByDid(dId,fileUri,NO_DOWNLOAD, DownloadState.COMPLETED)
         triggerActiveDownloads()
     }
 
     private fun updateDownloadFailed(dId: Int, fileUri: String) {
         updateState(DownloadState.EMPTY)
-        repository.updateDownloadStateByDid(dId, DownloadState.EMPTY)
+        repository.updateDownloadStateIdProgressByDid(dId, DownloadState.EMPTY,NO_DOWNLOAD,NO_PROGRESS)
         deleteFile(fileUri)
-        repository.updateDownloadIdByDid(dId, NO_DOWNLOAD)
-        repository.updateDownloadProgressByDid(dId, NO_PROGRESS)
         triggerActiveDownloads()
+        Timber.d("updateDownloadFailed: $dId")
     }
 
 
@@ -248,7 +276,8 @@ class DownloadUtils(
     }
 
     private fun createFilePath(id: Long): String {
-        return context.applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path + id.toString() + PDF_TYPE
+
+       return context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.path+ "/Downloads_PDF/"  + id.toString() + PDF_TYPE
     }
 
     private fun deleteFile(uri: String): Boolean {

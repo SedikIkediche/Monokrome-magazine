@@ -3,15 +3,20 @@ package com.ssquare.myapplication.monokrome.ui.main.list
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DefaultItemAnimator
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.DomainHeader
 import com.ssquare.myapplication.monokrome.data.DomainMagazine
@@ -24,6 +29,9 @@ import com.ssquare.myapplication.monokrome.util.DownloadState.*
 import com.ssquare.myapplication.monokrome.util.OrderBy.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -43,6 +51,17 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     private lateinit var adapter: MagazineAdapter
     private var isNotConnected = false
 
+    private var isDownloadDialogShown = false
+
+    private  lateinit var dialog: MaterialAlertDialogBuilder
+
+    private val errorCallback = fun(){
+        if (!isDownloadDialogShown){
+            dialog.show()
+            isDownloadDialogShown = true
+        }
+
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,6 +71,17 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         setUpToolbar()
         initRecyclerView()
         initDownloadUtils()
+        setContainerBackgroundColor()
+
+        dialog = MaterialAlertDialogBuilder(requireActivity())
+            .setTitle(getString(R.string.oops))
+            .setMessage(getString(R.string.download_error_message))
+            .setPositiveButton(getString(R.string.ok)) { dialog, which ->
+                dialog.dismiss()
+            }.setOnDismissListener {
+                isDownloadDialogShown = false
+            }
+        downloadUtils.setErrorCallback(errorCallback)
 
         viewModel.orderBy(getOrderBy(requireContext()))
         viewModel.networkError.observe(viewLifecycleOwner, Observer {
@@ -59,20 +89,31 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         })
 
         viewModel.data.observe(viewLifecycleOwner, Observer {
-            if (isDataCached(requireContext()))
+            if (isDataCached(requireContext())){
                 setupUi(it.first, it.second)
+                binding.swipeRefreshLayout.isRefreshing=false
+            }
         })
 
         binding.swipeRefreshLayout.setOnRefreshListener {
-            //if (isDataCached(requireContext())){
-              //  binding.swipeRefreshLayout.isRefreshing=false
-            //}else{
+            if (isDataCached(requireContext())){
+                binding.swipeRefreshLayout.isRefreshing=false
+            }else{
                 cacheData()
-            //}
+            }
 
         }
 
         return binding.root
+    }
+
+    private fun setContainerBackgroundColor() {
+        binding.root.setBackgroundColor(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.list_item_container_background
+            )
+        )
     }
 
     private fun initDownloadUtils() {
@@ -129,7 +170,25 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.list_fagment_loolbar_menu, menu)
-        menu.findItem(R.id.sort_by_most_recent).isChecked = true
+        setUpOrderByOption(menu)
+    }
+
+    private fun setUpOrderByOption(menu: Menu) {
+        val orderBy = PreferenceManager.getDefaultSharedPreferences(context).getInt(
+            ORDER_BY,
+            0
+        )
+        when (orderBy) {
+            MOST_RECENT.ordinal -> {
+                menu.findItem(R.id.sort_by_most_recent).isChecked = true
+            }
+            A_TO_Z.ordinal -> {
+                menu.findItem(R.id.sort_from_a_to_z).isChecked = true
+            }
+            Z_TO_A.ordinal -> {
+                menu.findItem(R.id.sort_from_z_to_a).isChecked = true
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -247,7 +306,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
 
     private fun navigateToPdf(fileUri: String) {
         val intent = Intent(context, PdfViewActivity::class.java).apply {
-            putExtra(MAGAZINE_URI, fileUri)
+            putExtra(PDF_FILE_NAME, getPdfFileName(fileUri))
         }
         startActivity(intent)
     }
@@ -255,11 +314,10 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     private fun downloadMagazine(magazine: DomainMagazine) {
         if (isConnected(requireContext())) {
             if (!isLoadDataActive(requireContext())) {
-                downloadUtils.enqueueDownload(magazine)
+                downloadUtils.enqueueDownload(magazine, getAuthToken(requireContext()))
             } else {
                 toast(requireContext(), "Loading Data From Server!")
             }
-
         } else {
             showErrorLayout(getString(R.string.network_down))
         }

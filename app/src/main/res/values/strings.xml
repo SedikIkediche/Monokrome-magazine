@@ -18,7 +18,6 @@
     <string name="close">CLOSE</string>
     <string name="no_internet_connection">No Internet Connection</string>
     <string name="back_online">Back Online</string>
-    <string name="free">FREE</string>
     <string name="title">TITLE</string>
     <string name="category">CATEGORY</string>
     <string name="art">Art</string>
@@ -58,4 +57,28 @@
     <string name="uploading">Uploading. . .</string>
     <string name="drawer_message_error">you can\'t perform this action!</string>
     <string name="ok">ok</string>
+    <string name="download_error_message">An error happened try again!</string>
+    <string name="waiting">Waiting...</string>
+    <string name="pause">PAUSE</string>
+    <string name="free">FREE</string>
+    <string name="monokrome_art_magazine">MONOKROME Art Magazine</string>
+    <string name="monokrome_art_magazine_le_chez_soi_des_artistes">MONOKROME Art Magazine le chez-soi des artistes.</string>
+    <string name="publisheb_by">Published by MONOKROME</string>
+    <string name="about">About</string>
+    <string name="about_text">Monokrome est un magazine culturel numérique algérien indépendant qui entend démocratiser l’Art dans sa pluralité et auprès de tous.
+        Fondé en 2018 à l’initiative de Nour Taieb Ezzraimi et d’Idris Felfoul, le magazine rassemble aujourd’hui 7 chefs de rubriques permanants et touche sur les réseaux sociaux près de 7000 individus résidants dans le monde entier.
+        Fort de ses publications trimestrielles sur des thématiques définis en collégialité, le magazine publie également régulièrement dans les rubriques portfolio et interviews et dans le blog dans quatre langues (anglais, arabe, espagnol, français), des articles œuvrant à la promotion d’artistes et projets afin de leur donner accès à un espace de publication et d’offrir la possibilité au plus grand nombre d’accéder à des informations quant à la culture et l’art actuel.</string>
+    <string name="developers">Developers</string>
+    <string name="developers_name">This app was developed by Sedik Ikediche and Soheib Bettahar.</string>
+    <string name="contact">Contact</string>
+    <string name="sedik_email">ikediche08@gmail.com</string>
+    <string name="soheib_email">soheibbett@gmail.com</string>
+    <string name="write_title_here">write title here</string>
+    <string name="write_description_here">write description here</string>
+    <string name="edition">EDITION</string>
+    <string name="click_here_to_add_edition">Click here to add edition</string>
+    <string name="_13_sep_219">13 Sep 219</string>
+    <string name="version">Version : 1.0.0</string>
+    <string name="intall_file_manager">You need to install a file manager app.</string>
+    <string name="install_gallery_app">You need to install a gallery app.</string>
 </resources>

@@ -106,21 +106,42 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="h,1:1.5"
             app:layout_constraintEnd_toEndOf="parent"
+            app:imageTint="@{magazine}"
             app:layout_constraintTop_toTopOf="parent"
             app:riv_corner_radius="4dp"
             tools:src="@drawable/list_item_picture_test" />
 
-        <TextView
-            android:id="@+id/text_download_state"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:textColor="@color/white"
-            app:downloadState="@{magazine}"
+        <com.mikhaellopez.circularprogressbar.CircularProgressBar
+            android:id="@+id/circularProgressBar"
+            android:layout_width="68dp"
+            android:layout_height="68dp"
+            android:layout_marginBottom="30dp"
+            app:cpb_background_progressbar_color="@color/progress_bar_background_color"
+            app:cpb_background_progressbar_width="3dp"
+            app:cpb_progress_direction="to_left"
+            app:cpb_progressbar_color="@android:color/white"
+            app:cpb_progressbar_width="3dp"
+            app:cpb_progress_max="100"
+            app:cpb_round_border="true"
+            app:progressTrucking="@{magazine}"
             app:layout_constraintBottom_toBottomOf="@id/image_magazine"
             app:layout_constraintEnd_toEndOf="@id/image_magazine"
             app:layout_constraintStart_toStartOf="@id/image_magazine"
             app:layout_constraintTop_toTopOf="@id/image_magazine" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/three_dots"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="@id/circularProgressBar"
+            app:layout_constraintEnd_toEndOf="@id/image_magazine"
+            app:layout_constraintStart_toStartOf="@id/image_magazine"
+            app:layout_constraintTop_toTopOf="@id/circularProgressBar"
+            app:threeDots="@{magazine}"
+            app:lottie_autoPlay="true"
+            app:lottie_fileName="three_white_dots.json"
+            app:lottie_loop="true" />
 
         <TextView
             android:id="@+id/text_download_progress"
@@ -128,10 +149,11 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:textColor="@color/white"
+            android:textStyle="bold"
             app:downloadProgress="@{magazine}"
             app:layout_constraintBottom_toBottomOf="@id/image_magazine"
             app:layout_constraintEnd_toEndOf="@id/image_magazine"
             app:layout_constraintStart_toStartOf="@id/image_magazine"
-            app:layout_constraintTop_toBottomOf="@id/text_download_state" />
+            app:layout_constraintTop_toBottomOf="@id/circularProgressBar" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

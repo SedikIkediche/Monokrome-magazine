@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
@@ -31,6 +32,8 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
     @Inject
     lateinit var downloadUtils: DownloadUtils
 
+    var selectedItem = 0
+
     @Inject
     lateinit var authRepository: AuthRepository
     private lateinit var binding: ActivityMainBinding
@@ -41,63 +44,19 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
         setupNavigation()
         setupDrawerMenuItemClick()
         subscribeTopic(this)
+        downloadUtils.registerListener()
+        downloadUtils.removeActiveDownloads()
+        downloadUtils.setIsMainActivityCreated()
     }
 
     private fun setupDrawerMenuItemClick() {
+        setHomeChecked()
         binding.navigationView.menu.findItem(R.id.admin).isVisible = isAdmin(this)
-        binding.navigationView.setNavigationItemSelectedListener {
-            return@setNavigationItemSelectedListener when (it.itemId) {
-                R.id.home -> {
-                    closeDrawer()
-                    true
-                }
-                R.id.about_us -> {
-                    closeDrawer()
-                    true
-                }
-                R.id.rate_us -> {
-                    closeDrawer()
-                    openPlayStore()
-                    true
-                }
-                R.id.upload -> {
-                    closeDrawer()
-                    findNavController(R.id.nav_host_fragment).navigate(R.id.action_listFragment_to_uploadFragment)
-                    true
-                }
-                R.id.web_site -> {
-                    closeDrawer()
-                    openWebSite()
-                    true
-                }
-                R.id.facebook -> {
-                    closeDrawer()
-                    openFacebook()
-                    true
-                }
-                R.id.instagram -> {
-                    closeDrawer()
-                    openInstagram()
-                    true
-                }
-                R.id.contact_us -> {
-                    closeDrawer()
-                    openContact()
-                    true
-                }
-                R.id.settings -> {
-                    closeDrawer()
-                    true
-                }
-                R.id.logout -> {
-                    closeDrawer()
-                    logout()
-                    true
-                }
-                else -> true
+        binding.navigationView.setNavigationItemSelectedListener {menuItem : MenuItem ->
+             selectedItem = menuItem.itemId
+             closeDrawer()
+            true
             }
-
-        }
         binding.drawer.addDrawerListener(this)
     }
 
@@ -203,7 +162,6 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
 
     private fun logout() {
         authRepository.logoutUser()
-        downloadUtils.clear()
         unsubscribeFromTopic()
         val intent = Intent(this@MainActivity, AuthActivity::class.java)
         startActivity(intent)
@@ -215,16 +173,15 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
     }
 
     override fun onStop() {
-        downloadUtils.unregisterListener()
         super.onStop()
     }
 
     override fun onStart() {
         super.onStart()
-        downloadUtils.registerListener()
     }
 
     override fun onDestroy() {
+        downloadUtils.unregisterListener()
         downloadUtils.close()
         super.onDestroy()
     }
@@ -258,10 +215,6 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
     }
 
     private fun setupNavigation() {
-        /**   NavigationUI.setupWithNavController(
-        binding.navigation,
-        Navigation.findNavController(this, R.id.nav_host_fragment)
-        )**/
 
         Navigation.findNavController(this, R.id.nav_host_fragment)
             .addOnDestinationChangedListener { controller, destination, arguments ->
@@ -286,7 +239,44 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
     }
 
     override fun onDrawerClosed(drawerView: View) {
-        setHomeChecked()
+        when (selectedItem) {
+            R.id.home -> {
+                setHomeChecked()
+            }
+            R.id.about_us -> {
+                setHomeChecked()
+                this.findNavController(R.id.nav_host_fragment).navigate(R.id.aboutFragment)
+            }
+            R.id.rate_us -> {
+                setHomeChecked()
+                openPlayStore()
+            }
+            R.id.upload -> {
+                setHomeChecked()
+                findNavController(R.id.nav_host_fragment).navigate(R.id.action_listFragment_to_uploadFragment)
+            }
+            R.id.web_site -> {
+                setHomeChecked()
+                openWebSite()
+            }
+            R.id.facebook -> {
+                setHomeChecked()
+                openFacebook()
+            }
+            R.id.instagram -> {
+                setHomeChecked()
+                openInstagram()
+            }
+            R.id.contact_us -> {
+                setHomeChecked()
+                openContact()
+            }
+            R.id.logout -> {
+                setHomeChecked()
+                logout()
+            }
+        }
+        selectedItem = 0
     }
 
     override fun onDrawerOpened(drawerView: View) {

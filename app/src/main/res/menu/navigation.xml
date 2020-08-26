@@ -68,10 +68,6 @@
         android:id="@+id/settings_group"
         android:checkableBehavior="single">
         <item
-            android:id="@+id/settings"
-            android:title="Settings"
-            android:icon="@drawable/ic_settings"/>
-        <item
             android:id="@+id/logout"
             android:title="Log Out"
             android:icon="@drawable/ic_logout"/>

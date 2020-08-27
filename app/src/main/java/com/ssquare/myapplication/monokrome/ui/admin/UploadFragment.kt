@@ -107,7 +107,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
         return binding.root
     }
 
-    private fun deleteTempCachedFile(){
+    private fun deleteTempCachedFile() {
         requireContext().cacheDir.listFiles()?.forEach { file ->
             if (FileUtils.getTypeFromPath(file.path) == "application/pdf") {
                 file.delete()
@@ -130,8 +130,8 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     }
 
     override fun onStop() {
-        super.onStop()
         provider.removeListener(this)
+        super.onStop()
     }
 
     override fun onDestroy() {
@@ -152,11 +152,18 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             requestCode == SELECT_FILE_CODE && resultCode == RESULT_OK -> {
                 data ?: throw IllegalArgumentException("data must not be null")
                 val path = data.data!!
-                setFile(FileUtils.createTempFileInCache(FileUtils.getDisplayName(path,requireContext()),requireContext(),path))
+                setFile(
+                    FileUtils.createTempFileInCache(
+                        FileUtils.getDisplayName(
+                            path,
+                            requireContext()
+                        ), requireContext(), path
+                    )
+                )
             }
             resultCode == RESULT_OK && data != null && data.data != null && requestCode == SELECT_IMAGE_CODE -> {
                 val uri = data.data
-                   setImage(uri)
+                setImage(uri)
             }
         }
     }

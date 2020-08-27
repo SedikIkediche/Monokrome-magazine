@@ -45,8 +45,6 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
         setupDrawerMenuItemClick()
         subscribeTopic(this)
         downloadUtils.registerListener()
-        downloadUtils.removeActiveDownloads()
-        downloadUtils.setIsMainActivityCreated()
     }
 
     private fun setupDrawerMenuItemClick() {
@@ -152,6 +150,12 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
 
     private fun setHomeChecked() {
         binding.navigationView.setCheckedItem(R.id.home)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        downloadUtils.setIsMainActivityCreated()
+        downloadUtils.removeActiveDownloads()
     }
 
     override fun onDestroy() {

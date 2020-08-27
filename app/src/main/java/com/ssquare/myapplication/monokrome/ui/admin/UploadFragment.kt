@@ -67,10 +67,8 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
                 if (it.magazine != null && it.error == null) {
                     //hide
                     uploadSuccess()
-                    deleteTempCachedFile()
                 } else if (it.magazine == null && it.error != null) {
                     showErrorDialog(it.error.message!!)
-                    deleteTempCachedFile()
                 }
             }
         })
@@ -134,6 +132,11 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     override fun onStop() {
         super.onStop()
         provider.removeListener(this)
+    }
+
+    override fun onDestroy() {
+        deleteTempCachedFile()
+        super.onDestroy()
     }
 
     private fun closeButtonClickListener() {

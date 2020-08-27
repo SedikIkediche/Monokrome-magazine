@@ -14,7 +14,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
 import timber.log.Timber
 
-const val BASE_URL = "http://192.168.1.6:3000/api/"
+const val BASE_URL = "http://192.168.1.4:3000/api/"
 const val HEADER_URL = "${BASE_URL}images/$HEADER_PATH"
 
 private val moshi = Moshi.Builder()
@@ -108,7 +108,7 @@ suspend fun MonokromeApiService.uploadIssue(
         )
         return MagazineOrError(issue, null)
     } catch (throwable: Throwable) {
-        Timber.e(throwable, "Monokrome Api Http exception")
+        Timber.e(throwable, "Monokrome Api exception: $throwable")
         MagazineOrError(null, throwable.convertToError())
     }
 }

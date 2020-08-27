@@ -99,13 +99,14 @@ class DownloadUtils(
             Timber.d("onDownloadBlockUpdated called")
         }
         override fun onRemoved(download: Download) {
-          if (isMainActivityCreated){
+          if (isMainActivityCreated && getActiveDownLoad() > 0){
               getActiveDownloadWhenActivityCreated()
               isMainActivityCreated = false
           }else{
               updateDownloadFailed(download.id, download.fileUri.toString())
-              Timber.d("onRemoved called")
+
           }
+            Timber.d("onRemoved called")
         }
 
         override fun onResumed(download: Download) {
@@ -163,6 +164,14 @@ class DownloadUtils(
                 }
             }
         })
+    }
+
+    fun getActiveDownLoad() : Int{
+        var downloadsCount = 0
+        fetch.getDownloads(Func{downloadList ->
+           downloadsCount =  downloadList.size
+        })
+        return downloadsCount
     }
 
     var downloadState = DownloadState.EMPTY

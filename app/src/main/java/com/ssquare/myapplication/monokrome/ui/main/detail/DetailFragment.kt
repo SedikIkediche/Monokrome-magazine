@@ -55,7 +55,6 @@ class DetailFragment : Fragment(), DetailClickListener {
 
         return binding.root
     }
-
     private fun setContainerBackgroundColor() {
         binding.root.setBackgroundColor(
             ContextCompat.getColor(

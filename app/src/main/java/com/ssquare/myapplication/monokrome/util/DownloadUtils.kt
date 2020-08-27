@@ -99,7 +99,6 @@ class DownloadUtils(
             Timber.d("onDownloadBlockUpdated called")
         }
         override fun onRemoved(download: Download) {
-              updateDownloadFailed(download.id, download.fileUri.toString())
             Timber.d("onRemoved called")
         }
 
@@ -142,22 +141,32 @@ class DownloadUtils(
         })
     }
 
-    fun setIsMainActivityCreated(){
-        triggerActiveDownloads()
-        isMainActivityCreated = _isDownloadRunning.value!!
+    fun checkForActiveDownLoadsWhenMainActivityCreated(){
+        fetch.getDownloads(Func { list ->
+                list.forEach {download ->
+                    when(download.status){
+                        Status.QUEUED ->{
+                            fetch.cancel(download.id)
+                            fetch.remove(download.id)
+                        }
+                        Status.DOWNLOADING -> {
+                            fetch.cancel(download.id)
+                            fetch.remove(download.id)
+                        }
+                        Status.PAUSED -> {
+                            fetch.cancel(download.id)
+                            fetch.remove(download.id)
+                        }
+                    }
+                }
+
+        })
     }
 
     fun registerListener() {
         init()
         Timber.d("registerListener called")
         fetch.addListener(listener)
-    }
-
-    fun removeActiveDownloads(){
-        if (isMainActivityCreated){
-            fetch.cancelAll()
-            fetch.removeAll()
-        }
     }
 
     fun unregisterListener() {

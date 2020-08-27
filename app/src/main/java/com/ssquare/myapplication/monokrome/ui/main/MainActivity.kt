@@ -154,8 +154,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
 
     override fun onStart() {
         super.onStart()
-        downloadUtils.setIsMainActivityCreated()
-        downloadUtils.removeActiveDownloads()
+        downloadUtils.checkForActiveDownLoadsWhenMainActivityCreated()
     }
 
     override fun onDestroy() {

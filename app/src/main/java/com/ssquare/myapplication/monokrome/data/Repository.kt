@@ -93,7 +93,6 @@ class Repository constructor(
         val magazines = Transformations.map(cache.getCachedMagazines(orderBy)) {
             it.toDomainMagazines(context)
         }
-        Timber.d("getCachedData() called data : header: ${header}, magazines: $magazines")
         return MagazineListLiveData(
             header,
             magazines, dataEmptyCallback = {

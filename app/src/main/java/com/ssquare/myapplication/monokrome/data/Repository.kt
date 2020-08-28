@@ -2,10 +2,10 @@ package com.ssquare.myapplication.monokrome.data
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.network.*
 import com.ssquare.myapplication.monokrome.util.*
@@ -58,10 +58,22 @@ class Repository constructor(
             withContext(Dispatchers.IO) {
                 commitLoadDataActive(context, true)
                 resultState =
-                    if (result.header != null && result.magazineList != null && result.error == null) {
-                        val databaseMagazines = result.magazineList.toMagazines(context)
-                        cache.refresh(databaseMagazines, result.header)
-                        true
+                    if (result.header != null && result.error == null) {
+                        if (!result.magazineList.isNullOrEmpty()) {
+                            val databaseMagazines = result.magazineList.toMagazines(context)
+                            cache.refresh(databaseMagazines, result.header)
+                            _networkError.postValue(null)
+                            true
+                        } else {
+                            Timber.d("getting empty from loadAndCacheData()")
+                            _networkError.postValue(
+                                Error(
+                                    message = context.getString(R.string.no_issues_available),
+                                    code = 404
+                                )
+                            )
+                            false
+                        }
                     } else {
                         _networkError.postValue(
                             result.error
@@ -75,14 +87,25 @@ class Repository constructor(
     }
 
     fun getCachedData(orderBy: OrderBy): MagazineListLiveData {
-        Timber.d("getCachedData() called")
         val header = Transformations.map(cache.getCachedHeader()) {
             it.toDomainHeader(context)
         }
         val magazines = Transformations.map(cache.getCachedMagazines(orderBy)) {
             it.toDomainMagazines(context)
         }
-        return MagazineListLiveData(header, magazines)
+        Timber.d("getCachedData() called data : header: ${header}, magazines: $magazines")
+        return MagazineListLiveData(
+            header,
+            magazines, dataEmptyCallback = {
+                Timber.d("getting empty from getCachedData()")
+                _networkError.postValue(
+                    Error(
+                        message = context.getString(R.string.no_issues_available),
+                        code = 404
+                    )
+                )
+            }, dataCallback = { _networkError.value = null }
+        )
     }
 
     fun getMagazine(id: Long) = Transformations.map(cache.getMagazine(id)) {
@@ -141,7 +164,12 @@ class Repository constructor(
         }
     }
 
-    fun updateDownloadStateProgressId(id: Long, downloadState: DownloadState,downloadId: Int,progress: Int) {
+    fun updateDownloadStateProgressId(
+        id: Long,
+        downloadState: DownloadState,
+        downloadId: Int,
+        progress: Int
+    ) {
         Timber.d("updateDownloadStateProgressId() called")
         scope.launch {
             withContext(Dispatchers.IO) {
@@ -152,7 +180,12 @@ class Repository constructor(
         }
     }
 
-    fun updateDownloadStateIdUriByDid(dId: Int, fileUri: String,downloadId: Int, downloadState: DownloadState) {
+    fun updateDownloadStateIdUriByDid(
+        dId: Int,
+        fileUri: String,
+        downloadId: Int,
+        downloadState: DownloadState
+    ) {
         Timber.d("updateDownloadStateIdUriByDid() called")
         scope.launch {
             withContext(Dispatchers.IO) {
@@ -199,7 +232,12 @@ class Repository constructor(
         }
     }
 
-    fun updateDownloadStateIdProgressByDid(dId: Int, downloadState: DownloadState,downloadId: Int,progress: Int) {
+    fun updateDownloadStateIdProgressByDid(
+        dId: Int,
+        downloadState: DownloadState,
+        downloadId: Int,
+        progress: Int
+    ) {
         scope.launch {
             withContext(Dispatchers.IO) {
                 val updated = cache.updateDownloadStateByDid(dId, downloadState.ordinal)
@@ -230,10 +268,19 @@ class Repository constructor(
         val edition =
             MultipartBody.Part.createFormData("edition", editionFile.name, editionRequestBody)
 
-        val magazineOrException =
+        val magazineOrError =
             network.uploadIssue(authToken, title, description, image, edition, releaseDate)
-        Timber.d("Uploading issue: $magazineOrException")
+        Timber.d("Uploading issue: $magazineOrError")
 
-        return magazineOrException
+        if (magazineOrError.error == null) {
+            _networkError.value = null
+        } else {
+            _networkError.value = Error(
+                message = context.getString(R.string.no_issues_available),
+                code = 404
+            )
+        }
+
+        return magazineOrError
     }
 }

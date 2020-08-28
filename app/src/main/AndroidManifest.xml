@@ -56,7 +56,6 @@
             android:name=".ui.pdf.PdfViewActivity"
             android:screenOrientation="portrait" />
 
-:
         <service
             android:name=".AppMessagingService"
             android:exported="false">

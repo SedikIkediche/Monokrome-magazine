@@ -2,11 +2,14 @@ package com.ssquare.myapplication.monokrome.ui.main.list
 
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.*
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
 import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.util.OrderBy
-import kotlinx.coroutines.launch
+import timber.log.Timber
 
 
 class ListViewModel @ViewModelInject constructor(
@@ -17,6 +20,7 @@ class ListViewModel @ViewModelInject constructor(
     private val _orderBy = MutableLiveData<OrderBy>()
 
     val data = Transformations.switchMap(_orderBy) {
+        Timber.d("order by: $it")
         repository.getCachedData(it)
     }
     val networkError = repository.networkError

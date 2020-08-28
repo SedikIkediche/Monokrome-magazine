@@ -26,7 +26,7 @@
 
         <!-- Here you error layout -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/error_container"
+            android:id="@+id/empty_error_container"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:background="@color/error_container_background"

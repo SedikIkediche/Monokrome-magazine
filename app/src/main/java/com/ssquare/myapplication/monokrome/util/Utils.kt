@@ -2,7 +2,6 @@ package com.ssquare.myapplication.monokrome.util
 
 import android.content.Context
 import android.content.Context.CONNECTIVITY_SERVICE
-import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.net.ConnectivityManager
@@ -44,7 +43,8 @@ const val PDF_TYPE = ".pdf"
 const val FILE_PREFIX = "file://"
 const val NO_FILE = "no_file"
 const val PDF_FILE_NAME = "pdf_file_name"
-const val PDF_FILES_PATH = "/storage/emulated/0/Android/data/com.ssquare.myapplication.monokrome/files/Download/Downloads_PDF/"
+const val PDF_FILES_PATH =
+    "/storage/emulated/0/Android/data/com.ssquare.myapplication.monokrome/files/Download/Downloads_PDF/"
 const val NO_DOWNLOAD = -1
 const val STORAGE_PERMISSION_CODE = 100
 const val NO_PROGRESS = -1
@@ -195,7 +195,9 @@ inline fun <T : AppCompatActivity> showOneButtonDialog(
     title: String,
     message: String,
     positiveButtonText: String,
-    crossinline positiveFun: () -> Unit = {}
+    crossinline positiveFun: () -> Unit = {},
+    crossinline dismissFun: () -> Unit = {}
+
 ) {
     MaterialAlertDialogBuilder(activity)
         .setTitle(title)
@@ -203,6 +205,8 @@ inline fun <T : AppCompatActivity> showOneButtonDialog(
         .setPositiveButton(positiveButtonText) { dialog, which ->
             positiveFun()
             dialog.dismiss()
+        }.setOnDismissListener {
+            dismissFun()
         }
         .show()
 }
@@ -214,7 +218,8 @@ inline fun <T : AppCompatActivity> showTwoButtonDialog(
     positiveButtonText: String,
     negativeButtonText: String,
     crossinline positiveFun: () -> Unit = {},
-    crossinline negativeFun: () -> Unit = {}
+    crossinline negativeFun: () -> Unit = {},
+    crossinline dismissFun: () -> Unit = {}
 ) {
     MaterialAlertDialogBuilder(activity)
         .setTitle(title)
@@ -225,6 +230,8 @@ inline fun <T : AppCompatActivity> showTwoButtonDialog(
         }.setNegativeButton(negativeButtonText) { dialog, which ->
             dialog.dismiss()
             negativeFun()
+        }.setOnDismissListener {
+            dismissFun()
         }
         .show()
 }
@@ -233,6 +240,6 @@ fun ConnectivityProvider.NetworkState.hasInternet(): Boolean {
     return (this as? ConnectivityProvider.NetworkState.ConnectedState)?.hasInternet == true
 }
 
-fun getPdfFileName(fileUrl : String) : String?{
+fun getPdfFileName(fileUrl: String): String? {
     return Uri.parse(fileUrl).lastPathSegment
 }

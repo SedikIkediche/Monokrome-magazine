@@ -7,13 +7,13 @@ import android.os.Build
 import android.os.Bundle
 import android.view.*
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DefaultItemAnimator
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.DomainHeader
 import com.ssquare.myapplication.monokrome.data.DomainMagazine
@@ -27,6 +27,7 @@ import com.ssquare.myapplication.monokrome.util.DownloadState.*
 import com.ssquare.myapplication.monokrome.util.OrderBy.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -44,18 +45,18 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     lateinit var binding: FragmentListBinding
 
     private lateinit var adapter: MagazineAdapter
+    private var isConnected: Boolean = false
     private var isNotConnected = false
 
-    private var isDownloadDialogShown = false
 
-    private  lateinit var dialog: MaterialAlertDialogBuilder
-
-    private val errorCallback = fun(){
-        if (!isDownloadDialogShown){
-            dialog.show()
-            isDownloadDialogShown = true
+    private val errorCallback = fun() {
+        if (!binding.bannerLayout.isVisible) {
+            showError(getString(R.string.download_error_message))
+//            showErrorDialog(
+//                message = getString(R.string.download_error_message)
+//                , positiveButtonText = getString(R.string.ok)
+//                , dismissFun = { isDownloadDialogShown = false })
         }
-
     }
 
     override fun onCreateView(
@@ -68,32 +69,31 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         initDownloadUtils()
         setContainerBackgroundColor()
 
-        dialog = MaterialAlertDialogBuilder(requireActivity())
-            .setTitle(getString(R.string.oops))
-            .setMessage(getString(R.string.download_error_message))
-            .setPositiveButton(getString(R.string.ok)) { dialog, which ->
-                dialog.dismiss()
-            }.setOnDismissListener {
-                isDownloadDialogShown = false
-            }
         downloadUtils.setErrorCallback(errorCallback)
 
         viewModel.orderBy(getOrderBy(requireContext()))
         viewModel.networkError.observe(viewLifecycleOwner, Observer {
-            setupUi(null, null, it)
+            Timber.d("error from network: $it")
+            if (it == null) {
+                setupUi(null, null, null)
+            } else {
+                handleError(it)
+            }
+
         })
 
         viewModel.data.observe(viewLifecycleOwner, Observer {
-            if (isDataCached(requireContext())){
+            if (isDataCached(requireContext())) {
+                Timber.d("data from cache: $it")
                 setupUi(it.first, it.second)
-                binding.swipeRefreshLayout.isRefreshing=false
+                binding.swipeRefreshLayout.isRefreshing = false
             }
         })
 
         binding.swipeRefreshLayout.setOnRefreshListener {
-            if (isDataCached(requireContext())){
-                binding.swipeRefreshLayout.isRefreshing=false
-            }else{
+            if (isDataCached(requireContext())) {
+                binding.swipeRefreshLayout.isRefreshing = false
+            } else {
                 cacheData()
             }
 
@@ -101,6 +101,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
 
         return binding.root
     }
+
 
     private fun setContainerBackgroundColor() {
         binding.root.setBackgroundColor(
@@ -250,17 +251,21 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         error: Error? = null
     ) {
         when {
-            header == null && magazines.isNullOrEmpty() && error == null -> {
-                return
+            header == null && magazines == null && error == null -> {
+                hideEmpty()
             }
             header != null && !magazines.isNullOrEmpty() && error == null -> {
                 adapter.addHeaderAndSubmitList(magazines, header)
                 showData()
             }
             error != null -> {
-                showError(error.message)
+                handleError(error)
             }
         }
+    }
+
+    private fun hideEmpty() {
+        binding.emptyErrorContainer.visibility = View.GONE
     }
 
     private fun initRecyclerView() {
@@ -306,14 +311,14 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     }
 
     private fun downloadMagazine(magazine: DomainMagazine) {
-        if (isConnected(requireContext())) {
+        if (isConnected) {
             if (!isLoadDataActive(requireContext())) {
                 downloadUtils.enqueueDownload(magazine, getAuthToken(requireContext()))
             } else {
                 toast(requireContext(), "Loading Data From Server!")
             }
         } else {
-            showErrorLayout(getString(R.string.network_down))
+            showError(getString(R.string.connectivity_error_message), showOnlineView = false)
         }
     }
 
@@ -322,11 +327,18 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         findNavController().navigate(R.id.action_listFragment_to_detailFragment, pathBundle)
     }
 
+    private fun handleError(error: Error) {
+        when (error.code) {
+            404 -> showEmpty()
+            else -> showError(error.message)
+        }
+    }
+
     private fun showLoading() {
         binding.run {
             shimmerLayout.startShimmer()
             recyclerview.visibility = View.GONE
-            errorContainer.visibility = View.GONE
+            emptyErrorContainer.visibility = View.GONE
             bannerLayout.visibility = View.GONE
             onlineIndicator.visibility = View.GONE
             if (isNotConnected) {
@@ -338,20 +350,21 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         }
     }
 
-    private fun showError(errorText: String?) {
+    private fun showEmpty() {
         binding.run {
             shimmerLayout.visibility = View.GONE
             shimmerLayout.stopShimmer()
             recyclerview.visibility = View.GONE
+            emptyErrorContainer.visibility = View.VISIBLE
+            textError.text = getString(R.string.no_issues_available)
         }
-        showErrorLayout(errorText)
     }
 
     private fun showData() {
         binding.run {
             shimmerLayout.visibility = View.GONE
             backOnlineIndicator.visibility = View.GONE
-            errorContainer.visibility = View.GONE
+            emptyErrorContainer.visibility = View.GONE
             bannerLayout.visibility = View.GONE
             onlineIndicator.visibility = View.GONE
             recyclerview.visibility = View.VISIBLE
@@ -359,17 +372,41 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         }
     }
 
-    private fun showErrorLayout(errorText: String?) {
+    private fun showError(errorText: String?, showOnlineView: Boolean = false) {
         binding.run {
-            errorContainer.visibility = View.VISIBLE
+            shimmerLayout.visibility = View.GONE
+            shimmerLayout.stopShimmer()
+            //recyclerview.visibility = View.GONE
+        }
+        showErrorBanner(errorText, showOnlineView)
+    }
+
+    private fun showErrorBanner(errorText: String?, showOnlineView: Boolean) {
+        binding.run {
+            //errorContainer.visibility = View.VISIBLE
             textError.text = errorText ?: getString(R.string.general_error)
             bannerLayout.visibility = View.VISIBLE
-            onlineIndicator.visibility = View.VISIBLE
+            onlineIndicator.isVisible = showOnlineView
             isNotConnected = true
         }
     }
 
+    private fun showErrorDialog(
+        message: String,
+        positiveButtonText: String,
+        dismissFun: () -> Unit = {}
+    ) {
+        showOneButtonDialog(
+            activity = activity as MainActivity,
+            title = getString(R.string.oops),
+            message = message,
+            positiveButtonText = positiveButtonText,
+            dismissFun = dismissFun
+        )
+    }
+
     override fun onStateChange(state: ConnectivityProvider.NetworkState) {
+        isConnected = state.hasInternet()
         if (!isDataCached(requireContext())) {
             showLoading()
             when (state.hasInternet()) {
@@ -377,7 +414,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
                     cacheData()
                 }
                 false -> {
-                    showError("No results found!")
+                    showError(getString(R.string.network_down), true)
                 }
             }
         }

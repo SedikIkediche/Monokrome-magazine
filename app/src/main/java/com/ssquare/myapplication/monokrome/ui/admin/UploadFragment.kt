@@ -72,8 +72,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
                 if (it.magazine != null && it.error == null) {
                     //hide
                     uploadSuccess()
-                    deleteTempCachedFile()
-                    deleteTempImageFile()
+                    Timber.d("Upload State observer called")
                 } else if (it.magazine == null && it.error != null) {
                     showErrorDialog(it.error.message!!)
                 }
@@ -173,13 +172,23 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             }
             resultCode == RESULT_OK && data != null && data.data != null && requestCode == SELECT_IMAGE_CODE -> {
                 val uri = data.data
-                val actualeImageFile = File(FileUtils.createTempFileInCache(FileUtils.getDisplayName(uri!!,requireContext()),requireContext(),uri))
-                lifecycleScope.launch {
-                    val compressedImageFile = Compressor.compress(requireContext(),actualeImageFile)
-                    setImage(compressedImageFile.toUri())
-                    Timber.d("image size ${compressedImageFile.length()/1024}")
-                }
+                compressImage(uri)
             }
+        }
+    }
+
+    private fun compressImage(uri: Uri?) {
+        val actualImageFile = File(
+            FileUtils.createTempFileInCache(
+                FileUtils.getDisplayName(uri!!, requireContext()),
+                requireContext(),
+                uri
+            )
+        )
+        lifecycleScope.launch {
+            val compressedImageFile = Compressor.compress(requireContext(), actualImageFile)
+            setImage(compressedImageFile.toUri())
+            Timber.d("image size ${compressedImageFile.length() / 1024}")
         }
     }
 
@@ -211,11 +220,12 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     }
 
     private fun showLoading() {
+        Timber.d("show loading  function called")
         alertDialog.showLoading(activity as MainActivity, R.string.uploading)
     }
 
     private fun uploadSuccess() {
-        alertDialog.hide()
+        alertDialog.hideDialog()
         showOneButtonDialog(
             activity as MainActivity,
             "Success",

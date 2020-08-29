@@ -43,7 +43,7 @@ class FileUtils {
 
         fun createUriString(context: Context, id: Long): String {
             return FILE_PREFIX +
-                    context.applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path + id.toString() + PDF_TYPE
+                    context.applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path + "/Downloads_PDF/"  + id.toString() + PDF_TYPE
         }
 
         fun getContentUri(path: String): Uri {

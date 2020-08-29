@@ -29,6 +29,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentUploadBinding
+import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider.Companion.hasInternet
@@ -71,8 +72,7 @@ class UploadFragment : Fragment() {
                 if (it.magazine != null && it.error == null) {
                     //hide
                     uploadSuccess()
-                    deleteTempCachedFile()
-                    deleteTempImageFile()
+                    Timber.d("Upload State observer called")
                 } else if (it.magazine == null && it.error != null) {
                     showErrorDialog(it.error.message!!)
                 }
@@ -162,20 +162,23 @@ class UploadFragment : Fragment() {
             }
             resultCode == RESULT_OK && data != null && data.data != null && requestCode == SELECT_IMAGE_CODE -> {
                 val uri = data.data
-                val actualImageFile = File(
-                    FileUtils.createTempFileInCache(
-                        FileUtils.getDisplayName(
-                            uri!!,
-                            requireContext()
-                        ), requireContext(), uri
-                    )
-                )
-                lifecycleScope.launch {
-                    val compressedImageFile = Compressor.compress(requireContext(), actualImageFile)
-                    setImage(compressedImageFile.toUri())
-                    Timber.d("image size ${compressedImageFile.length()/1024}")
-                }
+                compressImage(uri)
             }
+        }
+    }
+
+    private fun compressImage(uri: Uri?) {
+        val actualImageFile = File(
+            FileUtils.createTempFileInCache(
+                FileUtils.getDisplayName(uri!!, requireContext()),
+                requireContext(),
+                uri
+            )
+        )
+        lifecycleScope.launch {
+            val compressedImageFile = Compressor.compress(requireContext(), actualImageFile)
+            setImage(compressedImageFile.toUri())
+            Timber.d("image size ${compressedImageFile.length() / 1024}")
         }
     }
 
@@ -207,11 +210,12 @@ class UploadFragment : Fragment() {
     }
 
     private fun showLoading() {
-        alertDialog.showLoading(requireContext(), R.string.uploading)
+        Timber.d("show loading  function called")
+        alertDialog.showLoading(activity as MainActivity, R.string.uploading)
     }
 
     private fun uploadSuccess() {
-        alertDialog.hide()
+        alertDialog.hideDialog()
         showOneButtonDialog(
             requireContext(),
             "Success",
@@ -338,7 +342,7 @@ class UploadFragment : Fragment() {
 
     private fun displayImage(image: Uri) {
         val imageBitmap = decodeBitmap(image)
-        binding.image.setImageBitmap(imageBitmap)
+        binding.selectedImage.setImageBitmap(imageBitmap)
     }
 
     private fun displayFile(path: String) {

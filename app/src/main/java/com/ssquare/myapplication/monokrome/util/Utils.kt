@@ -25,10 +25,6 @@ import timber.log.Timber
 const val AUTH_HEADER_KEY = "x-auth-token"
 const val AUTH_PREF_KEY = "auth_token"
 
-//const val NO_AUTH_TOKEN = "no_auth_token"
-const val AUTH_TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNTk1NTAzMzI0fQ.mzWfcFy4i1HDl7D_J2AF48UC2P_2Mm52hQuBLcWmam0"
-
 const val MAGAZINE_ID = "magazine_path"
 
 //const val HEADER_PATH = "header/header.jpg"
@@ -65,6 +61,7 @@ const val FACEBOOK_ID = "1816635888599066"
 const val INSTAGRAM_App = "http://instagram.com/_u/monokromemag"
 const val INSTAGRAM_PACKAGE = "com.instagram.android"
 const val INSTAGRAM_BROWSER = "http://instagram.com/monokromemag"
+const val USER_ADMIN_KEY = "isAdmin"
 
 fun isEmailValid(target: CharSequence): Boolean {
     val isValidEmail = android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches()

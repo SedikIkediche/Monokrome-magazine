@@ -75,7 +75,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
             if (it == null) {
                 setupUi(null, null, null)
             } else {
-                handleError(it)
+                setupUi(null, null, it)
             }
 
         })
@@ -381,7 +381,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         binding.run {
             shimmerLayout.visibility = View.GONE
             shimmerLayout.stopShimmer()
-            //recyclerview.visibility = View.GONE
         }
         showErrorBanner(errorText, showOnlineView, tryAgainFun)
     }

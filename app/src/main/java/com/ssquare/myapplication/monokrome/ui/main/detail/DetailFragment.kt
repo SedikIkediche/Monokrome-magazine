@@ -18,10 +18,10 @@ import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.getDownloadState
 import com.ssquare.myapplication.monokrome.databinding.FragmentDetailBinding
-import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
+import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider.Companion.hasInternet
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import javax.inject.Inject
@@ -30,12 +30,10 @@ import javax.inject.Inject
  * A simple [Fragment] subclass.
  */
 @AndroidEntryPoint
-class DetailFragment : Fragment(), DetailClickListener,
-    ConnectivityProvider.ConnectivityStateListener {
+class DetailFragment : Fragment(), DetailClickListener {
 
     lateinit var binding: FragmentDetailBinding
     private val viewModel: DetailViewModel by viewModels()
-    private var isConnected: Boolean = false
     private lateinit var alertDialog: AlertDialog
 
     @Inject
@@ -62,16 +60,6 @@ class DetailFragment : Fragment(), DetailClickListener,
         binding.clickListener = this
 
         return binding.root
-    }
-
-    override fun onStart() {
-        super.onStart()
-        provider.addListener(this)
-    }
-
-    override fun onStop() {
-        provider.removeListener(this)
-        super.onStop()
     }
 
     private fun setContainerBackgroundColor() {
@@ -117,7 +105,7 @@ class DetailFragment : Fragment(), DetailClickListener,
     }
 
     private fun downloadMagazine(magazine: DomainMagazine) {
-        if (isConnected) {
+        if (provider.getNetworkState().hasInternet()) {
             if (!isLoadDataActive(requireContext())) {
                 downloadUtils.enqueueDownload(magazine, getAuthToken(requireContext()))
             } else {
@@ -136,7 +124,7 @@ class DetailFragment : Fragment(), DetailClickListener,
     private fun showErrorDialog(message: String) {
         alertDialog.hideDialog()
         showOneButtonDialog(
-            activity = activity as MainActivity,
+            context = requireContext(),
             title = getString(R.string.oops),
             message = message,
             positiveButtonText = getString(
@@ -184,8 +172,5 @@ class DetailFragment : Fragment(), DetailClickListener,
         }
     }
 
-    override fun onStateChange(state: ConnectivityProvider.NetworkState) {
-        isConnected = state.hasInternet()
-    }
 
 }

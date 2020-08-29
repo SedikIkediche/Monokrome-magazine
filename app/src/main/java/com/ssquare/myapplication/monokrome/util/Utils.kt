@@ -1,16 +1,13 @@
 package com.ssquare.myapplication.monokrome.util
 
 import android.content.Context
-import android.content.Context.CONNECTIVITY_SERVICE
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.PreferenceManager
@@ -18,7 +15,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ssquare.myapplication.monokrome.databinding.AlertDialogLayoutBinding
 import com.ssquare.myapplication.monokrome.util.OrderBy.MOST_RECENT
 import com.ssquare.myapplication.monokrome.util.OrderBy.values
-import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import timber.log.Timber
 
 
@@ -97,6 +93,7 @@ fun deleteAuthToken(context: Context) {
 }
 
 
+
 fun toast(context: Context, text: String) {
     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
 }
@@ -125,12 +122,6 @@ fun commitCacheData(context: Context) {
         putBoolean(DATA_CACHED, true)
         apply()
     }
-}
-
-fun isConnected(context: Context): Boolean {
-    val cm = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-    val activeNetworkInfo = cm.activeNetworkInfo
-    return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting
 }
 
 fun isLoadDataActive(context: Context): Boolean =
@@ -174,10 +165,10 @@ fun getBitmapFromVectorDrawable(context: Context?, drawableId: Int): Bitmap? {
 }
 
 
-inline fun <T : AppCompatActivity> AlertDialog.showLoading(activity: T, textId: Int) {
+inline fun AlertDialog.showLoading(context: Context, textId: Int) {
     val dialogBinding =
-        AlertDialogLayoutBinding.inflate(LayoutInflater.from(activity))
-    dialogBinding.logInTextDialog.text = activity.getString(textId)
+        AlertDialogLayoutBinding.inflate(LayoutInflater.from(context))
+    dialogBinding.logInTextDialog.text = context.getString(textId)
     this.setView(dialogBinding.root)
     this.setCancelable(false)
     this.show()
@@ -187,8 +178,8 @@ inline fun AlertDialog.hideDialog() {
     this.dismiss()
 }
 
-inline fun <T : AppCompatActivity> showOneButtonDialog(
-    activity: T,
+inline fun showOneButtonDialog(
+    context: Context,
     title: String,
     message: String,
     positiveButtonText: String,
@@ -196,7 +187,7 @@ inline fun <T : AppCompatActivity> showOneButtonDialog(
     crossinline dismissFun: () -> Unit = {}
 
 ) {
-    MaterialAlertDialogBuilder(activity)
+    MaterialAlertDialogBuilder(context)
         .setTitle(title)
         .setMessage(message)
         .setPositiveButton(positiveButtonText) { dialog, which ->
@@ -208,8 +199,8 @@ inline fun <T : AppCompatActivity> showOneButtonDialog(
         .show()
 }
 
-inline fun <T : AppCompatActivity> showTwoButtonDialog(
-    activity: T,
+inline fun showTwoButtonDialog(
+    context: Context,
     title: String,
     message: String,
     positiveButtonText: String,
@@ -218,7 +209,7 @@ inline fun <T : AppCompatActivity> showTwoButtonDialog(
     crossinline negativeFun: () -> Unit = {},
     crossinline dismissFun: () -> Unit = {}
 ) {
-    MaterialAlertDialogBuilder(activity)
+    MaterialAlertDialogBuilder(context)
         .setTitle(title)
         .setMessage(message)
         .setPositiveButton(positiveButtonText) { dialog, which ->
@@ -233,9 +224,6 @@ inline fun <T : AppCompatActivity> showTwoButtonDialog(
         .show()
 }
 
-fun ConnectivityProvider.NetworkState.hasInternet(): Boolean {
-    return (this as? ConnectivityProvider.NetworkState.ConnectedState)?.hasInternet == true
-}
 
 fun getPdfFileName(fileUrl: String): String? {
     return Uri.parse(fileUrl).lastPathSegment

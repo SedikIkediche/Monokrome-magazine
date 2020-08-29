@@ -47,5 +47,10 @@ interface ConnectivityProvider {
                 ConnectivityProviderLegacyImpl(context, cm)
             }
         }
+
+        fun NetworkState.hasInternet(): Boolean {
+            return (this as? NetworkState.ConnectedState)?.hasInternet == true
+        }
+
     }
 }

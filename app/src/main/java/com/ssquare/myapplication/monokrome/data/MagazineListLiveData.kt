@@ -14,8 +14,8 @@ class MagazineListLiveData(
     init {
 
         addSource(header) {
-            Timber.d("MagazineListOrLiveData($it, ${magazines.value})")
-            if (it == null && magazines.value != null && magazines.value!!.isEmpty()) {
+            Timber.d("MagazineListOrLiveData($it, ${magazines.value}) header source")
+            if (it == null && magazines.value.isNullOrEmpty()) {
                 dataEmptyCallback()
             } else {
                 dataCallback()
@@ -24,8 +24,8 @@ class MagazineListLiveData(
 
         }
         addSource(magazines) {
-            Timber.d("MagazineListOrLiveData(${header.value}, ${it})")
-            if (header.value == null && it != null && it.isEmpty()) {
+            Timber.d("MagazineListOrLiveData(${header.value}, ${it}) magazines source")
+            if (header.value == null && it.isNullOrEmpty()) {
                 dataEmptyCallback()
             } else {
                 dataCallback()

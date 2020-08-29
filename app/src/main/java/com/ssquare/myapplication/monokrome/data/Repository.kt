@@ -63,16 +63,17 @@ class Repository constructor(
                             val databaseMagazines = result.magazineList.toMagazines(context)
                             cache.refresh(databaseMagazines, result.header)
                             _networkError.postValue(null)
+                            commitCacheData(context)
                             true
                         } else {
-                            Timber.d("getting empty from loadAndCacheData()")
+                            Timber.d("loadAndCacheData() called magazineList=${result.magazineList}, header = ${result.header}")
                             _networkError.postValue(
                                 Error(
                                     message = context.getString(R.string.no_issues_available),
                                     code = 404
                                 )
                             )
-                            false
+                            true
                         }
                     } else {
                         _networkError.postValue(
@@ -96,13 +97,17 @@ class Repository constructor(
         return MagazineListLiveData(
             header,
             magazines, dataEmptyCallback = {
-                Timber.d("getting empty from getCachedData()")
-                _networkError.postValue(
-                    Error(
-                        message = context.getString(R.string.no_issues_available),
-                        code = 404
+                Timber.d("isDataCached: ${isDataCached(context)}")
+                if (!isDataCached(context)) {
+                    Timber.d("dataEmptyCallback() called")
+                    _networkError.postValue(
+                        Error(
+                            message = context.getString(R.string.no_issues_available),
+                            code = 404
+                        )
                     )
-                )
+                }
+
             }, dataCallback = { _networkError.value = null }
         )
     }

@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
             startActivity(intent)
         } else {
             showOneButtonDialog(
-                this,
+                context = this,
                 message = getString(R.string.drawer_message_error),
                 positiveButtonText = getString(R.string.ok),
                 title = getString(R.string.oops)

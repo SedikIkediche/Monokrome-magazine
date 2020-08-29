@@ -26,6 +26,7 @@ import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.DownloadState.*
 import com.ssquare.myapplication.monokrome.util.OrderBy.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
+import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider.Companion.hasInternet
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import javax.inject.Inject
@@ -47,7 +48,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     lateinit var binding: FragmentListBinding
 
     private lateinit var adapter: MagazineAdapter
-    private var isConnected: Boolean = false
     private var isNotConnected = false
 
 
@@ -70,6 +70,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         downloadUtils.setErrorCallback(errorCallback)
 
         viewModel.orderBy(getOrderBy(requireContext()))
+
         viewModel.networkError.observe(viewLifecycleOwner, Observer {
             Timber.d("error from network: $it")
             if (it == null) {
@@ -236,7 +237,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
 
     private fun cacheData() {
         viewModel.loadAndCacheData()
-        commitCacheData(requireContext())
     }
 
     private fun setupUi(
@@ -310,7 +310,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     }
 
     private fun downloadMagazine(magazine: DomainMagazine) {
-        if (isConnected) {
+        if (provider.getNetworkState().hasInternet()) {
             if (!isLoadDataActive(requireContext())) {
                 downloadUtils.enqueueDownload(magazine, getAuthToken(requireContext()))
             } else {
@@ -407,7 +407,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     }
 
     override fun onStateChange(state: ConnectivityProvider.NetworkState) {
-        isConnected = state.hasInternet()
         if (!isDataCached(requireContext())) {
             showLoading()
             when (state.hasInternet()) {
@@ -415,9 +414,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
                     cacheData()
                 }
                 false -> {
-                    showError(getString(R.string.network_down), true) {
-                        viewModel.loadAndCacheData()
-                    }
+                    showError(getString(R.string.network_down), true)
                 }
             }
         }

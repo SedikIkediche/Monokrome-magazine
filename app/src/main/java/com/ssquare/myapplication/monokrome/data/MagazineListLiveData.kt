@@ -11,22 +11,25 @@ class MagazineListLiveData(
     dataEmptyCallback: () -> Unit = {}
 ) :
     MediatorLiveData<Pair<DomainHeader?, List<DomainMagazine>?>>() {
+
+    private var count = 0
+
     init {
 
         addSource(header) {
             Timber.d("MagazineListOrLiveData($it, ${magazines.value}) header source")
-            if (it == null && magazines.value.isNullOrEmpty()) {
-                dataEmptyCallback()
-            } else {
+            if (it != null && !magazines.value.isNullOrEmpty()) {
                 dataCallback()
                 postValue(Pair(it, magazines.value))
             }
 
         }
         addSource(magazines) {
+            count++
             Timber.d("MagazineListOrLiveData(${header.value}, ${it}) magazines source")
             if (header.value == null && it.isNullOrEmpty()) {
-                dataEmptyCallback()
+                if (count > 1)
+                    dataEmptyCallback()
             } else {
                 dataCallback()
                 postValue(Pair(header.value, it))

@@ -26,7 +26,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentUploadBinding
@@ -42,13 +41,12 @@ import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener {
+class UploadFragment : Fragment() {
 
     lateinit var binding: FragmentUploadBinding
 
     @Inject
     lateinit var provider: ConnectivityProvider
-    private var isConnected: Boolean = false
     private val viewModel: UploadViewModel by viewModels()
     private lateinit var alertDialog: AlertDialog
     override fun onCreateView(
@@ -147,16 +145,6 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
         )
     }
 
-    override fun onStart() {
-        super.onStart()
-        provider.addListener(this)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        provider.removeListener(this)
-    }
-
     private fun closeButtonClickListener() {
         binding.buttonClose.setOnClickListener {
             this.findNavController().navigateUp()
@@ -174,9 +162,16 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             }
             resultCode == RESULT_OK && data != null && data.data != null && requestCode == SELECT_IMAGE_CODE -> {
                 val uri = data.data
-                val actualeImageFile = File(FileUtils.createTempFileInCache(FileUtils.getDisplayName(uri!!,requireContext()),requireContext(),uri))
+                val actualImageFile = File(
+                    FileUtils.createTempFileInCache(
+                        FileUtils.getDisplayName(
+                            uri!!,
+                            requireContext()
+                        ), requireContext(), uri
+                    )
+                )
                 lifecycleScope.launch {
-                    val compressedImageFile = Compressor.compress(requireContext(),actualeImageFile)
+                    val compressedImageFile = Compressor.compress(requireContext(), actualImageFile)
                     setImage(compressedImageFile.toUri())
                     Timber.d("image size ${compressedImageFile.length()/1024}")
                 }
@@ -357,7 +352,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     }
 
     private fun upload() {
-        if (isConnected) {
+        if (provider.getNetworkState().hasInternet()) {
             val title = binding.textTitle.text.toString().trim()
             val description = binding.textDescription.text.toString().trim()
             viewModel.setTitle(title)
@@ -383,9 +378,6 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
         }
     }
 
-    override fun onStateChange(state: ConnectivityProvider.NetworkState) {
-        isConnected = state.hasInternet()
-    }
 
     private fun pasteText(context: Context): String? {
         val clipboard = getSystemService(context, ClipboardManager::class.java) as ClipboardManager

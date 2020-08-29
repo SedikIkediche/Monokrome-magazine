@@ -89,7 +89,7 @@
     <string name="custom_invalid_password">invalid password</string>
 
 
-    <string name="download_error_message">An error happened try again!</string>
+    <string name="download_error_message">A download error happened try again!</string>
     <string name="waiting">Waiting...</string>
     <string name="pause">PAUSE</string>
     <string name="monokrome_art_magazine">MONOKROME Art Magazine</string>
@@ -112,4 +112,5 @@
     <string name="version">Version : 1.0.0</string>
     <string name="intall_file_manager">You need to install a file manager app.</string>
     <string name="install_gallery_app">You need to install a gallery app.</string>
+    <string name="no_issues_available">No issues available</string>
 </resources>

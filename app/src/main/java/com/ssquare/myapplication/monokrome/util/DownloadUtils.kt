@@ -1,22 +1,12 @@
 package com.ssquare.myapplication.monokrome.util
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
-import android.content.SharedPreferences
 import android.os.Environment
-import androidx.core.os.EnvironmentCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.preference.PreferenceManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.Repository
-import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.tonyodev.fetch2.*
-import com.tonyodev.fetch2.database.DownloadInfo
-import com.tonyodev.fetch2.database.FetchDatabaseManager
-import com.tonyodev.fetch2.database.FetchDatabaseManagerImpl
-import com.tonyodev.fetch2.database.FetchDatabaseManagerWrapper
 import com.tonyodev.fetch2core.DownloadBlock
 import com.tonyodev.fetch2core.Func
 import timber.log.Timber
@@ -97,6 +87,7 @@ class DownloadUtils(
             triggerActiveDownloads()
             Timber.d("onDownloadBlockUpdated called")
         }
+
         override fun onRemoved(download: Download) {
             Timber.d("onRemoved called")
         }

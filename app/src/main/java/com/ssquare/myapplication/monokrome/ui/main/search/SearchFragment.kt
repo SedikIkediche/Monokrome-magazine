@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,13 +21,13 @@ import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.getDownloadState
 import com.ssquare.myapplication.monokrome.databinding.FragmentSearchBinding
-import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.ui.main.list.MagazineAdapter
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
+import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider.Companion.hasInternet
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_main.*
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -39,6 +38,7 @@ import javax.inject.Inject
 class SearchFragment : Fragment() {
     @Inject
     lateinit var provider: ConnectivityProvider
+
     @Inject
     lateinit var downloadUtils: DownloadUtils
     private val viewModel: SearchViewModel by viewModels()
@@ -124,14 +124,14 @@ class SearchFragment : Fragment() {
         showKeyBoard()
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                Log.d("SearchFragment", "onQueryTextSubmit called")
+                Timber.d("onQueryTextSubmit called")
                 viewModel.search(query)
                 hideKeyBoard()
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                Log.d("SearchFragment", "onQueryChange called")
+                Timber.d("onQueryChange called")
                 viewModel.search(newText)
                 return true
             }
@@ -207,7 +207,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun downloadMagazine(magazine: DomainMagazine) {
-        if (isConnected(requireContext())) {
+        if (provider.getNetworkState().hasInternet()) {
             if (!isLoadDataActive(requireContext())) {
                 downloadUtils.enqueueDownload(magazine, getAuthToken(requireContext()))
             } else {
@@ -230,5 +230,6 @@ class SearchFragment : Fragment() {
         }
         startActivity(intent)
     }
+
 
 }

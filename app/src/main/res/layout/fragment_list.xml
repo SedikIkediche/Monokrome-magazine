@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -15,18 +16,18 @@
             android:id="@+id/list_fragment_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="?attr/actionBarSize"
             android:background="@color/colorPrimary"
-            app:navigationIcon="@drawable/ic_hamburger"
-            app:popupTheme="@style/ThemeOverlay.MaterialComponents.Dark"
+            android:minHeight="?attr/actionBarSize"
             android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:navigationIcon="@drawable/ic_hamburger"
+            app:popupTheme="@style/ThemeOverlay.MaterialComponents.Dark" />
 
         <!-- Here you error layout -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/error_container"
+            android:id="@+id/empty_error_container"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:background="@color/error_container_background"
@@ -41,10 +42,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toTopOf="@+id/text_error"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_chainStyle="packed"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:srcCompat="@drawable/ic_empty_list_icon" />
 
             <TextView
@@ -54,9 +55,9 @@
                 android:layout_marginTop="16dp"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/empty_list_image" />
         </androidx.constraintlayout.widget.ConstraintLayout>
         <!-- Here you error layout -->
@@ -67,15 +68,15 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:visibility="gone"
-            app:shimmer_highlight_color="@android:color/white"
-            app:shimmer_base_color="@color/shimmer_background"
-            app:shimmer_colored="true"
-            app:shimmer_repeat_mode="restart"
-            app:shimmer_duration="1200"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/list_fragment_toolbar">
+            app:layout_constraintTop_toBottomOf="@+id/list_fragment_toolbar"
+            app:shimmer_base_color="@color/shimmer_background"
+            app:shimmer_colored="true"
+            app:shimmer_duration="1200"
+            app:shimmer_highlight_color="@android:color/white"
+            app:shimmer_repeat_mode="restart">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/shimmer_layout_container"
@@ -140,6 +141,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/list_fragment_toolbar">
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerview"
                 android:layout_width="match_parent"
@@ -168,12 +170,12 @@
             android:id="@+id/online_indicator"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:background="@android:color/holo_red_dark"
+            android:padding="8dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:background="@android:color/holo_red_dark"
-            android:padding="8dp">
+            app:layout_constraintStart_toStartOf="parent">
 
 
             <TextView
@@ -201,11 +203,11 @@
             android:id="@+id/banner_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
             android:background="@android:color/white"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintStart_toStartOf="parent">
 
             <TextView
                 android:id="@+id/banner_text"
@@ -214,40 +216,42 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="32dp"
-                android:text="@string/banner_text"
                 android:textColor="@android:color/black"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="@string/banner_text" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/try_again_button"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/try_again"
-                android:textSize="14sp"
-                android:textStyle="bold"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="8dp"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:text="@string/try_again"
                 android:textColor="@color/list_item_buttons_text_color"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/banner_text"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintTop_toBottomOf="@id/banner_text" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/close_button"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/close"
-                android:textSize="14sp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
-                android:textStyle="bold"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:text="@string/close"
                 android:textColor="@color/list_item_buttons_text_color"
-                app:layout_constraintEnd_toStartOf="@+id/try_again_button"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/try_again_button" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

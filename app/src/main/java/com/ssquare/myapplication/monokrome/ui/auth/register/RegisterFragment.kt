@@ -9,7 +9,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -21,6 +20,7 @@ import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
+import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider.Companion.hasInternet
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import javax.inject.Inject
@@ -84,7 +84,7 @@ class RegisterFragment : Fragment() {
     private fun showError(errorMessage: String?) {
         alertDialog.hideDialog()
         showOneButtonDialog(
-            activity as AuthActivity,
+            requireContext(),
             message = errorMessage ?: getString(R.string.credentials_error_massage),
             positiveButtonText = getString(
                 R.string.retry
@@ -95,7 +95,7 @@ class RegisterFragment : Fragment() {
     }
 
     private fun setUpAlertDialog() {
-        alertDialog = AlertDialog.Builder(activity as AuthActivity).create()
+        alertDialog = AlertDialog.Builder(requireContext()).create()
     }
 
     private fun setTextFieldsListeners() {
@@ -206,7 +206,7 @@ class RegisterFragment : Fragment() {
             val repeatedPassWord = binding.registerRepeatPassword.editText?.text.toString().trim()
 
             if (repeatedPassWord == passWord) {
-                alertDialog.showLoading(activity as AuthActivity, R.string.register_dialog_text)
+                alertDialog.showLoading(requireContext(), R.string.register_dialog_text)
                 //registeringUser ****************
                 registerViewModel.registerUser(email, passWord)
             } else {

@@ -26,12 +26,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentUploadBinding
-import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
+import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider.Companion.hasInternet
 import dagger.hilt.android.AndroidEntryPoint
 import id.zelory.compressor.Compressor
 import kotlinx.coroutines.launch
@@ -191,7 +192,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     private fun showErrorDialog(message: String) {
         alertDialog.hideDialog()
         showTwoButtonDialog(
-            activity = activity as MainActivity,
+            context = requireContext(),
             title = getString(R.string.oops),
             message = message,
             positiveButtonText = getString(
@@ -211,13 +212,13 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     }
 
     private fun showLoading() {
-        alertDialog.showLoading(activity as MainActivity, R.string.uploading)
+        alertDialog.showLoading(requireContext(), R.string.uploading)
     }
 
     private fun uploadSuccess() {
         alertDialog.hide()
         showOneButtonDialog(
-            activity as MainActivity,
+            requireContext(),
             "Success",
             "issue uploaded successfully.",
             "Ok"
@@ -275,7 +276,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             startActivityForResult(intent, SELECT_IMAGE_CODE)
         } else {
             showOneButtonDialog(
-                activity as MainActivity,
+                requireContext(),
                 message = getString(R.string.install_gallery_app),
                 positiveButtonText = getString(R.string.ok),
                 title = getString(R.string.oops)
@@ -294,7 +295,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             startActivityForResult(intent, SELECT_FILE_CODE)
         } else {
             showOneButtonDialog(
-                activity as MainActivity,
+                requireContext(),
                 message = getString(R.string.intall_file_manager),
                 positiveButtonText = getString(R.string.ok),
                 title = getString(R.string.oops)
@@ -342,7 +343,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
 
     private fun displayImage(image: Uri) {
         val imageBitmap = decodeBitmap(image)
-        binding.selectedImage.setImageBitmap(imageBitmap)
+        binding.image.setImageBitmap(imageBitmap)
     }
 
     private fun displayFile(path: String) {

@@ -56,8 +56,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:maxWidth="224dp"
-                    android:maxHeight="300dp"
+                    android:scaleType="centerCrop"
+                    app:riv_corner_radius="4dp"
+                    />
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/selectedImage"
+                    android:layout_width="224dp"
+                    android:layout_height="300dp"
+                    android:layout_gravity="center"
                     android:scaleType="centerCrop"
                     app:riv_corner_radius="4dp"
                     />

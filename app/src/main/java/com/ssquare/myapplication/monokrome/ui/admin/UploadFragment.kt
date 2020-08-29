@@ -21,9 +21,11 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentUploadBinding
@@ -31,7 +33,10 @@ import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import dagger.hilt.android.AndroidEntryPoint
+import id.zelory.compressor.Compressor
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.File
 import java.util.*
 import javax.inject.Inject
 
@@ -68,9 +73,9 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
                     //hide
                     uploadSuccess()
                     deleteTempCachedFile()
+                    deleteTempImageFile()
                 } else if (it.magazine == null && it.error != null) {
                     showErrorDialog(it.error.message!!)
-                    deleteTempCachedFile()
                 }
             }
         })
@@ -107,6 +112,21 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
         closeButtonClickListener()
 
         return binding.root
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        deleteTempCachedFile()
+        deleteTempImageFile()
+    }
+
+    private fun deleteTempImageFile() {
+        requireContext().cacheDir.listFiles()?.forEach { file ->
+            if (file.name == "compressor") {
+                file.delete()
+                Timber.d("deleted file  ${file.name}")
+            }
+        }
     }
 
     private fun deleteTempCachedFile(){
@@ -153,7 +173,12 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             }
             resultCode == RESULT_OK && data != null && data.data != null && requestCode == SELECT_IMAGE_CODE -> {
                 val uri = data.data
-                   setImage(uri)
+                val actualeImageFile = File(FileUtils.createTempFileInCache(FileUtils.getDisplayName(uri!!,requireContext()),requireContext(),uri))
+                lifecycleScope.launch {
+                    val compressedImageFile = Compressor.compress(requireContext(),actualeImageFile)
+                    setImage(compressedImageFile.toUri())
+                    Timber.d("image size ${compressedImageFile.length()/1024}")
+                }
             }
         }
     }
@@ -317,7 +342,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
 
     private fun displayImage(image: Uri) {
         val imageBitmap = decodeBitmap(image)
-        binding.image.setImageBitmap(imageBitmap)
+        binding.selectedImage.setImageBitmap(imageBitmap)
     }
 
     private fun displayFile(path: String) {

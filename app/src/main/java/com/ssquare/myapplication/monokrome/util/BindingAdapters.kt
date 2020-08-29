@@ -2,18 +2,23 @@ package com.ssquare.myapplication.monokrome.util
 
 import android.content.res.ColorStateList
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.TransitionDrawable
 import android.net.Uri
 import android.text.format.DateFormat
+import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.databinding.BindingAdapter
 import com.airbnb.lottie.LottieAnimationView
+import com.bumptech.glide.GenericTransitionOptions
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.model.GlideUrl
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.transition.TransitionFactory
 import com.google.android.material.button.MaterialButton
 import com.makeramen.roundedimageview.RoundedImageView
 import com.mikhaellopez.circularprogressbar.CircularProgressBar
@@ -33,6 +38,7 @@ fun loadImage(view: ImageView, url: GlideUrl?) {
             .apply(reqopts)
             .placeholder(ColorDrawable(ContextCompat.getColor(view.context, R.color.image_place_holder_color)))
             .centerCrop()
+            .transition(GenericTransitionOptions.with(R.anim.fade_in))
             .into(view)
 
     }
@@ -77,6 +83,7 @@ fun downloadOrCancelOrRead(view: TextView, magazine: DomainMagazine?) {
             else -> ContextCompat.getColor(view.context,R.color.list_item_buttons_text_color)
         })
     }
+    Log.d("MessageBinding",magazine?.getDownloadState().toString())
 }
 
 @BindingAdapter("previewOrDelete")

@@ -1,86 +1,103 @@
 package com.ssquare.myapplication.monokrome.ui.pdf
 
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
+import android.view.View
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener
 import com.github.barteksc.pdfviewer.listener.OnPageChangeListener
 import com.github.barteksc.pdfviewer.listener.OnPageErrorListener
-import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle
+import com.github.barteksc.pdfviewer.listener.OnPageScrollListener
+import com.github.barteksc.pdfviewer.util.FitPolicy
 import com.shockwave.pdfium.PdfDocument.Bookmark
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.util.*
+import com.ssquare.myapplication.monokrome.util.FileUtils
+import com.ssquare.myapplication.monokrome.util.PDF_FILES_PATH
+import com.ssquare.myapplication.monokrome.util.PDF_FILE_NAME
 import kotlinx.android.synthetic.main.activity_pdf_view.*
 import timber.log.Timber
 import java.io.File
 
-class PdfViewActivity : AppCompatActivity(),
-    OnPageChangeListener,
-    OnLoadCompleteListener,
-    OnPageErrorListener {
+class PdfViewActivity : AppCompatActivity(), OnPageChangeListener{
+
     var pageNumber = 0
     val pdfFileName: String by lazy {
         intent.extras!!.getString(PDF_FILE_NAME, FileUtils.NO_FILE)
     }
+    lateinit var fadeIn: Animation
+    lateinit var fadeOut: Animation
 
+    val fadeInListener = object : Animation.AnimationListener {
+        override fun onAnimationEnd(arg0: Animation) {
+            pdfPageNumberView.startAnimation(fadeOut)
+        }
+
+        override fun onAnimationRepeat(arg0: Animation) {}
+        override fun onAnimationStart(arg0: Animation) {
+            pdfPageNumberView.visibility = View.VISIBLE
+            Timber.d("on animation start called")
+        }
+    }
+
+    val fadeOutListener = object : Animation.AnimationListener {
+        override fun onAnimationEnd(arg0: Animation) {
+              pdfPageNumberView.visibility = View.GONE
+        }
+
+        override fun onAnimationRepeat(arg0: Animation) {}
+        override fun onAnimationStart(arg0: Animation) {}
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pdf_view)
         displayFromUri(applicationContext, pdfFileName)
+        setUpAnimations()
     }
 
+    private fun setUpAnimations() {
+        fadeIn = AlphaAnimation(0.0f, 1.0f)//AnimationUtils.loadAnimation(this,R.anim.fade_in)
+        fadeIn.duration = 400
+        fadeOut = AlphaAnimation(1.0f, 0.0f)//AnimationUtils.loadAnimation(this,R.anim.fade_in)
+        fadeOut.duration = 400
+    }
+
+    override fun onStart() {
+        super.onStart()
+        fadeIn.setAnimationListener(fadeInListener)
+        fadeOut.setAnimationListener(fadeOutListener)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        fadeIn.setAnimationListener(null)
+        fadeOut.setAnimationListener(null)
+    }
 
     private fun displayFromUri(context: Context, pdfFileName: String) {
 
+        pdfView.useBestQuality(true)
         pdfView.fromFile(File(PDF_FILES_PATH + pdfFileName))
             .defaultPage(pageNumber)
             .onPageChange(this)
             .enableAnnotationRendering(true)
-            .onLoad(this)
-            .scrollHandle(DefaultScrollHandle(this))
+            .enableAntialiasing(true)
             .swipeHorizontal(true)
-            .spacing(10) // in dp
-            .onPageError(this)
+            .pageSnap(true)
+            .autoSpacing(true)
+            .pageFling(true)
+            .pageFitPolicy(FitPolicy.BOTH)
+            .fitEachPage(false)
+            .nightMode(false)
             .load()
     }
 
-
-    fun printBookmarksTree(
-        tree: List<Bookmark>,
-        sep: String
-    ) {
-        for (b in tree) {
-            Timber.e(String.format("%s %s, p %d", sep, b.title, b.pageIdx))
-            if (b.hasChildren()) {
-                printBookmarksTree(b.children, "$sep-")
-            }
-        }
-    }
-
     override fun onPageChanged(page: Int, pageCount: Int) {
-        pageNumber = page
-        title = String.format("%s %s / %s", pdfFileName, page + 1, pageCount)
-    }
-
-    override fun loadComplete(nbPages: Int) {
-        val meta = pdfView.documentMeta
-        Timber.e("title = %s", meta.title)
-        Timber.e("author = %s", meta.author)
-        Timber.e("subject = %s", meta.subject)
-        Timber.e("keywords = %s", meta.keywords)
-        Timber.e("creator = %s", meta.creator)
-        Timber.e("producer = %s", meta.producer)
-        Timber.e("creationDate = %s", meta.creationDate)
-        Timber.e("modDate = %s", meta.modDate)
-
-        printBookmarksTree(pdfView.tableOfContents, "-")
-    }
-
-    override fun onPageError(page: Int, t: Throwable?) {
-        Timber.d("pdf error: ${t?.message ?: "unknown error"} ")
+        pdfPageNumberView.startAnimation(fadeIn)
+        pdfPageNumberView.text = page.toString()
+        Timber.d("on page changed called")
     }
 }

@@ -37,7 +37,6 @@ class DownloadUtils(
 
     private var fetch = Fetch.Impl.getInstance(fetchConfiguration)
     private var errorCallback: (() -> Unit)? = null
-    private var isMainActivityCreated = false
 
     fun setErrorCallback(errorCallback: () -> Unit){
         this.errorCallback = errorCallback

@@ -93,14 +93,14 @@ fun deleteAuthToken(context: Context) {
 }
 
 
-
 fun toast(context: Context, text: String) {
     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
 }
 
 fun getOrderBy(context: Context): OrderBy {
     val ordinal =
-        PreferenceManager.getDefaultSharedPreferences(context).getInt(ORDER_BY, MOST_RECENT.ordinal)
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .getInt(ORDER_BY, MOST_RECENT.ordinal)
     return values()[ordinal]
 }
 

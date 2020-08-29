@@ -57,8 +57,8 @@ class LocalCache @Inject constructor(
     private fun getQueryByOrder(orderBy: OrderBy): SimpleSQLiteQuery {
         return when (orderBy) {
             MOST_RECENT -> SimpleSQLiteQuery("SELECT * FROM magazines ORDER BY releaseDate DESC")
-            A_TO_Z -> SimpleSQLiteQuery("SELECT * FROM magazines ORDER BY title ASC")
-            Z_TO_A -> SimpleSQLiteQuery("SELECT * FROM magazines ORDER BY title DESC")
+            A_TO_Z -> SimpleSQLiteQuery("SELECT * FROM magazines ORDER BY lower(title) ASC")
+            Z_TO_A -> SimpleSQLiteQuery("SELECT * FROM magazines ORDER BY lower(title) DESC")
         }
     }
 

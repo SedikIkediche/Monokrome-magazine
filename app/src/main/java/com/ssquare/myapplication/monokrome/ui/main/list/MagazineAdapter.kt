@@ -1,22 +1,20 @@
 package com.ssquare.myapplication.monokrome.ui.main.list
 
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.DomainHeader
 import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.databinding.HeaderLayoutBinding
 import com.ssquare.myapplication.monokrome.databinding.ListItemBinding
 import com.ssquare.myapplication.monokrome.util.ClickAction
-import kotlinx.android.synthetic.main.list_item.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 private const val ITEM_VIEW_TYPE_HEADER = 0
 private const val ITEM_VIEW_TYPE_ITEM = 1
@@ -30,6 +28,7 @@ class MagazineAdapter(
     private val adapterScope = CoroutineScope(Dispatchers.Default)
     private var items : MutableList<DataItem>?  = null
     fun addHeaderAndSubmitList(list: List<DomainMagazine>?, header: DomainHeader?) {
+        Timber.d("Raw list: $list")
         adapterScope.launch {
             items = when {
                 (header != null && list != null) ->

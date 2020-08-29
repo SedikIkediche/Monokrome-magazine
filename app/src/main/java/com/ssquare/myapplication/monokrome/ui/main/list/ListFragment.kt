@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DefaultItemAnimator
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.DomainHeader
@@ -83,7 +82,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
 
         viewModel.data.observe(viewLifecycleOwner, Observer {
             if (isDataCached(requireContext())) {
-                Timber.d("data from cache: $it")
                 setupUi(it.first, it.second)
                 binding.swipeRefreshLayout.isRefreshing = false
             }
@@ -145,8 +143,8 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
-        menu.findItem(R.id.filter_list).isVisible = isDataAvailable
-        menu.findItem(R.id.search).isVisible = isDataAvailable
+        menu.findItem(R.id.filter_list).isEnabled = isDataAvailable
+        menu.findItem(R.id.search).isEnabled = isDataAvailable
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -201,18 +199,14 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     private fun getMainActivity() = activity as MainActivity
 
     private fun setUpOrderByOption(menu: Menu) {
-        val orderBy = PreferenceManager.getDefaultSharedPreferences(context).getInt(
-            ORDER_BY,
-            0
-        )
-        when (orderBy) {
-            MOST_RECENT.ordinal -> {
+        when (getOrderBy(requireContext())) {
+            MOST_RECENT -> {
                 menu.findItem(R.id.sort_by_most_recent).isChecked = true
             }
-            A_TO_Z.ordinal -> {
+            A_TO_Z -> {
                 menu.findItem(R.id.sort_from_a_to_z).isChecked = true
             }
-            Z_TO_A.ordinal -> {
+            Z_TO_A -> {
                 menu.findItem(R.id.sort_from_z_to_a).isChecked = true
             }
         }
@@ -253,6 +247,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
                 adapter.addHeaderAndSubmitList(magazines, header)
                 showData()
                 isDataAvailable = true
+                Timber.d("data from cache: ${magazines.size}")
             }
             error != null -> {
                 handleError(error)
@@ -329,7 +324,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     private fun handleError(error: Error) {
         when (error.code) {
             404 -> showEmpty()
-            else -> showError(error.message) {
+            else -> showError(getString(R.string.internal_server_error)) {
                 viewModel.loadAndCacheData()
             }
         }
@@ -415,6 +410,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
                 }
                 false -> {
                     showError(getString(R.string.network_down), true)
+                    showEmpty()
                 }
             }
         }

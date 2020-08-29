@@ -21,28 +21,33 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentUploadBinding
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
+import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider.Companion.hasInternet
 import dagger.hilt.android.AndroidEntryPoint
+import id.zelory.compressor.Compressor
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.File
 import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener {
+class UploadFragment : Fragment() {
 
     lateinit var binding: FragmentUploadBinding
 
     @Inject
     lateinit var provider: ConnectivityProvider
-    private var isConnected: Boolean = false
     private val viewModel: UploadViewModel by viewModels()
     private lateinit var alertDialog: AlertDialog
     override fun onCreateView(
@@ -67,10 +72,9 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
                 if (it.magazine != null && it.error == null) {
                     //hide
                     uploadSuccess()
-                    deleteTempCachedFile()
+                    Timber.d("Upload State observer called")
                 } else if (it.magazine == null && it.error != null) {
                     showErrorDialog(it.error.message!!)
-                    deleteTempCachedFile()
                 }
             }
         })
@@ -109,6 +113,21 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
         return binding.root
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        deleteTempCachedFile()
+        deleteTempImageFile()
+    }
+
+    private fun deleteTempImageFile() {
+        requireContext().cacheDir.listFiles()?.forEach { file ->
+            if (file.name == "compressor") {
+                file.delete()
+                Timber.d("deleted file  ${file.name}")
+            }
+        }
+    }
+
     private fun deleteTempCachedFile(){
         requireContext().cacheDir.listFiles()?.forEach { file ->
             if (FileUtils.getTypeFromPath(file.path) == "application/pdf") {
@@ -124,16 +143,6 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
                 R.color.list_item_container_background
             )
         )
-    }
-
-    override fun onStart() {
-        super.onStart()
-        provider.addListener(this)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        provider.removeListener(this)
     }
 
     private fun closeButtonClickListener() {
@@ -153,8 +162,23 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             }
             resultCode == RESULT_OK && data != null && data.data != null && requestCode == SELECT_IMAGE_CODE -> {
                 val uri = data.data
-                   setImage(uri)
+                compressImage(uri)
             }
+        }
+    }
+
+    private fun compressImage(uri: Uri?) {
+        val actualImageFile = File(
+            FileUtils.createTempFileInCache(
+                FileUtils.getDisplayName(uri!!, requireContext()),
+                requireContext(),
+                uri
+            )
+        )
+        lifecycleScope.launch {
+            val compressedImageFile = Compressor.compress(requireContext(), actualImageFile)
+            setImage(compressedImageFile.toUri())
+            Timber.d("image size ${compressedImageFile.length() / 1024}")
         }
     }
 
@@ -166,7 +190,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     private fun showErrorDialog(message: String) {
         alertDialog.hideDialog()
         showTwoButtonDialog(
-            activity = activity as MainActivity,
+            context = requireContext(),
             title = getString(R.string.oops),
             message = message,
             positiveButtonText = getString(
@@ -186,13 +210,14 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     }
 
     private fun showLoading() {
+        Timber.d("show loading  function called")
         alertDialog.showLoading(activity as MainActivity, R.string.uploading)
     }
 
     private fun uploadSuccess() {
-        alertDialog.hide()
+        alertDialog.hideDialog()
         showOneButtonDialog(
-            activity as MainActivity,
+            requireContext(),
             "Success",
             "issue uploaded successfully.",
             "Ok"
@@ -250,7 +275,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             startActivityForResult(intent, SELECT_IMAGE_CODE)
         } else {
             showOneButtonDialog(
-                activity as MainActivity,
+                requireContext(),
                 message = getString(R.string.install_gallery_app),
                 positiveButtonText = getString(R.string.ok),
                 title = getString(R.string.oops)
@@ -269,7 +294,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             startActivityForResult(intent, SELECT_FILE_CODE)
         } else {
             showOneButtonDialog(
-                activity as MainActivity,
+                requireContext(),
                 message = getString(R.string.intall_file_manager),
                 positiveButtonText = getString(R.string.ok),
                 title = getString(R.string.oops)
@@ -317,7 +342,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
 
     private fun displayImage(image: Uri) {
         val imageBitmap = decodeBitmap(image)
-        binding.image.setImageBitmap(imageBitmap)
+        binding.selectedImage.setImageBitmap(imageBitmap)
     }
 
     private fun displayFile(path: String) {
@@ -331,7 +356,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     }
 
     private fun upload() {
-        if (isConnected) {
+        if (provider.getNetworkState().hasInternet()) {
             val title = binding.textTitle.text.toString().trim()
             val description = binding.textDescription.text.toString().trim()
             viewModel.setTitle(title)
@@ -357,9 +382,6 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
         }
     }
 
-    override fun onStateChange(state: ConnectivityProvider.NetworkState) {
-        isConnected = state.hasInternet()
-    }
 
     private fun pasteText(context: Context): String? {
         val clipboard = getSystemService(context, ClipboardManager::class.java) as ClipboardManager

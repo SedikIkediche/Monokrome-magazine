@@ -3,20 +3,17 @@ package com.ssquare.myapplication.monokrome.ui.main.list
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DefaultItemAnimator
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.DomainHeader
 import com.ssquare.myapplication.monokrome.data.DomainMagazine
@@ -29,9 +26,8 @@ import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.DownloadState.*
 import com.ssquare.myapplication.monokrome.util.OrderBy.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
+import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider.Companion.hasInternet
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -41,6 +37,8 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener {
+    private var isDataAvailable: Boolean = false
+
     @Inject
     lateinit var downloadUtils: DownloadUtils
 
@@ -52,16 +50,11 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     private lateinit var adapter: MagazineAdapter
     private var isNotConnected = false
 
-    private var isDownloadDialogShown = false
 
-    private  lateinit var dialog: MaterialAlertDialogBuilder
-
-    private val errorCallback = fun(){
-        if (!isDownloadDialogShown){
-            dialog.show()
-            isDownloadDialogShown = true
+    private val errorCallback = fun() {
+        if (!binding.bannerLayout.isVisible) {
+            showError(getString(R.string.download_error_message))
         }
-
     }
 
     override fun onCreateView(
@@ -74,32 +67,32 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         initDownloadUtils()
         setContainerBackgroundColor()
 
-        dialog = MaterialAlertDialogBuilder(requireActivity())
-            .setTitle(getString(R.string.oops))
-            .setMessage(getString(R.string.download_error_message))
-            .setPositiveButton(getString(R.string.ok)) { dialog, which ->
-                dialog.dismiss()
-            }.setOnDismissListener {
-                isDownloadDialogShown = false
-            }
         downloadUtils.setErrorCallback(errorCallback)
 
         viewModel.orderBy(getOrderBy(requireContext()))
+
         viewModel.networkError.observe(viewLifecycleOwner, Observer {
-            setupUi(null, null, it)
+            Timber.d("error from network: $it")
+            if (it == null) {
+                setupUi(null, null, null)
+            } else {
+                setupUi(null, null, it)
+            }
+
         })
 
         viewModel.data.observe(viewLifecycleOwner, Observer {
-            if (isDataCached(requireContext())){
+            if (isDataCached(requireContext())) {
+                Timber.d("data from cache: $it")
                 setupUi(it.first, it.second)
-                binding.swipeRefreshLayout.isRefreshing=false
+                binding.swipeRefreshLayout.isRefreshing = false
             }
         })
 
         binding.swipeRefreshLayout.setOnRefreshListener {
-            if (isDataCached(requireContext())){
-                binding.swipeRefreshLayout.isRefreshing=false
-            }else{
+            if (isDataCached(requireContext())) {
+                binding.swipeRefreshLayout.isRefreshing = false
+            } else {
                 cacheData()
             }
 
@@ -108,29 +101,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         return binding.root
     }
 
-    private fun setContainerBackgroundColor() {
-        binding.root.setBackgroundColor(
-            ContextCompat.getColor(
-                requireContext(),
-                R.color.list_item_container_background
-            )
-        )
-    }
-
-    private fun initDownloadUtils() {
-        downloadUtils.isDownloadRunning.observe(viewLifecycleOwner, Observer { isDownloading ->
-            commitDownloadActive(requireContext(), isDownloading)
-            binding.recyclerview.itemAnimator =
-                if (isDownloading) null else DefaultItemAnimator()
-        })
-    }
-
-    private fun setUpToolbar() {
-        getMainActivity().setSupportActionBar(binding.listFragmentToolbar)
-        getMainActivity().supportActionBar?.title = getString(R.string.home)
-        setHasOptionsMenu(true)
-        addBannerClickListener()
-    }
 
     private fun checkForPermission(magazine: DomainMagazine) {
         viewModel.setToDownload(magazine)
@@ -157,7 +127,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         }
     }
 
-    private fun getMainActivity() = activity as MainActivity
 
     override fun onStart() {
         super.onStart()
@@ -174,22 +143,10 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         setUpOrderByOption(menu)
     }
 
-    private fun setUpOrderByOption(menu: Menu) {
-        val orderBy = PreferenceManager.getDefaultSharedPreferences(context).getInt(
-            ORDER_BY,
-            0
-        )
-        when (orderBy) {
-            MOST_RECENT.ordinal -> {
-                menu.findItem(R.id.sort_by_most_recent).isChecked = true
-            }
-            A_TO_Z.ordinal -> {
-                menu.findItem(R.id.sort_from_a_to_z).isChecked = true
-            }
-            Z_TO_A.ordinal -> {
-                menu.findItem(R.id.sort_from_z_to_a).isChecked = true
-            }
-        }
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        menu.findItem(R.id.filter_list).isVisible = isDataAvailable
+        menu.findItem(R.id.search).isVisible = isDataAvailable
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -217,6 +174,50 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         }
     }
 
+
+    private fun setContainerBackgroundColor() {
+        binding.root.setBackgroundColor(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.list_item_container_background
+            )
+        )
+    }
+
+    private fun initDownloadUtils() {
+        downloadUtils.isDownloadRunning.observe(viewLifecycleOwner, Observer { isDownloading ->
+            commitDownloadActive(requireContext(), isDownloading)
+            binding.recyclerview.itemAnimator =
+                if (isDownloading) null else DefaultItemAnimator()
+        })
+    }
+
+    private fun setUpToolbar() {
+        getMainActivity().setSupportActionBar(binding.listFragmentToolbar)
+        getMainActivity().supportActionBar?.title = getString(R.string.home)
+        setHasOptionsMenu(true)
+    }
+
+    private fun getMainActivity() = activity as MainActivity
+
+    private fun setUpOrderByOption(menu: Menu) {
+        val orderBy = PreferenceManager.getDefaultSharedPreferences(context).getInt(
+            ORDER_BY,
+            0
+        )
+        when (orderBy) {
+            MOST_RECENT.ordinal -> {
+                menu.findItem(R.id.sort_by_most_recent).isChecked = true
+            }
+            A_TO_Z.ordinal -> {
+                menu.findItem(R.id.sort_from_a_to_z).isChecked = true
+            }
+            Z_TO_A.ordinal -> {
+                menu.findItem(R.id.sort_from_z_to_a).isChecked = true
+            }
+        }
+    }
+
     private fun orderBy(id: Int) {
         when (id) {
             R.id.sort_by_most_recent -> {
@@ -234,20 +235,8 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         }
     }
 
-    private fun addBannerClickListener() {
-        binding.closeButton.setOnClickListener {
-            binding.bannerLayout.visibility = View.GONE
-        }
-        binding.tryAgainButton.setOnClickListener {
-            binding.bannerLayout.visibility = View.GONE
-            viewModel.loadAndCacheData()
-        }
-    }
-
-
     private fun cacheData() {
         viewModel.loadAndCacheData()
-        commitCacheData(requireContext())
     }
 
     private fun setupUi(
@@ -256,18 +245,26 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         error: Error? = null
     ) {
         when {
-            header == null && magazines.isNullOrEmpty() && error == null -> {
-                Log.d("ListFragment", "Null Data")
-                return
+            header == null && magazines == null && error == null -> {
+                hideEmpty()
+                isDataAvailable = false
             }
             header != null && !magazines.isNullOrEmpty() && error == null -> {
                 adapter.addHeaderAndSubmitList(magazines, header)
                 showData()
+                isDataAvailable = true
             }
             error != null -> {
-                showError(error.message)
+                handleError(error)
+                isDataAvailable = false
             }
         }
+        Timber.d("isDataAvailable = $isDataAvailable setupUi")
+        requireActivity().invalidateOptionsMenu()
+    }
+
+    private fun hideEmpty() {
+        binding.emptyErrorContainer.visibility = View.GONE
     }
 
     private fun initRecyclerView() {
@@ -313,14 +310,14 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     }
 
     private fun downloadMagazine(magazine: DomainMagazine) {
-        if (isConnected(requireContext())) {
+        if (provider.getNetworkState().hasInternet()) {
             if (!isLoadDataActive(requireContext())) {
                 downloadUtils.enqueueDownload(magazine, getAuthToken(requireContext()))
             } else {
                 toast(requireContext(), "Loading Data From Server!")
             }
         } else {
-            showErrorLayout(getString(R.string.network_down))
+            showError(getString(R.string.connectivity_error_message), showOnlineView = false)
         }
     }
 
@@ -329,11 +326,20 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         findNavController().navigate(R.id.action_listFragment_to_detailFragment, pathBundle)
     }
 
+    private fun handleError(error: Error) {
+        when (error.code) {
+            404 -> showEmpty()
+            else -> showError(error.message) {
+                viewModel.loadAndCacheData()
+            }
+        }
+    }
+
     private fun showLoading() {
         binding.run {
             shimmerLayout.startShimmer()
             recyclerview.visibility = View.GONE
-            errorContainer.visibility = View.GONE
+            emptyErrorContainer.visibility = View.GONE
             bannerLayout.visibility = View.GONE
             onlineIndicator.visibility = View.GONE
             if (isNotConnected) {
@@ -345,20 +351,21 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         }
     }
 
-    private fun showError(errorText: String?) {
+    private fun showEmpty() {
         binding.run {
             shimmerLayout.visibility = View.GONE
             shimmerLayout.stopShimmer()
             recyclerview.visibility = View.GONE
+            emptyErrorContainer.visibility = View.VISIBLE
+            textError.text = getString(R.string.no_issues_available)
         }
-        showErrorLayout(errorText)
     }
 
     private fun showData() {
         binding.run {
             shimmerLayout.visibility = View.GONE
             backOnlineIndicator.visibility = View.GONE
-            errorContainer.visibility = View.GONE
+            emptyErrorContainer.visibility = View.GONE
             bannerLayout.visibility = View.GONE
             onlineIndicator.visibility = View.GONE
             recyclerview.visibility = View.VISIBLE
@@ -366,13 +373,36 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         }
     }
 
-    private fun showErrorLayout(errorText: String?) {
+    private fun showError(
+        errorText: String?,
+        showOnlineView: Boolean = false,
+        tryAgainFun: () -> Unit = {}
+    ) {
         binding.run {
-            errorContainer.visibility = View.VISIBLE
-            textError.text = errorText ?: getString(R.string.general_error)
+            shimmerLayout.visibility = View.GONE
+            shimmerLayout.stopShimmer()
+        }
+        showErrorBanner(errorText, showOnlineView, tryAgainFun)
+    }
+
+    private fun showErrorBanner(
+        errorText: String?,
+        showOnlineView: Boolean,
+        tryAgainFun: () -> Unit = {}
+    ) {
+        binding.run {
+            bannerText.text = errorText ?: getString(R.string.general_error)
             bannerLayout.visibility = View.VISIBLE
-            onlineIndicator.visibility = View.VISIBLE
+            onlineIndicator.isVisible = showOnlineView
             isNotConnected = true
+
+            closeButton.setOnClickListener {
+                binding.bannerLayout.visibility = View.GONE
+            }
+            tryAgainButton.setOnClickListener {
+                binding.bannerLayout.visibility = View.GONE
+                tryAgainFun()
+            }
         }
     }
 
@@ -384,7 +414,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
                     cacheData()
                 }
                 false -> {
-                    showError("No results found!")
+                    showError(getString(R.string.network_down), true)
                 }
             }
         }

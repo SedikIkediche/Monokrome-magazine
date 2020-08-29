@@ -5,10 +5,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -20,6 +20,8 @@ import com.ssquare.myapplication.monokrome.data.getDownloadState
 import com.ssquare.myapplication.monokrome.databinding.FragmentDetailBinding
 import com.ssquare.myapplication.monokrome.ui.pdf.PdfViewActivity
 import com.ssquare.myapplication.monokrome.util.*
+import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
+import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider.Companion.hasInternet
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import javax.inject.Inject
@@ -32,9 +34,13 @@ class DetailFragment : Fragment(), DetailClickListener {
 
     lateinit var binding: FragmentDetailBinding
     private val viewModel: DetailViewModel by viewModels()
+    private lateinit var alertDialog: AlertDialog
 
     @Inject
     lateinit var downloadUtils: DownloadUtils
+
+    @Inject
+    lateinit var provider: ConnectivityProvider
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,7 +50,7 @@ class DetailFragment : Fragment(), DetailClickListener {
         // Inflate the layout for this fragment
         binding = FragmentDetailBinding.inflate(inflater)
         setContainerBackgroundColor()
-
+        setUpAlertDialog()
         initDownloadUtils()
 
         closeButtonClickListener()
@@ -99,17 +105,32 @@ class DetailFragment : Fragment(), DetailClickListener {
     }
 
     private fun downloadMagazine(magazine: DomainMagazine) {
-        // check for connectivity
-        if (!isLoadDataActive(requireContext())) {
-            downloadUtils.enqueueDownload(magazine, getAuthToken(requireContext()))
+        if (provider.getNetworkState().hasInternet()) {
+            if (!isLoadDataActive(requireContext())) {
+                downloadUtils.enqueueDownload(magazine, getAuthToken(requireContext()))
+            } else {
+                toast(requireContext(), "Loading Data From Server!")
+            }
         } else {
-            toast(requireContext(), "Loading Data From Server!")
+            showErrorDialog(getString(R.string.connectivity_error_message))
         }
 
     }
 
-    private fun showErrorLayout(error: String) {
-        toast(requireContext(), error)
+    private fun setUpAlertDialog() {
+        alertDialog = AlertDialog.Builder(requireContext()).create()
+    }
+
+    private fun showErrorDialog(message: String) {
+        alertDialog.hideDialog()
+        showOneButtonDialog(
+            context = requireContext(),
+            title = getString(R.string.oops),
+            message = message,
+            positiveButtonText = getString(
+                R.string.retry
+            )
+        )
     }
 
     private fun checkForPermission(magazine: DomainMagazine) {
@@ -150,5 +171,6 @@ class DetailFragment : Fragment(), DetailClickListener {
             }
         }
     }
+
 
 }

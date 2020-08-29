@@ -45,18 +45,17 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
         setupDrawerMenuItemClick()
         subscribeTopic(this)
         downloadUtils.registerListener()
-        downloadUtils.removeActiveDownloads()
-        downloadUtils.setIsMainActivityCreated()
+        downloadUtils.checkForActiveDownLoadsWhenMainActivityCreated()
     }
 
     private fun setupDrawerMenuItemClick() {
         setHomeChecked()
         binding.navigationView.menu.findItem(R.id.admin).isVisible = isAdmin(this)
-        binding.navigationView.setNavigationItemSelectedListener {menuItem : MenuItem ->
-             selectedItem = menuItem.itemId
-             closeDrawer()
+        binding.navigationView.setNavigationItemSelectedListener { menuItem: MenuItem ->
+            selectedItem = menuItem.itemId
+            closeDrawer()
             true
-            }
+        }
         binding.drawer.addDrawerListener(this)
     }
 
@@ -71,7 +70,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
             startActivity(intent)
         } else {
             showOneButtonDialog(
-                this,
+                context = this,
                 message = getString(R.string.drawer_message_error),
                 positiveButtonText = getString(R.string.ok),
                 title = getString(R.string.oops)
@@ -178,7 +177,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
     private fun isAdmin(context: Context): Boolean {
         getAuthToken(context)?.let {
             val jwt = JWT(it)
-            val claim = jwt.getClaim("isAdmin").asInt()
+            val claim = jwt.getClaim(USER_ADMIN_KEY).asInt()
             return claim == 1
         }
         return false
@@ -191,7 +190,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
     private fun setupNavigation() {
 
         Navigation.findNavController(this, R.id.nav_host_fragment)
-            .addOnDestinationChangedListener { controller, destination, arguments ->
+            .addOnDestinationChangedListener { _, destination, _ ->
                 when (destination.id) {
                     R.id.listFragment -> {
                         binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
@@ -204,13 +203,9 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
     }
 
 
-    override fun onDrawerStateChanged(newState: Int) {
+    override fun onDrawerStateChanged(newState: Int) {}
 
-    }
-
-    override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-
-    }
+    override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
 
     override fun onDrawerClosed(drawerView: View) {
         when (selectedItem) {
@@ -253,8 +248,6 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
         selectedItem = 0
     }
 
-    override fun onDrawerOpened(drawerView: View) {
-
-    }
+    override fun onDrawerOpened(drawerView: View) {}
 
 }

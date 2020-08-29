@@ -8,7 +8,6 @@ import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.MonokromeApi
-import com.ssquare.myapplication.monokrome.util.commitCacheData
 import com.ssquare.myapplication.monokrome.util.isDownloadActive
 import com.ssquare.myapplication.monokrome.util.toast
 import kotlinx.coroutines.CoroutineScope
@@ -31,9 +30,8 @@ class RefreshDataWorker(private val appContext: Context, params: WorkerParameter
 
 
         return if (!isDownloadActive(appContext)) {
-            val loadState = repository.loadAndCacheData()  // (true)success or (false)failure
+            val loadState = repository.loadAndCacheData()
             if (loadState) {
-                commitCacheData(appContext)
                 Result.Success()
             } else {
                 Result.Retry()

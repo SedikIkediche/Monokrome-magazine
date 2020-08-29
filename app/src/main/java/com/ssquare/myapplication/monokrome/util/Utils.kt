@@ -1,17 +1,13 @@
 package com.ssquare.myapplication.monokrome.util
 
 import android.content.Context
-import android.content.Context.CONNECTIVITY_SERVICE
-import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.PreferenceManager
@@ -19,16 +15,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ssquare.myapplication.monokrome.databinding.AlertDialogLayoutBinding
 import com.ssquare.myapplication.monokrome.util.OrderBy.MOST_RECENT
 import com.ssquare.myapplication.monokrome.util.OrderBy.values
-import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import timber.log.Timber
 
 
 const val AUTH_HEADER_KEY = "x-auth-token"
 const val AUTH_PREF_KEY = "auth_token"
-
-//const val NO_AUTH_TOKEN = "no_auth_token"
-const val AUTH_TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNTk1NTAzMzI0fQ.mzWfcFy4i1HDl7D_J2AF48UC2P_2Mm52hQuBLcWmam0"
 
 const val MAGAZINE_ID = "magazine_path"
 
@@ -44,7 +35,8 @@ const val PDF_TYPE = ".pdf"
 const val FILE_PREFIX = "file://"
 const val NO_FILE = "no_file"
 const val PDF_FILE_NAME = "pdf_file_name"
-const val PDF_FILES_PATH = "/storage/emulated/0/Android/data/com.ssquare.myapplication.monokrome/files/Download/Downloads_PDF/"
+const val PDF_FILES_PATH =
+    "/storage/emulated/0/Android/data/com.ssquare.myapplication.monokrome/files/Download/Downloads_PDF/"
 const val NO_DOWNLOAD = -1
 const val STORAGE_PERMISSION_CODE = 100
 const val NO_PROGRESS = -1
@@ -65,6 +57,7 @@ const val FACEBOOK_ID = "1816635888599066"
 const val INSTAGRAM_App = "http://instagram.com/_u/monokromemag"
 const val INSTAGRAM_PACKAGE = "com.instagram.android"
 const val INSTAGRAM_BROWSER = "http://instagram.com/monokromemag"
+const val USER_ADMIN_KEY = "isAdmin"
 
 fun isEmailValid(target: CharSequence): Boolean {
     val isValidEmail = android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches()
@@ -100,6 +93,7 @@ fun deleteAuthToken(context: Context) {
 }
 
 
+
 fun toast(context: Context, text: String) {
     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
 }
@@ -128,12 +122,6 @@ fun commitCacheData(context: Context) {
         putBoolean(DATA_CACHED, true)
         apply()
     }
-}
-
-fun isConnected(context: Context): Boolean {
-    val cm = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-    val activeNetworkInfo = cm.activeNetworkInfo
-    return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting
 }
 
 fun isLoadDataActive(context: Context): Boolean =
@@ -177,10 +165,10 @@ fun getBitmapFromVectorDrawable(context: Context?, drawableId: Int): Bitmap? {
 }
 
 
-inline fun <T : AppCompatActivity> AlertDialog.showLoading(activity: T, textId: Int) {
+inline fun AlertDialog.showLoading(context: Context, textId: Int) {
     val dialogBinding =
-        AlertDialogLayoutBinding.inflate(LayoutInflater.from(activity))
-    dialogBinding.logInTextDialog.text = activity.getString(textId)
+        AlertDialogLayoutBinding.inflate(LayoutInflater.from(context))
+    dialogBinding.logInTextDialog.text = context.getString(textId)
     this.setView(dialogBinding.root)
     this.setCancelable(false)
     this.show()
@@ -190,33 +178,38 @@ inline fun AlertDialog.hideDialog() {
     this.dismiss()
 }
 
-inline fun <T : AppCompatActivity> showOneButtonDialog(
-    activity: T,
+inline fun showOneButtonDialog(
+    context: Context,
     title: String,
     message: String,
     positiveButtonText: String,
-    crossinline positiveFun: () -> Unit = {}
+    crossinline positiveFun: () -> Unit = {},
+    crossinline dismissFun: () -> Unit = {}
+
 ) {
-    MaterialAlertDialogBuilder(activity)
+    MaterialAlertDialogBuilder(context)
         .setTitle(title)
         .setMessage(message)
         .setPositiveButton(positiveButtonText) { dialog, which ->
             positiveFun()
             dialog.dismiss()
+        }.setOnDismissListener {
+            dismissFun()
         }
         .show()
 }
 
-inline fun <T : AppCompatActivity> showTwoButtonDialog(
-    activity: T,
+inline fun showTwoButtonDialog(
+    context: Context,
     title: String,
     message: String,
     positiveButtonText: String,
     negativeButtonText: String,
     crossinline positiveFun: () -> Unit = {},
-    crossinline negativeFun: () -> Unit = {}
+    crossinline negativeFun: () -> Unit = {},
+    crossinline dismissFun: () -> Unit = {}
 ) {
-    MaterialAlertDialogBuilder(activity)
+    MaterialAlertDialogBuilder(context)
         .setTitle(title)
         .setMessage(message)
         .setPositiveButton(positiveButtonText) { dialog, which ->
@@ -225,14 +218,13 @@ inline fun <T : AppCompatActivity> showTwoButtonDialog(
         }.setNegativeButton(negativeButtonText) { dialog, which ->
             dialog.dismiss()
             negativeFun()
+        }.setOnDismissListener {
+            dismissFun()
         }
         .show()
 }
 
-fun ConnectivityProvider.NetworkState.hasInternet(): Boolean {
-    return (this as? ConnectivityProvider.NetworkState.ConnectedState)?.hasInternet == true
-}
 
-fun getPdfFileName(fileUrl : String) : String?{
+fun getPdfFileName(fileUrl: String): String? {
     return Uri.parse(fileUrl).lastPathSegment
 }

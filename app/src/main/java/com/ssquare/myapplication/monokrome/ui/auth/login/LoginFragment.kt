@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -20,6 +19,7 @@ import com.ssquare.myapplication.monokrome.ui.auth.AuthActivity
 import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
+import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider.Companion.hasInternet
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import javax.inject.Inject
@@ -155,7 +155,7 @@ class LoginFragment : Fragment() {
 
     private fun signInUser() {
         if (provider.getNetworkState().hasInternet()) {
-            alertDialog.showLoading(activity as AuthActivity, R.string.log_in_dialog_text)
+            alertDialog.showLoading(requireContext(), R.string.log_in_dialog_text)
 
             val email = binding.email.editText?.text.toString().trim()
             val passWord = binding.password.editText?.text.toString().trim()
@@ -165,7 +165,7 @@ class LoginFragment : Fragment() {
 
         } else {
             showOneButtonDialog(
-                activity as AuthActivity,
+                requireContext(),
                 message = getString(R.string.connectivity_error_message),
                 positiveButtonText = getString(
                     R.string.close

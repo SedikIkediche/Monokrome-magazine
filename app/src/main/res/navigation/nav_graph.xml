@@ -15,8 +15,7 @@
             app:destination="@id/detailFragment" />
         <action
             android:id="@+id/action_listFragment_to_uploadFragment"
-            app:destination="@id/uploadFragment"
-            app:popUpTo="@id/listFragment" />
+            app:destination="@id/uploadFragment" />
     </fragment>
     <fragment
         android:id="@+id/detailFragment"

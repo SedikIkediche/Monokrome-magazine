@@ -23,6 +23,7 @@
         <activity
             android:name="com.ssquare.myapplication.monokrome.ui.splashscreen.SplashActivity"
             android:screenOrientation="portrait"
+            android:launchMode="singleTop"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,6 +35,7 @@
         <activity
             android:name="com.ssquare.myapplication.monokrome.ui.auth.AuthActivity"
             android:screenOrientation="portrait"
+            android:launchMode="singleTop"
             android:theme="@style/AuthStyle">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -50,13 +52,14 @@
 
         <activity
             android:name="com.ssquare.myapplication.monokrome.ui.main.MainActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
 
         <activity
             android:name=".ui.pdf.PdfViewActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
 
-:
         <service
             android:name=".AppMessagingService"
             android:exported="false">

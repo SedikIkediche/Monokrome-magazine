@@ -83,7 +83,7 @@ class RegisterFragment : Fragment() {
 
     private fun showError(errorMessage: String?) {
         alertDialog.hideDialog()
-        binding.registerButton.isCheckable = true
+        binding.registerButton.isClickable = true
         alertDialog = showOneButtonDialog(
             requireContext(),
             message = errorMessage ?: getString(R.string.credentials_error_massage),
@@ -208,7 +208,7 @@ class RegisterFragment : Fragment() {
 
             if (repeatedPassWord == passWord) {
                 alertDialog.showLoading(requireContext(), R.string.register_dialog_text)
-                binding.registerButton.isCheckable = false
+                binding.registerButton.isClickable = false
                 //registeringUser ****************
                 registerViewModel.registerUser(email, passWord)
             } else {

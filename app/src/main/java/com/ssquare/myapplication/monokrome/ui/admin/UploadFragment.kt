@@ -196,7 +196,7 @@ class UploadFragment : Fragment() {
     }
 
     private fun showErrorDialog(message: String) {
-        binding.buttonUpload.isCheckable = false
+        binding.buttonUpload.isClickable = true
         if (!alertDialog.isShowing)
             alertDialog = showTwoButtonDialog(
                 context = requireContext(),
@@ -220,13 +220,13 @@ class UploadFragment : Fragment() {
 
     private fun showLoading() {
         Timber.d("show loading  function called")
+        binding.buttonUpload.isClickable = false
         alertDialog.showLoading(activity as MainActivity, R.string.uploading)
-        binding.buttonUpload.isCheckable = true
     }
 
     private fun uploadSuccess() {
         alertDialog.hideDialog()
-        binding.buttonUpload.isCheckable = false
+        binding.buttonUpload.isClickable = true
         alertDialog = showOneButtonDialog(
             requireContext(),
             "Success",

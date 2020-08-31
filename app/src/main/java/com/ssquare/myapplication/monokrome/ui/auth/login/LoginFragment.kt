@@ -87,7 +87,7 @@ class LoginFragment : Fragment() {
 
     private fun showError(errorMessage: String?) {
         alertDialog.hideDialog()
-        binding.loginButton.isCheckable = true
+        binding.loginButton.isClickable = true
        alertDialog = showOneButtonDialog(
            activity as AuthActivity,
            message = errorMessage ?: getString(R.string.credentials_error_massage),

@@ -12,7 +12,6 @@ import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
-import androidx.room.util.FileUtil
 import com.google.android.gms.common.util.IOUtils
 import com.ssquare.myapplication.monokrome.BuildConfig.DEBUG
 import java.io.File
@@ -43,7 +42,7 @@ class FileUtils {
 
         fun createUriString(context: Context, id: Long): String {
             return FILE_PREFIX +
-                    context.applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path + "/Downloads_PDF/"  + id.toString() + PDF_TYPE
+                    context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.path + "/.Downloads_PDF/"  + id.toString() + PDF_TYPE
         }
 
         fun getContentUri(path: String): Uri {
@@ -242,9 +241,11 @@ class FileUtils {
             var file: File? = null
             parcelFileDescriptor?.let {
                 val inputStream = FileInputStream(parcelFileDescriptor.fileDescriptor)
-                file = File(context.cacheDir, displayName)
+                val tempFilesFolder = File(context.cacheDir,"temp_PDF")
+                tempFilesFolder.mkdir()
+                file = File(tempFilesFolder ,  displayName )
                 val outputStream = FileOutputStream(file)
-
+                val p = context.cacheDir
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     FileUtils.copy(inputStream,outputStream)
                 }else{
@@ -253,6 +254,10 @@ class FileUtils {
 
             }
             return file?.path!!
+        }
+
+        fun getFreeSpaceInExternalFilesDir(context: Context) : Long{
+            return  File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.path + "/.Downloads_PDF/").freeSpace
         }
 
     }

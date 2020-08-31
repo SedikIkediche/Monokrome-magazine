@@ -2,6 +2,7 @@ package com.ssquare.myapplication.monokrome.ui.pdf
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Environment
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -15,7 +16,6 @@ import com.github.barteksc.pdfviewer.util.FitPolicy
 import com.shockwave.pdfium.PdfDocument.Bookmark
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.util.FileUtils
-import com.ssquare.myapplication.monokrome.util.PDF_FILES_PATH
 import com.ssquare.myapplication.monokrome.util.PDF_FILE_NAME
 import kotlinx.android.synthetic.main.activity_pdf_view.*
 import timber.log.Timber
@@ -59,9 +59,9 @@ class PdfViewActivity : AppCompatActivity(), OnPageChangeListener{
     }
 
     private fun setUpAnimations() {
-        fadeIn = AlphaAnimation(0.0f, 1.0f)//AnimationUtils.loadAnimation(this,R.anim.fade_in)
+        fadeIn = AlphaAnimation(0.0f, 1.0f)
         fadeIn.duration = 400
-        fadeOut = AlphaAnimation(1.0f, 0.0f)//AnimationUtils.loadAnimation(this,R.anim.fade_in)
+        fadeOut = AlphaAnimation(1.0f, 0.0f)
         fadeOut.duration = 400
     }
 
@@ -80,7 +80,7 @@ class PdfViewActivity : AppCompatActivity(), OnPageChangeListener{
     private fun displayFromUri(context: Context, pdfFileName: String) {
 
         pdfView.useBestQuality(true)
-        pdfView.fromFile(File(PDF_FILES_PATH + pdfFileName))
+        pdfView.fromFile(File( context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.path + "/.Downloads_PDF/" + pdfFileName))
             .defaultPage(pageNumber)
             .onPageChange(this)
             .enableAnnotationRendering(true)

@@ -50,9 +50,14 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     private var isNotConnected = false
 
 
-    private val errorCallback = fun() {
+    private val errorCallback = fun(downloadCallBack: DownloadCallBack) {
         if (!binding.bannerLayout.isVisible) {
-            showError(getString(R.string.download_error_message))
+            if (downloadCallBack == DownloadCallBack.ONERROR){
+                showError(getString(R.string.download_error_message))
+            }else{
+               showOneButtonDialog(requireContext(),getString(R.string.oops),"Sorry you d'ont have enough space!",getString(R.string.ok))
+            }
+
         }
     }
 
@@ -91,7 +96,11 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
             if (isDataCached(requireContext())) {
                 binding.swipeRefreshLayout.isRefreshing = false
             } else {
-                cacheData()
+                if (provider.getNetworkState().hasInternet()){
+                    cacheData()
+                }else{
+                    binding.swipeRefreshLayout.isRefreshing = false
+                }
             }
 
         }

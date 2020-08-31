@@ -2,13 +2,21 @@ package com.ssquare.myapplication.monokrome.ui.pdf
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Environment
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
+import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener
 import com.github.barteksc.pdfviewer.listener.OnPageChangeListener
+import com.github.barteksc.pdfviewer.listener.OnPageErrorListener
+import com.github.barteksc.pdfviewer.listener.OnPageScrollListener
 import com.github.barteksc.pdfviewer.util.FitPolicy
+import com.shockwave.pdfium.PdfDocument.Bookmark
 import com.ssquare.myapplication.monokrome.R
+import com.ssquare.myapplication.monokrome.util.FileUtils
+import com.ssquare.myapplication.monokrome.util.PDF_FILE_NAME
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider.Companion.hasInternet
@@ -64,9 +72,9 @@ class PdfViewActivity : AppCompatActivity(), OnPageChangeListener,
     }
 
     private fun setUpAnimations() {
-        fadeIn = AlphaAnimation(0.0f, 1.0f)//AnimationUtils.loadAnimation(this,R.anim.fade_in)
+        fadeIn = AlphaAnimation(0.0f, 1.0f)
         fadeIn.duration = 400
-        fadeOut = AlphaAnimation(1.0f, 0.0f)//AnimationUtils.loadAnimation(this,R.anim.fade_in)
+        fadeOut = AlphaAnimation(1.0f, 0.0f)
         fadeOut.duration = 400
     }
 
@@ -85,7 +93,7 @@ class PdfViewActivity : AppCompatActivity(), OnPageChangeListener,
     private fun displayFromUri(context: Context, pdfFileName: String) {
 
         pdfView.useBestQuality(true)
-        pdfView.fromFile(File(PDF_FILES_PATH + pdfFileName))
+        pdfView.fromFile(File( context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.path + "/.Downloads_PDF/" + pdfFileName))
             .defaultPage(pageNumber)
             .onPageChange(this)
             .enableAnnotationRendering(true)

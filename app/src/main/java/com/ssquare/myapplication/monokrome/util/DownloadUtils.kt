@@ -2,6 +2,7 @@ package com.ssquare.myapplication.monokrome.util
 
 import android.content.Context
 import android.os.Environment
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.ssquare.myapplication.monokrome.data.DomainMagazine
@@ -12,6 +13,7 @@ import com.tonyodev.fetch2core.Func
 import timber.log.Timber
 import java.io.File
 import java.net.URI
+import java.util.*
 
 
 class DownloadUtils(
@@ -26,9 +28,9 @@ class DownloadUtils(
         .build()
 
     private var fetch = Fetch.Impl.getInstance(fetchConfiguration)
-    private var errorCallback: (() -> Unit)? = null
+    private var errorCallback: ((downloadCallBack : DownloadCallBack) -> Unit)? = null
 
-    fun setErrorCallback(errorCallback: () -> Unit) {
+    fun setErrorCallback(errorCallback: (downloadCallBack : DownloadCallBack) -> Unit){
         this.errorCallback = errorCallback
     }
 
@@ -56,7 +58,7 @@ class DownloadUtils(
 
         override fun onError(download: Download, error: Error, throwable: Throwable?) {
             updateDownloadFailed(download.id, download.fileUri.toString())
-            errorCallback?.invoke()
+            errorCallback?.invoke(DownloadCallBack.ONERROR)
             Timber.d("onError called: $error")
         }
 
@@ -102,7 +104,13 @@ class DownloadUtils(
             downloadBlocks: List<DownloadBlock>,
             totalBlocks: Int
         ) {
-            updateDownloadStarted(download.id)
+            if (download.total > FileUtils.getFreeSpaceInExternalFilesDir(context)){
+               errorCallback?.invoke(DownloadCallBack.STARTED)
+                fetch.cancel(download.id)
+                fetch.remove(download.id)
+            }else{
+                updateDownloadStarted(download.id)
+            }
             Timber.d("onStarted called")
         }
 
@@ -124,7 +132,7 @@ class DownloadUtils(
         _isDownloadRunning.value = false
     }
 
-    fun triggerActiveDownloads() {
+    private fun triggerActiveDownloads() {
         fetch.getDownloads(Func { list ->
             val activeDownloadsList =
                 list.filter { it.status == Status.QUEUED || it.status == Status.DOWNLOADING || it.status == Status.PAUSED }
@@ -133,24 +141,21 @@ class DownloadUtils(
         })
     }
 
-    fun killActiveDownloads(callback: () -> Unit = {}) {
+    fun killActiveDownloads() {
         fetch.getDownloads(Func { list ->
             list.forEach { download ->
                 when (download.status) {
                     Status.QUEUED -> {
                         fetch.cancel(download.id)
                         fetch.remove(download.id)
-                        callback()
                     }
                     Status.DOWNLOADING -> {
                         fetch.cancel(download.id)
                         fetch.remove(download.id)
-                        callback()
                     }
                     Status.PAUSED -> {
                         fetch.cancel(download.id)
                         fetch.remove(download.id)
-                        callback()
                     }
                 }
             }
@@ -173,7 +178,7 @@ class DownloadUtils(
         fetch.close()
     }
 
-    fun enqueueDownload(magazine: DomainMagazine, authToken: String?) {
+    fun enqueueDownload(magazine: DomainMagazine,authToken : String? ) {
         Timber.d("Magazine: $magazine")
         val filePath = createFilePath(magazine.id)
         val request = Request(magazine.editionUrl, filePath).apply {
@@ -238,7 +243,7 @@ class DownloadUtils(
 
     private fun createFilePath(id: Long): String {
 
-        return context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.path + "/Downloads_PDF/" + id.toString() + PDF_TYPE
+       return  context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.path + "/.Downloads_PDF/"  + id.toString() + PDF_TYPE
     }
 
     private fun deleteFile(uri: String): Boolean {

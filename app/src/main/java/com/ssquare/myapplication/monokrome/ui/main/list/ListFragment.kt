@@ -51,11 +51,16 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     private var isNotConnected = false
 
 
-    private val errorCallback = fun() {
+    private val errorCallback = fun(downloadCallBack: DownloadCallBack) {
         if (!alertDialog.isShowing) {
-            showErrorDialog(
-                message = getString(R.string.download_error_message)
-            )
+            if (downloadCallBack == DownloadCallBack.ONERROR){
+                showErrorDialog(getString(R.string.download_error_message))
+            }else{
+                showErrorDialog(
+                    message = "Sorry you d'ont have enough space!"
+                )
+            }
+
         }
     }
 
@@ -332,7 +337,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     }
 
     private fun showLoading() {
-        Timber.d("showLoading() called")
         binding.run {
             shimmerLayout.startShimmer()
             recyclerview.visibility = View.GONE
@@ -360,7 +364,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     }
 
     private fun showData() {
-        Timber.d("showData() called")
         binding.run {
             shimmerLayout.visibility = View.GONE
             backOnlineIndicator.visibility = View.GONE
@@ -383,7 +386,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
 
             bannerText.text = errorText ?: getString(R.string.general_error)
             bannerLayout.visibility = View.VISIBLE
-            Timber.d("showErrorBanner() called")
             onlineIndicator.isVisible = showOnlineView
             isNotConnected = true
 
@@ -394,7 +396,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
             bannerNegativeButton.setOnClickListener {
                 binding.bannerLayout.visibility = View.GONE
             }
-
         }
     }
 
@@ -417,7 +418,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
 
 
     override fun onStateChange(state: ConnectivityProvider.NetworkState) {
-        Timber.d("isDownloadActive: ${downloadUtils.isDownloadActive}")
         if (!isDataCached(requireContext())) {
             showLoading()
             when (state.hasInternet()) {

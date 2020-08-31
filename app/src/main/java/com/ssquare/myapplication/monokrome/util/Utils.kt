@@ -35,8 +35,6 @@ const val PDF_TYPE = ".pdf"
 const val FILE_PREFIX = "file://"
 const val NO_FILE = "no_file"
 const val PDF_FILE_NAME = "pdf_file_name"
-const val PDF_FILES_PATH =
-    "/storage/emulated/0/Android/data/com.ssquare.myapplication.monokrome/files/Download/Downloads_PDF/"
 const val NO_DOWNLOAD = -1
 const val STORAGE_PERMISSION_CODE = 100
 const val NO_PROGRESS = -1

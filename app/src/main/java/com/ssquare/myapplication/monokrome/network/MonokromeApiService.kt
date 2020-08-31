@@ -14,7 +14,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
 import timber.log.Timber
 
-const val BASE_URL = "http://192.168.1.4:3000/api/"
+const val BASE_URL = "http://192.168.1.45:3000/api/"
 const val HEADER_URL = "${BASE_URL}images/$HEADER_PATH"
 
 private val moshi = Moshi.Builder()

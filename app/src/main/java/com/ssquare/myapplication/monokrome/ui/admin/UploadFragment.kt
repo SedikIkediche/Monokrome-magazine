@@ -123,15 +123,16 @@ class UploadFragment : Fragment() {
         requireContext().cacheDir.listFiles()?.forEach { file ->
             if (file.name == "compressor") {
                 file.delete()
-                Timber.d("deleted file  ${file.name}")
+                Timber.d("Deleted file image: ${file.name}")
             }
         }
     }
 
     private fun deleteTempCachedFile() {
         requireContext().cacheDir.listFiles()?.forEach { file ->
-            if (FileUtils.getTypeFromPath(file.path) == "application/pdf") {
+            if (file.name == "temp_PDF") {
                 file.delete()
+                Timber.d("Deleted file pdf: ${file.name}")
             }
         }
     }

@@ -60,7 +60,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
                     message = "Sorry you d'ont have enough space!"
                 )
             }
-
         }
     }
 

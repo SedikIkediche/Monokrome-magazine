@@ -90,7 +90,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         viewModel.data.observe(viewLifecycleOwner, Observer {
             if (isDataCached(requireContext())) {
                 setupUi(it.first, it.second)
-                binding.swipeRefreshLayout.isRefreshing = false
             }
         })
 

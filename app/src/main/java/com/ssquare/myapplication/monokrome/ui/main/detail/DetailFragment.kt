@@ -63,6 +63,16 @@ class DetailFragment : Fragment(), DetailClickListener,
         return binding.root
     }
 
+    override fun onStart() {
+        super.onStart()
+        provider.addListener(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        provider.removeListener(this)
+    }
+
     private fun setContainerBackgroundColor() {
         binding.root.setBackgroundColor(
             ContextCompat.getColor(

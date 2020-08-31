@@ -6,17 +6,11 @@ import android.os.Environment
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
-import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener
+import androidx.lifecycle.Observer
 import com.github.barteksc.pdfviewer.listener.OnPageChangeListener
-import com.github.barteksc.pdfviewer.listener.OnPageErrorListener
-import com.github.barteksc.pdfviewer.listener.OnPageScrollListener
 import com.github.barteksc.pdfviewer.util.FitPolicy
-import com.shockwave.pdfium.PdfDocument.Bookmark
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.util.FileUtils
-import com.ssquare.myapplication.monokrome.util.PDF_FILE_NAME
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider.Companion.hasInternet
@@ -68,7 +62,14 @@ class PdfViewActivity : AppCompatActivity(), OnPageChangeListener,
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pdf_view)
         displayFromUri(applicationContext, pdfFileName)
+        initDownloadUtils()
         setUpAnimations()
+    }
+
+    private fun initDownloadUtils() {
+        downloadUtils.isDownloadRunning.observe(this, Observer { isDownloading ->
+            commitDownloadActive(this, isDownloading)
+        })
     }
 
     private fun setUpAnimations() {
@@ -80,12 +81,14 @@ class PdfViewActivity : AppCompatActivity(), OnPageChangeListener,
 
     override fun onStart() {
         super.onStart()
+        provider.addListener(this)
         fadeIn.setAnimationListener(fadeInListener)
         fadeOut.setAnimationListener(fadeOutListener)
     }
 
     override fun onStop() {
         super.onStop()
+        provider.removeListener(this)
         fadeIn.setAnimationListener(null)
         fadeOut.setAnimationListener(null)
     }
@@ -93,7 +96,7 @@ class PdfViewActivity : AppCompatActivity(), OnPageChangeListener,
     private fun displayFromUri(context: Context, pdfFileName: String) {
 
         pdfView.useBestQuality(true)
-        pdfView.fromFile(File( context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.path + "/.Downloads_PDF/" + pdfFileName))
+        pdfView.fromFile(File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.path + "/.Downloads_PDF/" + pdfFileName))
             .defaultPage(pageNumber)
             .onPageChange(this)
             .enableAnnotationRendering(true)

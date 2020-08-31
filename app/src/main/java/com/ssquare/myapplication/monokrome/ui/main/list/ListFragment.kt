@@ -443,7 +443,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
             showErrorDialog(
                 getString(R.string.network_down)
             )
-
         }
 
     }

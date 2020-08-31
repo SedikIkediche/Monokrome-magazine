@@ -29,7 +29,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentUploadBinding
-import com.ssquare.myapplication.monokrome.ui.main.MainActivity
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider.Companion.hasInternet
@@ -42,12 +41,15 @@ import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class UploadFragment : Fragment() {
+class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener {
 
     lateinit var binding: FragmentUploadBinding
 
     @Inject
     lateinit var provider: ConnectivityProvider
+
+    @Inject
+    lateinit var downloadUtils: DownloadUtils
     private val viewModel: UploadViewModel by viewModels()
     private lateinit var alertDialog: AlertDialog
     override fun onCreateView(
@@ -57,6 +59,7 @@ class UploadFragment : Fragment() {
         binding = FragmentUploadBinding.inflate(inflater)
         initLayout()
         setUpAlertDialog()
+        initDownloadUtils()
         setContainerBackgroundColor()
 
         viewModel.image.observe(viewLifecycleOwner, Observer { image ->
@@ -113,10 +116,26 @@ class UploadFragment : Fragment() {
         return binding.root
     }
 
+    override fun onStart() {
+        super.onStart()
+        provider.addListener(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        provider.removeListener(this)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         deleteTempCachedFile()
         deleteTempImageFile()
+    }
+
+    private fun initDownloadUtils() {
+        downloadUtils.isDownloadRunning.observe(viewLifecycleOwner, Observer { isDownloading ->
+            commitDownloadActive(requireContext(), isDownloading)
+        })
     }
 
     private fun deleteTempImageFile() {
@@ -196,8 +215,8 @@ class UploadFragment : Fragment() {
     }
 
     private fun showErrorDialog(message: String) {
+        alertDialog.hide()
         binding.buttonUpload.isClickable = true
-        if (!alertDialog.isShowing)
             alertDialog = showTwoButtonDialog(
                 context = requireContext(),
                 title = getString(R.string.oops),
@@ -219,9 +238,8 @@ class UploadFragment : Fragment() {
     }
 
     private fun showLoading() {
-        Timber.d("show loading  function called")
         binding.buttonUpload.isClickable = false
-        alertDialog.showLoading(activity as MainActivity, R.string.uploading)
+        alertDialog.showLoading(requireContext(), R.string.uploading)
     }
 
     private fun uploadSuccess() {
@@ -375,8 +393,9 @@ class UploadFragment : Fragment() {
                 val description = binding.textDescription.text.toString().trim()
                 viewModel.setTitle(title)
                 viewModel.setDescription(description)
-                showLoading()
-                viewModel.upload()
+                viewModel.upload {
+                    showLoading()
+                }
             } else {
                 showErrorDialog(getString(R.string.error_wait_for_download))
             }
@@ -407,5 +426,14 @@ class UploadFragment : Fragment() {
             return item?.text.toString()
         }
         return null
+    }
+
+    override fun onStateChange(state: ConnectivityProvider.NetworkState) {
+        if (!state.hasInternet() && isDownloadActive(requireContext())) {
+            downloadUtils.killActiveDownloads()
+            showErrorDialog(
+                getString(R.string.network_down)
+            )
+        }
     }
 }

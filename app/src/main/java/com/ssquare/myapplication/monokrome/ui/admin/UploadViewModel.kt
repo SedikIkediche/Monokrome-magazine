@@ -8,6 +8,7 @@ import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.network.Error
 import com.ssquare.myapplication.monokrome.network.MagazineOrError
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class UploadViewModel @ViewModelInject constructor(
     private val repository: Repository,
@@ -62,8 +63,9 @@ class UploadViewModel @ViewModelInject constructor(
         _description.value = description
     }
 
-    fun upload() {
+    fun upload(callback: () -> Unit = {}) {
         if (!title.value.isNullOrEmpty() && !description.value.isNullOrEmpty() && _image.value != null && _file.value != null) {
+            callback()
             viewModelScope.launch {
                 val magazineOrException = repository.uploadIssue(
                     title.value!!,
@@ -75,6 +77,7 @@ class UploadViewModel @ViewModelInject constructor(
                 _uploadState.value = magazineOrException
             }
         } else {
+            Timber.d("empty entry is: title: ${title.value.isNullOrEmpty()}, description: ${description.value.isNullOrEmpty()}, image: ${_image.value == null}, file: ${_file.value == null}")
             _uploadState.value =
                 MagazineOrError(null, Error("All entries must not be null."))
         }

@@ -57,7 +57,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
             }else{
                showOneButtonDialog(requireContext(),getString(R.string.oops),"Sorry you d'ont have enough space!",getString(R.string.ok))
             }
-
         }
     }
 

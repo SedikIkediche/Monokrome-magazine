@@ -54,6 +54,4 @@ class RefreshDataWorker(private val appContext: Context, params: WorkerParameter
             network
         )
     }
-
-
 }

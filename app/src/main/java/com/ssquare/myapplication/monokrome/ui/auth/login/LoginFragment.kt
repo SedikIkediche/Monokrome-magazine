@@ -87,6 +87,7 @@ class LoginFragment : Fragment() {
 
     private fun showError(errorMessage: String?) {
         alertDialog.hideDialog()
+        binding.loginButton.isCheckable = true
        alertDialog = showOneButtonDialog(
            activity as AuthActivity,
            message = errorMessage ?: getString(R.string.credentials_error_massage),
@@ -156,7 +157,7 @@ class LoginFragment : Fragment() {
     private fun signInUser() {
         if (provider.getNetworkState().hasInternet()) {
             alertDialog.showLoading(requireContext(), R.string.log_in_dialog_text)
-
+            binding.loginButton.isClickable = false
             val email = binding.email.editText?.text.toString().trim()
             val passWord = binding.password.editText?.text.toString().trim()
 

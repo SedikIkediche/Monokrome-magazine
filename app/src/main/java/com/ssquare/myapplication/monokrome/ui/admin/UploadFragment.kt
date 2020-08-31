@@ -196,6 +196,7 @@ class UploadFragment : Fragment() {
     }
 
     private fun showErrorDialog(message: String) {
+        binding.buttonUpload.isCheckable = false
         if (!alertDialog.isShowing)
             alertDialog = showTwoButtonDialog(
                 context = requireContext(),
@@ -220,10 +221,12 @@ class UploadFragment : Fragment() {
     private fun showLoading() {
         Timber.d("show loading  function called")
         alertDialog.showLoading(activity as MainActivity, R.string.uploading)
+        binding.buttonUpload.isCheckable = true
     }
 
     private fun uploadSuccess() {
         alertDialog.hideDialog()
+        binding.buttonUpload.isCheckable = false
         alertDialog = showOneButtonDialog(
             requireContext(),
             "Success",
@@ -367,7 +370,7 @@ class UploadFragment : Fragment() {
 
     private fun upload() {
         if (provider.getNetworkState().hasInternet()) {
-            if (isDownloadActive(requireContext())) {
+            if (!isDownloadActive(requireContext())) {
                 val title = binding.textTitle.text.toString().trim()
                 val description = binding.textDescription.text.toString().trim()
                 viewModel.setTitle(title)

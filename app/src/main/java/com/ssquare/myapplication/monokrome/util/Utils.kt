@@ -186,8 +186,8 @@ inline fun showOneButtonDialog(
     crossinline positiveFun: () -> Unit = {},
     crossinline dismissFun: () -> Unit = {}
 
-) {
-    MaterialAlertDialogBuilder(context)
+): AlertDialog {
+    return MaterialAlertDialogBuilder(context)
         .setTitle(title)
         .setMessage(message)
         .setPositiveButton(positiveButtonText) { dialog, which ->
@@ -208,8 +208,8 @@ inline fun showTwoButtonDialog(
     crossinline positiveFun: () -> Unit = {},
     crossinline negativeFun: () -> Unit = {},
     crossinline dismissFun: () -> Unit = {}
-) {
-    MaterialAlertDialogBuilder(context)
+): AlertDialog {
+    return MaterialAlertDialogBuilder(context)
         .setTitle(title)
         .setMessage(message)
         .setPositiveButton(positiveButtonText) { dialog, which ->

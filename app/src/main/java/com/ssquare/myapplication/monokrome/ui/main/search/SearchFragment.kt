@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
@@ -35,7 +36,7 @@ import javax.inject.Inject
  * A simple [Fragment] subclass.
  */
 @AndroidEntryPoint
-class SearchFragment : Fragment() {
+class SearchFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener {
     @Inject
     lateinit var provider: ConnectivityProvider
 
@@ -44,7 +45,7 @@ class SearchFragment : Fragment() {
     private val viewModel: SearchViewModel by viewModels()
     private lateinit var binding: FragmentSearchBinding
     private lateinit var adapter: MagazineAdapter
-    private var isNotConnected = false
+    private lateinit var alertDialog: AlertDialog
 
 
     override fun onCreateView(
@@ -54,6 +55,7 @@ class SearchFragment : Fragment() {
         binding = FragmentSearchBinding.inflate(inflater)
         initDownloadUtils()
         initRecyclerView()
+        setUpAlertDialog()
         setUpSearchView()
         setUpNavigateUpButton()
         setContainerBackgroundColor()
@@ -75,18 +77,18 @@ class SearchFragment : Fragment() {
 
     private fun setupUi(it: List<DomainMagazine>?) {
         if (it.isNullOrEmpty()) {
-            showErrorLayout("No items found")
+            showEmpty()
         } else {
             showData(it)
         }
     }
 
-    private fun showErrorLayout(errorText: String) {
+    private fun showEmpty() {
         binding.run {
             recyclerViewSearch.visibility = View.GONE
             textError.visibility = View.VISIBLE
-            textError.text = errorText
             emptyListImage.visibility = View.VISIBLE
+            textError.text = getString(R.string.no_issues_available)
         }
     }
 
@@ -98,6 +100,23 @@ class SearchFragment : Fragment() {
             emptyListImage.visibility = View.GONE
         }
     }
+
+    private fun setUpAlertDialog() {
+        alertDialog = AlertDialog.Builder(requireContext()).create()
+    }
+
+    private fun showErrorDialog(message: String) {
+        if (!alertDialog.isShowing)
+            alertDialog = showOneButtonDialog(
+                context = requireContext(),
+                title = getString(R.string.oops),
+                message = message,
+                positiveButtonText = getString(
+                    R.string.retry
+                )
+            )
+    }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -191,6 +210,7 @@ class SearchFragment : Fragment() {
             commitDownloadActive(requireContext(), isDownloading)
             binding.recyclerViewSearch.itemAnimator =
                 if (isDownloading) null else DefaultItemAnimator()
+
         })
     }
 
@@ -211,11 +231,11 @@ class SearchFragment : Fragment() {
             if (!isLoadDataActive(requireContext())) {
                 downloadUtils.enqueueDownload(magazine, getAuthToken(requireContext()))
             } else {
-                toast(requireContext(), "Loading Data From Server!")
+                showErrorDialog(getString(R.string.loading_from_server))
             }
 
         } else {
-            //show Error Layout (now internet)
+            showErrorDialog(message = getString(R.string.connectivity_error_message))
         }
     }
 
@@ -229,6 +249,16 @@ class SearchFragment : Fragment() {
             putExtra(PDF_FILE_NAME, getPdfFileName(fileUri))
         }
         startActivity(intent)
+    }
+
+    override fun onStateChange(state: ConnectivityProvider.NetworkState) {
+        if (!state.hasInternet() && isDownloadActive(requireContext())) {
+            downloadUtils.killActiveDownloads()
+            showErrorDialog(
+                getString(R.string.network_down)
+            )
+
+        }
     }
 
 

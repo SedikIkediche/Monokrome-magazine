@@ -30,7 +30,8 @@ import javax.inject.Inject
  * A simple [Fragment] subclass.
  */
 @AndroidEntryPoint
-class DetailFragment : Fragment(), DetailClickListener {
+class DetailFragment : Fragment(), DetailClickListener,
+    ConnectivityProvider.ConnectivityStateListener {
 
     lateinit var binding: FragmentDetailBinding
     private val viewModel: DetailViewModel by viewModels()
@@ -89,10 +90,10 @@ class DetailFragment : Fragment(), DetailClickListener {
         grantResults: IntArray
     ) {
         if (requestCode == WRITE_EXTERNAL_STORAGE_PERMISSION_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            downloadMagazine(viewModel.toDownloadMagazine!!)
+            viewModel.toDownloadMagazine?.let { downloadMagazine(it) }
         } else {
             viewModel.setToDownload(null)
-            toast(requireContext(), "Storage Permission Denied")
+            showErrorDialog("Storage Permission Denied")
         }
 
     }
@@ -100,7 +101,6 @@ class DetailFragment : Fragment(), DetailClickListener {
     private fun initDownloadUtils() {
         downloadUtils.isDownloadRunning.observe(viewLifecycleOwner, Observer { isDownloading ->
             commitDownloadActive(requireContext(), isDownloading)
-            //updateUi Accordingly
         })
     }
 
@@ -109,7 +109,7 @@ class DetailFragment : Fragment(), DetailClickListener {
             if (!isLoadDataActive(requireContext())) {
                 downloadUtils.enqueueDownload(magazine, getAuthToken(requireContext()))
             } else {
-                toast(requireContext(), "Loading Data From Server!")
+                showErrorDialog(getString(R.string.loading_from_server))
             }
         } else {
             showErrorDialog(getString(R.string.connectivity_error_message))
@@ -122,15 +122,15 @@ class DetailFragment : Fragment(), DetailClickListener {
     }
 
     private fun showErrorDialog(message: String) {
-        alertDialog.hideDialog()
-        showOneButtonDialog(
-            context = requireContext(),
-            title = getString(R.string.oops),
-            message = message,
-            positiveButtonText = getString(
-                R.string.retry
+        if (!alertDialog.isShowing)
+            alertDialog = showOneButtonDialog(
+                context = requireContext(),
+                title = getString(R.string.oops),
+                message = message,
+                positiveButtonText = getString(
+                    R.string.retry
+                )
             )
-        )
     }
 
     private fun checkForPermission(magazine: DomainMagazine) {
@@ -169,6 +169,16 @@ class DetailFragment : Fragment(), DetailClickListener {
                 //cancel
                 downloadUtils.cancelDownload(magazine.downloadId)
             }
+        }
+    }
+
+    override fun onStateChange(state: ConnectivityProvider.NetworkState) {
+        if (!state.hasInternet() && isDownloadActive(requireContext())) {
+            downloadUtils.killActiveDownloads()
+            showErrorDialog(
+                getString(R.string.network_down)
+            )
+
         }
     }
 

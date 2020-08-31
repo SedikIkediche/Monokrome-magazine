@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -45,14 +46,16 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     lateinit var provider: ConnectivityProvider
     private val viewModel: ListViewModel by viewModels()
     lateinit var binding: FragmentListBinding
-
+    private lateinit var alertDialog: AlertDialog
     private lateinit var adapter: MagazineAdapter
     private var isNotConnected = false
 
 
     private val errorCallback = fun() {
-        if (!binding.bannerLayout.isVisible) {
-            showError(getString(R.string.download_error_message))
+        if (!alertDialog.isShowing) {
+            showErrorDialog(
+                message = getString(R.string.download_error_message)
+            )
         }
     }
 
@@ -65,7 +68,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         initRecyclerView()
         initDownloadUtils()
         setContainerBackgroundColor()
-
+        setUpAlertDialog()
         downloadUtils.setErrorCallback(errorCallback)
 
         viewModel.orderBy(getOrderBy(requireContext()))
@@ -86,15 +89,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
                 binding.swipeRefreshLayout.isRefreshing = false
             }
         })
-
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            if (isDataCached(requireContext())) {
-                binding.swipeRefreshLayout.isRefreshing = false
-            } else {
-                cacheData()
-            }
-
-        }
 
         return binding.root
     }
@@ -118,7 +112,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         grantResults: IntArray
     ) {
         if (requestCode == WRITE_EXTERNAL_STORAGE_PERMISSION_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            downloadMagazine(viewModel.toDownloadMagazine!!)
+            viewModel.toDownloadMagazine?.let { downloadMagazine(it) }
         } else {
             viewModel.setToDownload(null)
             toast(requireContext(), "Storage Permission Denied")
@@ -309,10 +303,13 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
             if (!isLoadDataActive(requireContext())) {
                 downloadUtils.enqueueDownload(magazine, getAuthToken(requireContext()))
             } else {
-                toast(requireContext(), "Loading Data From Server!")
+                showErrorDialog(getString(R.string.loading_from_server))
             }
         } else {
-            showError(getString(R.string.connectivity_error_message), showOnlineView = false)
+            if (!alertDialog.isShowing)
+                showErrorDialog(
+                    getString(R.string.connectivity_error_message)
+                )
         }
     }
 
@@ -324,13 +321,18 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
     private fun handleError(error: Error) {
         when (error.code) {
             404 -> showEmpty()
-            else -> showError(getString(R.string.internal_server_error)) {
-                viewModel.loadAndCacheData()
+            else -> showErrorBanner(getString(R.string.internal_server_error)) {
+                if (provider.getNetworkState().hasInternet()) {
+                    binding.bannerLayout.visibility = View.GONE
+                    cacheData()
+                }
+
             }
         }
     }
 
     private fun showLoading() {
+        Timber.d("showLoading() called")
         binding.run {
             shimmerLayout.startShimmer()
             recyclerview.visibility = View.GONE
@@ -351,12 +353,14 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
             shimmerLayout.visibility = View.GONE
             shimmerLayout.stopShimmer()
             recyclerview.visibility = View.GONE
+            backOnlineIndicator.visibility = View.GONE
             emptyErrorContainer.visibility = View.VISIBLE
             textError.text = getString(R.string.no_issues_available)
         }
     }
 
     private fun showData() {
+        Timber.d("showData() called")
         binding.run {
             shimmerLayout.visibility = View.GONE
             backOnlineIndicator.visibility = View.GONE
@@ -368,40 +372,52 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
         }
     }
 
-    private fun showError(
+    private fun showErrorBanner(
         errorText: String?,
         showOnlineView: Boolean = false,
-        tryAgainFun: () -> Unit = {}
+        positiveFun: () -> Unit = { binding.bannerLayout.visibility = View.GONE }
     ) {
         binding.run {
             shimmerLayout.visibility = View.GONE
             shimmerLayout.stopShimmer()
-        }
-        showErrorBanner(errorText, showOnlineView, tryAgainFun)
-    }
 
-    private fun showErrorBanner(
-        errorText: String?,
-        showOnlineView: Boolean,
-        tryAgainFun: () -> Unit = {}
-    ) {
-        binding.run {
             bannerText.text = errorText ?: getString(R.string.general_error)
             bannerLayout.visibility = View.VISIBLE
+            Timber.d("showErrorBanner() called")
             onlineIndicator.isVisible = showOnlineView
             isNotConnected = true
 
-            closeButton.setOnClickListener {
+            bannerPositiveButton.setOnClickListener {
+                positiveFun()
+            }
+
+            bannerNegativeButton.setOnClickListener {
                 binding.bannerLayout.visibility = View.GONE
             }
-            tryAgainButton.setOnClickListener {
-                binding.bannerLayout.visibility = View.GONE
-                tryAgainFun()
-            }
+
         }
     }
 
+    private fun setUpAlertDialog() {
+        alertDialog = AlertDialog.Builder(requireContext()).create()
+    }
+
+    private fun showErrorDialog(message: String) {
+        Timber.d("showErrorDialog()")
+        alertDialog.hideDialog()
+        alertDialog = showOneButtonDialog(
+            context = requireContext(),
+            title = getString(R.string.oops),
+            message = message,
+            positiveButtonText = getString(
+                R.string.retry
+            )
+        )
+    }
+
+
     override fun onStateChange(state: ConnectivityProvider.NetworkState) {
+        Timber.d("isDownloadActive: ${downloadUtils.isDownloadActive}")
         if (!isDataCached(requireContext())) {
             showLoading()
             when (state.hasInternet()) {
@@ -409,11 +425,28 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
                     cacheData()
                 }
                 false -> {
-                    showError(getString(R.string.network_down), true)
+                    showErrorBanner(
+                        errorText = getString(R.string.network_down),
+                        showOnlineView = true,
+                        positiveFun = {
+                            if (provider.getNetworkState().hasInternet()) {
+                                binding.bannerLayout.visibility = View.GONE
+                                cacheData()
+                            }
+                        }
+                    )
                     showEmpty()
                 }
             }
         }
+        if (!state.hasInternet() && isDownloadActive(requireContext())) {
+            downloadUtils.killActiveDownloads()
+            showErrorDialog(
+                getString(R.string.network_down)
+            )
+
+        }
+
     }
 
 }

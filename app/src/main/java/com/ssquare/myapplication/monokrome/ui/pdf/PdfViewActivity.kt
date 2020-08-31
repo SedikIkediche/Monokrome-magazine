@@ -5,23 +5,28 @@ import android.os.Bundle
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
-import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener
 import com.github.barteksc.pdfviewer.listener.OnPageChangeListener
-import com.github.barteksc.pdfviewer.listener.OnPageErrorListener
-import com.github.barteksc.pdfviewer.listener.OnPageScrollListener
 import com.github.barteksc.pdfviewer.util.FitPolicy
-import com.shockwave.pdfium.PdfDocument.Bookmark
 import com.ssquare.myapplication.monokrome.R
-import com.ssquare.myapplication.monokrome.util.FileUtils
-import com.ssquare.myapplication.monokrome.util.PDF_FILES_PATH
-import com.ssquare.myapplication.monokrome.util.PDF_FILE_NAME
+import com.ssquare.myapplication.monokrome.util.*
+import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
+import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider.Companion.hasInternet
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_pdf_view.*
 import timber.log.Timber
 import java.io.File
+import javax.inject.Inject
 
-class PdfViewActivity : AppCompatActivity(), OnPageChangeListener{
+@AndroidEntryPoint
+class PdfViewActivity : AppCompatActivity(), OnPageChangeListener,
+    ConnectivityProvider.ConnectivityStateListener {
+
+    @Inject
+    lateinit var provider: ConnectivityProvider
+
+    @Inject
+    lateinit var downloadUtils: DownloadUtils
 
     var pageNumber = 0
     val pdfFileName: String by lazy {
@@ -44,7 +49,7 @@ class PdfViewActivity : AppCompatActivity(), OnPageChangeListener{
 
     val fadeOutListener = object : Animation.AnimationListener {
         override fun onAnimationEnd(arg0: Animation) {
-              pdfPageNumberView.visibility = View.GONE
+            pdfPageNumberView.visibility = View.GONE
         }
 
         override fun onAnimationRepeat(arg0: Animation) {}
@@ -99,5 +104,11 @@ class PdfViewActivity : AppCompatActivity(), OnPageChangeListener{
         pdfPageNumberView.startAnimation(fadeIn)
         pdfPageNumberView.text = page.toString()
         Timber.d("on page changed called")
+    }
+
+    override fun onStateChange(state: ConnectivityProvider.NetworkState) {
+        if (!state.hasInternet() && isDownloadActive(this)) {
+            downloadUtils.killActiveDownloads()
+        }
     }
 }

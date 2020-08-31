@@ -87,14 +87,14 @@ class LoginFragment : Fragment() {
 
     private fun showError(errorMessage: String?) {
         alertDialog.hideDialog()
-        showOneButtonDialog(
-            activity as AuthActivity,
-            message = errorMessage ?: getString(R.string.credentials_error_massage),
-            positiveButtonText = getString(
-                R.string.retry
-            ),
-            title = getString(R.string.oops)
-        )
+       alertDialog = showOneButtonDialog(
+           activity as AuthActivity,
+           message = errorMessage ?: getString(R.string.credentials_error_massage),
+           positiveButtonText = getString(
+               R.string.retry
+           ),
+           title = getString(R.string.oops)
+       )
 
     }
 

@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.view.Window
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
@@ -37,15 +38,17 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
     @Inject
     lateinit var authRepository: AuthRepository
     private lateinit var binding: ActivityMainBinding
+    private lateinit var alertDialog: AlertDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setupNavigation()
+        setUpAlertDialog()
         setupDrawerMenuItemClick()
         subscribeTopic(this)
         downloadUtils.registerListener()
-        downloadUtils.checkForActiveDownLoadsWhenMainActivityCreated()
+        downloadUtils.killActiveDownloads()
     }
 
     private fun setupDrawerMenuItemClick() {
@@ -59,6 +62,10 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
         binding.drawer.addDrawerListener(this)
     }
 
+    private fun setUpAlertDialog() {
+        alertDialog = AlertDialog.Builder(this).create()
+    }
+
     private fun openContact() {
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
@@ -69,12 +76,8 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
         } else {
-            showOneButtonDialog(
-                context = this,
-                message = getString(R.string.drawer_message_error),
-                positiveButtonText = getString(R.string.ok),
-                title = getString(R.string.oops)
-            )
+            showError(getString(R.string.drawer_message_error))
+
         }
     }
 
@@ -98,12 +101,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
         } else {
-            showOneButtonDialog(
-                this,
-                message = getString(R.string.drawer_message_error),
-                positiveButtonText = getString(R.string.ok),
-                title = getString(R.string.oops)
-            )
+            showError(getString(R.string.drawer_message_error))
         }
     }
 
@@ -115,12 +113,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
         } else {
-            showOneButtonDialog(
-                this,
-                message = getString(R.string.drawer_message_error),
-                positiveButtonText = getString(R.string.ok),
-                title = getString(R.string.oops)
-            )
+            showError(getString(R.string.drawer_message_error))
         }
     }
 
@@ -132,13 +125,18 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
         } else {
-            showOneButtonDialog(
-                this,
-                message = getString(R.string.drawer_message_error),
-                positiveButtonText = getString(R.string.ok),
-                title = getString(R.string.oops)
-            )
+            showError(getString(R.string.drawer_message_error))
         }
+    }
+
+    private fun showError(message: String) {
+        alertDialog.hide()
+        alertDialog = showOneButtonDialog(
+            this,
+            message = message,
+            positiveButtonText = getString(R.string.ok),
+            title = getString(R.string.oops)
+        )
     }
 
     private fun logout() {

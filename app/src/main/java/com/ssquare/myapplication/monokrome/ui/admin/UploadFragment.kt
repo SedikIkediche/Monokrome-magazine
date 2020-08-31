@@ -195,18 +195,18 @@ class UploadFragment : Fragment() {
     }
 
     private fun showErrorDialog(message: String) {
-        alertDialog.hideDialog()
-        showTwoButtonDialog(
-            context = requireContext(),
-            title = getString(R.string.oops),
-            message = message,
-            positiveButtonText = getString(
-                R.string.retry
-            ),
-            negativeButtonText = "Cancel",
-            negativeFun = {
-                navigateUp()
-            }
+        if (!alertDialog.isShowing)
+            alertDialog = showTwoButtonDialog(
+                context = requireContext(),
+                title = getString(R.string.oops),
+                message = message,
+                positiveButtonText = getString(
+                    R.string.retry
+                ),
+                negativeButtonText = "Cancel",
+                negativeFun = {
+                    navigateUp()
+                }
         )
     }
 
@@ -223,7 +223,7 @@ class UploadFragment : Fragment() {
 
     private fun uploadSuccess() {
         alertDialog.hideDialog()
-        showOneButtonDialog(
+        alertDialog = showOneButtonDialog(
             requireContext(),
             "Success",
             "issue uploaded successfully.",
@@ -281,7 +281,8 @@ class UploadFragment : Fragment() {
         if (intent.resolveActivity(requireActivity().packageManager) != null) {
             startActivityForResult(intent, SELECT_IMAGE_CODE)
         } else {
-            showOneButtonDialog(
+            alertDialog.hide()
+            alertDialog = showOneButtonDialog(
                 requireContext(),
                 message = getString(R.string.install_gallery_app),
                 positiveButtonText = getString(R.string.ok),
@@ -300,7 +301,8 @@ class UploadFragment : Fragment() {
         if (intent.resolveActivity(requireActivity().packageManager) != null) {
             startActivityForResult(intent, SELECT_FILE_CODE)
         } else {
-            showOneButtonDialog(
+            alertDialog.hide()
+            alertDialog = showOneButtonDialog(
                 requireContext(),
                 message = getString(R.string.intall_file_manager),
                 positiveButtonText = getString(R.string.ok),
@@ -364,12 +366,16 @@ class UploadFragment : Fragment() {
 
     private fun upload() {
         if (provider.getNetworkState().hasInternet()) {
-            val title = binding.textTitle.text.toString().trim()
-            val description = binding.textDescription.text.toString().trim()
-            viewModel.setTitle(title)
-            viewModel.setDescription(description)
-            showLoading()
-            viewModel.upload()
+            if (isDownloadActive(requireContext())) {
+                val title = binding.textTitle.text.toString().trim()
+                val description = binding.textDescription.text.toString().trim()
+                viewModel.setTitle(title)
+                viewModel.setDescription(description)
+                showLoading()
+                viewModel.upload()
+            } else {
+                showErrorDialog(getString(R.string.error_wait_for_download))
+            }
         } else {
             showErrorDialog(getString(R.string.connectivity_error_message))
         }

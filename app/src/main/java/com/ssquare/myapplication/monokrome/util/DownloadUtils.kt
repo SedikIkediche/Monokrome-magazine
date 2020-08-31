@@ -28,7 +28,7 @@ class DownloadUtils(
     private var fetch = Fetch.Impl.getInstance(fetchConfiguration)
     private var errorCallback: (() -> Unit)? = null
 
-    fun setErrorCallback(errorCallback: () -> Unit){
+    fun setErrorCallback(errorCallback: () -> Unit) {
         this.errorCallback = errorCallback
     }
 
@@ -111,7 +111,8 @@ class DownloadUtils(
         }
     }
 
-    var downloadState = DownloadState.EMPTY
+    var isDownloadActive = false
+        private set
 
     private val _isDownloadRunning = MutableLiveData<Boolean>()
     val isDownloadRunning: LiveData<Boolean>
@@ -123,32 +124,36 @@ class DownloadUtils(
         _isDownloadRunning.value = false
     }
 
-    private fun triggerActiveDownloads() {
+    fun triggerActiveDownloads() {
         fetch.getDownloads(Func { list ->
             val activeDownloadsList =
                 list.filter { it.status == Status.QUEUED || it.status == Status.DOWNLOADING || it.status == Status.PAUSED }
             _isDownloadRunning.postValue(activeDownloadsList.isNotEmpty())
+            updateIsDownloadActive(activeDownloadsList.isNotEmpty())
         })
     }
 
-    fun checkForActiveDownLoadsWhenMainActivityCreated(){
+    fun killActiveDownloads(callback: () -> Unit = {}) {
         fetch.getDownloads(Func { list ->
-                list.forEach {download ->
-                    when(download.status){
-                        Status.QUEUED ->{
-                            fetch.cancel(download.id)
-                            fetch.remove(download.id)
-                        }
-                        Status.DOWNLOADING -> {
-                            fetch.cancel(download.id)
-                            fetch.remove(download.id)
-                        }
-                        Status.PAUSED -> {
-                            fetch.cancel(download.id)
-                            fetch.remove(download.id)
-                        }
+            list.forEach { download ->
+                when (download.status) {
+                    Status.QUEUED -> {
+                        fetch.cancel(download.id)
+                        fetch.remove(download.id)
+                        callback()
+                    }
+                    Status.DOWNLOADING -> {
+                        fetch.cancel(download.id)
+                        fetch.remove(download.id)
+                        callback()
+                    }
+                    Status.PAUSED -> {
+                        fetch.cancel(download.id)
+                        fetch.remove(download.id)
+                        callback()
                     }
                 }
+            }
 
         })
     }
@@ -161,7 +166,6 @@ class DownloadUtils(
 
     fun unregisterListener() {
         Timber.d("unregisterListener called")
-      //  init()
         fetch.removeListener(listener)
     }
 
@@ -169,7 +173,7 @@ class DownloadUtils(
         fetch.close()
     }
 
-    fun enqueueDownload(magazine: DomainMagazine,authToken : String? ) {
+    fun enqueueDownload(magazine: DomainMagazine, authToken: String?) {
         Timber.d("Magazine: $magazine")
         val filePath = createFilePath(magazine.id)
         val request = Request(magazine.editionUrl, filePath).apply {
@@ -189,39 +193,37 @@ class DownloadUtils(
 
 
     private fun updateDownloadPending(magazineId: Long, downloadId: Int) {
-        updateState(DownloadState.PENDING)
-        repository.updateDownloadStateProgressId(magazineId, DownloadState.PENDING,downloadId,0)
+        repository.updateDownloadStateProgressId(magazineId, DownloadState.PENDING, downloadId, 0)
     }
 
     private fun updateDownloadStarted(dId: Int) {
-        downloadState = DownloadState.RUNNING
         repository.updateDownloadStateByDid(dId, DownloadState.RUNNING)
     }
 
     private fun updateDownloadProgress(dId: Int, inputProgress: Int) {
-        updateState(DownloadState.RUNNING)
         repository.updateDownloadProgressByDid(dId, inputProgress)
     }
 
     private fun updateDownloadPaused(dId: Int) {
-        updateState(DownloadState.PAUSED)
         repository.updateDownloadStateByDid(dId, DownloadState.PAUSED)
     }
 
     private fun updateDownloadResumed(dId: Int) {
-        updateState(DownloadState.RUNNING)
         repository.updateDownloadStateByDid(dId, DownloadState.RUNNING)
     }
 
     private fun updateDownloadCompleted(dId: Int, fileUri: String) {
-        updateState(DownloadState.EMPTY)
-        repository.updateDownloadStateIdUriByDid(dId,fileUri,NO_DOWNLOAD, DownloadState.COMPLETED)
+        repository.updateDownloadStateIdUriByDid(dId, fileUri, NO_DOWNLOAD, DownloadState.COMPLETED)
         triggerActiveDownloads()
     }
 
     private fun updateDownloadFailed(dId: Int, fileUri: String) {
-        updateState(DownloadState.EMPTY)
-        repository.updateDownloadStateIdProgressByDid(dId, DownloadState.EMPTY,NO_DOWNLOAD,NO_PROGRESS)
+        repository.updateDownloadStateIdProgressByDid(
+            dId,
+            DownloadState.EMPTY,
+            NO_DOWNLOAD,
+            NO_PROGRESS
+        )
         deleteFile(fileUri)
         triggerActiveDownloads()
         Timber.d("updateDownloadFailed: $dId")
@@ -236,7 +238,7 @@ class DownloadUtils(
 
     private fun createFilePath(id: Long): String {
 
-       return context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.path+ "/Downloads_PDF/"  + id.toString() + PDF_TYPE
+        return context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.path + "/Downloads_PDF/" + id.toString() + PDF_TYPE
     }
 
     private fun deleteFile(uri: String): Boolean {
@@ -250,8 +252,9 @@ class DownloadUtils(
     }
 
 
-    private fun updateState(downloadState: DownloadState) {
-        if (this.downloadState != downloadState) this.downloadState = downloadState
+    private fun updateIsDownloadActive(downloadState: Boolean) {
+        Timber.d("updateIsDownloadActive: $downloadState")
+        if (this.isDownloadActive != isDownloadActive) this.isDownloadActive = downloadState
     }
 
 }

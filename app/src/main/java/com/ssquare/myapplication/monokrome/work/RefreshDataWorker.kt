@@ -9,7 +9,6 @@ import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.db.MagazineDatabase
 import com.ssquare.myapplication.monokrome.network.MonokromeApi
 import com.ssquare.myapplication.monokrome.util.isDownloadActive
-import com.ssquare.myapplication.monokrome.util.toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
@@ -37,7 +36,6 @@ class RefreshDataWorker(private val appContext: Context, params: WorkerParameter
                 Result.Retry()
             }
         } else {
-            toast(appContext, "Downloading Magazine From Server!")
             Result.Retry()
         }
     }

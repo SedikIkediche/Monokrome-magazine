@@ -2,6 +2,8 @@ package com.ssquare.myapplication.monokrome.work
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.hilt.Assisted
+import androidx.hilt.work.WorkerInject
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.ssquare.myapplication.monokrome.data.Repository
@@ -13,23 +15,24 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 
-class RefreshDataWorker(private val appContext: Context, params: WorkerParameters) :
+class RefreshDataWorker @WorkerInject constructor(
+    @Assisted private val appContext: Context,
+    @Assisted params: WorkerParameters,
+     private val repository: Repository) :
     CoroutineWorker(appContext, params) {
-
 
     companion object {
         const val WORK_NAME = "RefreshDataWorker"
     }
 
-
     @SuppressLint("RestrictedApi")
     override suspend fun doWork(): Result {
         Timber.d("doWork called")
-        val repository = initRepository()
+       // val repository = initRepository()
 
 
         return if (!isDownloadActive(appContext)) {
-            val loadState = repository.loadAndCacheData()
+            val loadState = repository.loadAndCacheData()//repository.loadAndCacheData()
             if (loadState) {
                 Result.Success()
             } else {

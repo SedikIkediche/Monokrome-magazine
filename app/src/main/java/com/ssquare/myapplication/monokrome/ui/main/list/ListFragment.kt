@@ -89,6 +89,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
 
         viewModel.data.observe(viewLifecycleOwner, Observer {
             if (isDataCached(requireContext())) {
+                Timber.d("observer called")
                 setupUi(it.first, it.second)
             }
         })

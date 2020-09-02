@@ -115,4 +115,5 @@
     <string name="no_issues_available">No issues available</string>
     <string name="error_wait_for_download">You can\'t Upload Data from the server while downloading files.</string>
     <string name="loading_from_server">Tou can\'t download while loading data from the server.</string>
+    <string name="do_not_have_enough_space">Sorry you d\'ont have enough space!</string>
 </resources>

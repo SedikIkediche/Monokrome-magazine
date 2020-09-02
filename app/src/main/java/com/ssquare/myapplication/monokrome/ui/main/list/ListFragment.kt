@@ -57,7 +57,7 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
                 showErrorDialog(getString(R.string.download_error_message))
             }else{
                 showErrorDialog(
-                    message = "Sorry you d'ont have enough space!"
+                    message = getString(R.string.do_not_have_enough_space)
                 )
             }
         }

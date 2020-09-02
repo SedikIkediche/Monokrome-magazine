@@ -1,30 +1,17 @@
 package com.ssquare.myapplication.monokrome.network
 
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.ssquare.myapplication.monokrome.data.Header
 import com.ssquare.myapplication.monokrome.data.User
 import com.ssquare.myapplication.monokrome.util.AUTH_HEADER_KEY
-import com.ssquare.myapplication.monokrome.util.HEADER_PATH
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.HttpException
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
 import timber.log.Timber
 
-const val BASE_URL = "http://192.168.1.45:3000/api/"
+const val BASE_URL = "http://192.168.1.5:3000/api/"
+const val HEADER_PATH = "header.jpg"
 const val HEADER_URL = "${BASE_URL}images/$HEADER_PATH"
-
-private val moshi = Moshi.Builder()
-    .add(KotlinJsonAdapterFactory())
-    .build()
-
-private val retrofit = Retrofit.Builder()
-    .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
-    .baseUrl(BASE_URL)
-    .build()
 
 interface MonokromeApiService {
     //header needs to be added
@@ -49,10 +36,6 @@ interface MonokromeApiService {
         @Part edition: MultipartBody.Part,
         @Part("releaseDate") releaseDate: Long
     ): NetworkMagazine
-}
-
-object MonokromeApi {
-    val retrofitService: MonokromeApiService by lazy { retrofit.create(MonokromeApiService::class.java) }
 }
 
 

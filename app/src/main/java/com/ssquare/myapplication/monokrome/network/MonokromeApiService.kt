@@ -9,7 +9,7 @@ import retrofit2.HttpException
 import retrofit2.http.*
 import timber.log.Timber
 
-const val BASE_URL = "http://192.168.1.5:3000/api/"
+const val BASE_URL = "http://192.168.1.4:3000/api/"
 const val HEADER_PATH = "header.jpg"
 const val HEADER_URL = "${BASE_URL}images/$HEADER_PATH"
 

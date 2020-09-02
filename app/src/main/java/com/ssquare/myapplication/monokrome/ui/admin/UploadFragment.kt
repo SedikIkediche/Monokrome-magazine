@@ -29,6 +29,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentUploadBinding
+import com.ssquare.myapplication.monokrome.network.Error
 import com.ssquare.myapplication.monokrome.util.*
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider
 import com.ssquare.myapplication.monokrome.util.networkcheck.ConnectivityProvider.Companion.hasInternet
@@ -75,9 +76,9 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
                 if (it.magazine != null && it.error == null) {
                     //hide
                     uploadSuccess()
-                    Timber.d("Upload State observer called")
+                    Timber.tag("Upload").d("Upload State observer called")
                 } else if (it.magazine == null && it.error != null) {
-                    showErrorDialog(it.error.message!!)
+                    handleError(it.error)
                 }
             }
         })
@@ -217,27 +218,42 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     private fun showErrorDialog(message: String) {
         alertDialog.hide()
         binding.buttonUpload.isClickable = true
-            alertDialog = showTwoButtonDialog(
-                context = requireContext(),
-                title = getString(R.string.oops),
-                message = message,
-                positiveButtonText = getString(
-                    R.string.retry
-                ),
-                negativeButtonText = "Cancel",
-                negativeFun = {
-                    navigateUp()
-                }
+        showTwoButtonDialog(
+            context = requireContext(),
+            title = getString(R.string.oops),
+            message = message,
+            positiveButtonText = getString(
+                R.string.retry
+            ),
+            negativeButtonText = "Cancel",
+            negativeFun = {
+                navigateUp()
+            }
         )
     }
 
-    private fun handleError(exception: Exception) {}
+    private fun handleError(error: Error) {
+        when (error.code) {
+            400 -> {
+                showErrorDialog("Failed to upload Image/File.")
+            }
+            415 -> {
+                showErrorDialog("Wrong Image/File format.")
+            }
+            else -> {
+                showErrorDialog(getString(R.string.internal_server_error))
+            }
+
+        }
+
+    }
 
     private fun setUpAlertDialog() {
         alertDialog = AlertDialog.Builder(requireContext()).create()
     }
 
     private fun showLoading() {
+        Timber.tag("Upload").d("showLoading() called")
         binding.buttonUpload.isClickable = false
         alertDialog.showLoading(requireContext(), R.string.uploading)
     }
@@ -245,7 +261,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     private fun uploadSuccess() {
         alertDialog.hideDialog()
         binding.buttonUpload.isClickable = true
-        alertDialog = showOneButtonDialog(
+        showOneButtonDialog(
             requireContext(),
             "Success",
             "issue uploaded successfully.",
@@ -303,7 +319,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             startActivityForResult(intent, SELECT_IMAGE_CODE)
         } else {
             alertDialog.hide()
-            alertDialog = showOneButtonDialog(
+            showOneButtonDialog(
                 requireContext(),
                 message = getString(R.string.install_gallery_app),
                 positiveButtonText = getString(R.string.ok),
@@ -386,8 +402,11 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     }
 
     private fun upload() {
+        Timber.tag("Upload").d("upload() called")
         if (provider.getNetworkState().hasInternet()) {
+            Timber.tag("Upload").d("connectivity: yes")
             if (!isDownloadActive(requireContext())) {
+                Timber.tag("Upload").d("Download active: yes")
                 val title = binding.textTitle.text.toString().trim()
                 val description = binding.textDescription.text.toString().trim()
                 viewModel.setTitle(title)
@@ -396,9 +415,11 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
                     showLoading()
                 }
             } else {
+                Timber.tag("Upload").d("DownloadActive: no")
                 showErrorDialog(getString(R.string.error_wait_for_download))
             }
         } else {
+            Timber.tag("Upload").d("connectivity: no")
             showErrorDialog(getString(R.string.connectivity_error_message))
         }
 
@@ -428,11 +449,19 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     }
 
     override fun onStateChange(state: ConnectivityProvider.NetworkState) {
-        if (!state.hasInternet() && isDownloadActive(requireContext())) {
-            downloadUtils.killActiveDownloads()
-            showErrorDialog(
-                getString(R.string.network_down)
-            )
+        if (!state.hasInternet()) {
+            when {
+                isDownloadActive(requireContext()) -> {
+                    downloadUtils.killActiveDownloads()
+                    showErrorDialog(
+                        getString(R.string.network_down)
+                    )
+                }
+
+                isUploadingActive(requireContext()) -> {
+                    viewModel.abortUpload()
+                }
+            }
         }
     }
 }

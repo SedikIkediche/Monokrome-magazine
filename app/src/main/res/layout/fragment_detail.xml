@@ -235,7 +235,6 @@
                     android:text="@{viewModel.magazine.description}"
                     android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/textView7"
                     tools:text="Welcome to the 1st issue of KROMA art magazine! Artists featured: Pistonis, Chadoulou, Cacao Rocks, Euangelia, Dreyk # Eros, Selimas, Velisioti and more." />

@@ -64,6 +64,7 @@ class UploadViewModel @ViewModelInject constructor(
     }
 
     fun upload(callback: () -> Unit = {}) {
+        Timber.tag("Upload").d("viewModel.upload() called")
         if (!title.value.isNullOrEmpty() && !description.value.isNullOrEmpty() && _image.value != null && _file.value != null) {
             callback()
             viewModelScope.launch {
@@ -83,7 +84,7 @@ class UploadViewModel @ViewModelInject constructor(
         }
     }
 
-    fun loadAndCacheData() = repository.loadAndCacheData()
+    fun abortUpload() = repository.cancelNetworkOperations()
 
 
 }

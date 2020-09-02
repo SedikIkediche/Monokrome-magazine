@@ -12,6 +12,7 @@ import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
 
@@ -30,8 +31,9 @@ class RepositoryModule {
         @ApplicationContext context: Context,
         scope: CoroutineScope,
         cache: LocalCache,
-        network: MonokromeApiService
-    ): Repository = Repository(context, scope, cache, network)
+        network: MonokromeApiService,
+        client: OkHttpClient
+    ): Repository = Repository(context, scope, cache, network, client)
 
     @Singleton
     @Provides

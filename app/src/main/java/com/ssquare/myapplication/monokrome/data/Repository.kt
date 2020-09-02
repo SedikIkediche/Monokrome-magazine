@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
 import okhttp3.RequestBody
 import timber.log.Timber
 
@@ -23,7 +24,8 @@ class Repository constructor(
     private val context: Context,
     private val scope: CoroutineScope,
     private val cache: LocalCache,
-    private val network: MonokromeApiService
+    private val network: MonokromeApiService,
+    private val client: OkHttpClient
 ) {
 
     private val _networkError = MutableLiveData<Error>()
@@ -107,6 +109,40 @@ class Repository constructor(
             updateDownloadId(magazine.id, NO_DOWNLOAD)
             updateDownloadState(magazine.id, DownloadState.EMPTY)
         }
+    }
+
+
+    suspend fun uploadIssue(
+        title: String,
+        description: String,
+        imageUri: Uri,
+        editionPath: String,
+        releaseDate: Long
+    ): MagazineOrError {
+        val authToken = getAuthToken(context)
+        val imageFile = FileUtils.getFileFromUri(context, imageUri)!!
+        val imageMimeType = "image/jpeg"//FileUtils.getTypeFromUri(context, imageUri)!!
+        val imageRequestBody = RequestBody.create(MediaType.parse(imageMimeType), imageFile)
+        val image = MultipartBody.Part.createFormData("image", imageFile.name, imageRequestBody)
+
+        val editionFile = FileUtils.getFileFromPath(editionPath)!!
+        val editionMimeType = FileUtils.getTypeFromPath(editionPath)!!
+        val editionRequestBody = RequestBody.create(MediaType.parse(editionMimeType), editionFile)
+
+        commitUploadingActive(context, true)
+        val edition =
+            MultipartBody.Part.createFormData("edition", editionFile.name, editionRequestBody)
+
+        val magazineOrError =
+            network.uploadIssue(authToken, title, description, image, edition, releaseDate)
+        Timber.tag("Upload").d("Uploading issue: $magazineOrError")
+
+        commitUploadingActive(context, false)
+        return magazineOrError
+    }
+
+    fun cancelNetworkOperations() {
+        client.dispatcher().cancelAll()
     }
 
     //Download
@@ -235,39 +271,4 @@ class Repository constructor(
         }
     }
 
-
-    suspend fun uploadIssue(
-        title: String,
-        description: String,
-        imageUri: Uri,
-        editionPath: String,
-        releaseDate: Long
-    ): MagazineOrError {
-        val authToken = getAuthToken(context)
-        val imageFile = FileUtils.getFileFromUri(context, imageUri)!!
-        val imageMimeType = "image/jpeg"//FileUtils.getTypeFromUri(context, imageUri)!!
-        val imageRequestBody = RequestBody.create(MediaType.parse(imageMimeType), imageFile)
-        val image = MultipartBody.Part.createFormData("image", imageFile.name, imageRequestBody)
-
-        val editionFile = FileUtils.getFileFromPath(editionPath)!!
-        val editionMimeType = FileUtils.getTypeFromPath(editionPath)!!
-        val editionRequestBody = RequestBody.create(MediaType.parse(editionMimeType), editionFile)
-        val edition =
-            MultipartBody.Part.createFormData("edition", editionFile.name, editionRequestBody)
-
-        val magazineOrError =
-            network.uploadIssue(authToken, title, description, image, edition, releaseDate)
-        Timber.d("Uploading issue: $magazineOrError")
-
-        if (magazineOrError.error == null) {
-            _networkError.value = null
-        } else {
-            _networkError.value = Error(
-                message = context.getString(R.string.no_issues_available),
-                code = 404
-            )
-        }
-
-        return magazineOrError
-    }
 }

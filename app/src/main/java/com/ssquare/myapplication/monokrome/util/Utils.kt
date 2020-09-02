@@ -25,6 +25,7 @@ const val MAGAZINE_ID = "magazine_path"
 
 const val DOWNLOAD_ACTIVE = "download_active"
 const val LOAD_DATA_ACTIVE = "work_active"
+const val UPLOAD_ACTIVE = "upload_active"
 const val DATA_CACHED = "data_cached"
 const val ORDER_BY = "order_by"
 
@@ -111,6 +112,19 @@ fun commitCacheData(context: Context) {
         putBoolean(DATA_CACHED, true)
         apply()
     }
+}
+
+fun isUploadingActive(context: Context): Boolean =
+    PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+        UPLOAD_ACTIVE, false
+    )
+
+fun commitUploadingActive(context: Context, state: Boolean) {
+    PreferenceManager.getDefaultSharedPreferences(context).edit().apply {
+        putBoolean(UPLOAD_ACTIVE, state)
+        apply()
+    }
+    Timber.d("commitWorkActive called")
 }
 
 fun isLoadDataActive(context: Context): Boolean =

@@ -84,7 +84,7 @@ class RegisterFragment : Fragment() {
     private fun showError(errorMessage: String?) {
         binding.registerButton.isClickable = true
         alertDialog.hideDialog()
-        alertDialog = showOneButtonDialog(
+        showOneButtonDialog(
             requireContext(),
             message = errorMessage ?: getString(R.string.credentials_error_massage),
             positiveButtonText = getString(

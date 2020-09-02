@@ -80,7 +80,7 @@ class UploadViewModel @ViewModelInject constructor(
         } else {
             Timber.d("empty entry is: title: ${title.value.isNullOrEmpty()}, description: ${description.value.isNullOrEmpty()}, image: ${_image.value == null}, file: ${_file.value == null}")
             _uploadState.value =
-                MagazineOrError(null, Error("All entries must not be null."))
+                MagazineOrError(null, Error(code = 404))
         }
     }
 

@@ -233,17 +233,24 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
     }
 
     private fun handleError(error: Error) {
-        when (error.code) {
-            400 -> {
-                showErrorDialog("Failed to upload Image/File.")
+        Timber.d("error message:${error.message}")
+        when {
+            error.code == 404 -> {
+                showErrorDialog(getString(R.string.error_entries_null))
             }
-            415 -> {
-                showErrorDialog("Wrong Image/File format.")
+            error.code == 400 -> {
+                showErrorDialog(getString(R.string.failed_to_upload))
+            }
+            error.code == 415 -> {
+                showErrorDialog(getString(R.string.wrong_format))
+            }
+
+            error.message == getString(R.string.software_connection_abort) -> {
+                showErrorDialog(getString(R.string.network_down))
             }
             else -> {
                 showErrorDialog(getString(R.string.internal_server_error))
             }
-
         }
 
     }

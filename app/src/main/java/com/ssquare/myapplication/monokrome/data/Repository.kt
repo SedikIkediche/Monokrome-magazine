@@ -13,10 +13,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import timber.log.Timber
 
 
@@ -122,12 +122,13 @@ class Repository constructor(
         val authToken = getAuthToken(context)
         val imageFile = FileUtils.getFileFromUri(context, imageUri)!!
         val imageMimeType = "image/jpeg"//FileUtils.getTypeFromUri(context, imageUri)!!
-        val imageRequestBody = RequestBody.create(MediaType.parse(imageMimeType), imageFile)
+        val imageRequestBody = imageFile.asRequestBody(imageMimeType.toMediaTypeOrNull())
         val image = MultipartBody.Part.createFormData("image", imageFile.name, imageRequestBody)
 
         val editionFile = FileUtils.getFileFromPath(editionPath)!!
         val editionMimeType = FileUtils.getTypeFromPath(editionPath)!!
-        val editionRequestBody = RequestBody.create(MediaType.parse(editionMimeType), editionFile)
+        val editionRequestBody =
+            editionFile.asRequestBody(editionMimeType.toMediaTypeOrNull())
 
         commitUploadingActive(context, true)
         val edition =
@@ -142,7 +143,7 @@ class Repository constructor(
     }
 
     fun cancelNetworkOperations() {
-        client.dispatcher().cancelAll()
+        client.dispatcher.cancelAll()
     }
 
     //Download

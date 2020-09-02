@@ -11,7 +11,9 @@ import dagger.hilt.android.components.ApplicationComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+
 
 @Module
 @InstallIn(ApplicationComponent::class)
@@ -19,7 +21,10 @@ class NetworkModule {
 
     @Singleton
     @Provides
-    fun provideClient(): OkHttpClient = OkHttpClient()
+    fun provideClient(): OkHttpClient = OkHttpClient.Builder()
+        .readTimeout(60, TimeUnit.SECONDS)
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .build()
 
     @Singleton
     @Provides

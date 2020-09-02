@@ -116,4 +116,8 @@
     <string name="error_wait_for_download">You can\'t Upload Data from the server while downloading files.</string>
     <string name="loading_from_server">Tou can\'t download while loading data from the server.</string>
     <string name="do_not_have_enough_space">Sorry you d\'ont have enough space!</string>
+    <string name="failed_to_upload">Failed to upload Image/File.</string>
+    <string name="wrong_format">Wrong Image/File format.</string>
+    <string name="software_connection_abort">Software caused connection abort</string>
+    <string name="error_entries_null">All entries must not be null.</string>
 </resources>

@@ -5,12 +5,14 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
-import androidx.lifecycle.map
 import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.network.*
 import com.ssquare.myapplication.monokrome.util.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -28,24 +30,6 @@ class Repository constructor(
     val networkError: LiveData<Error>
         get() = _networkError
 
-    companion object {
-        private const val TAG = "Repository"
-
-        private var INSTANCE: Repository? = null
-        fun getInstance(
-            context: Context,
-            scope: CoroutineScope,
-            cache: LocalCache,
-            network: MonokromeApiService
-        ): Repository {
-            var instance = INSTANCE
-            if (instance == null) {
-                instance = Repository(context, scope, cache, network)
-                INSTANCE = instance
-            }
-            return instance
-        }
-    }
 
     fun loadAndCacheData(): Boolean {
         var resultState = false
@@ -193,7 +177,7 @@ class Repository constructor(
         scope.launch {
             withContext(Dispatchers.IO) {
                 cache.updateFileUriByDid(dId, fileUri)
-                val updated = cache.updateDownloadStateByDid(dId, downloadState.ordinal)
+                cache.updateDownloadStateByDid(dId, downloadState.ordinal)
                 cache.updateDownloadIdByDid(dId, downloadId)
             }
         }

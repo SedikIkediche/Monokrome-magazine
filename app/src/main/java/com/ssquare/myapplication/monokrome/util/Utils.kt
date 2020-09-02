@@ -23,8 +23,6 @@ const val AUTH_PREF_KEY = "auth_token"
 
 const val MAGAZINE_ID = "magazine_path"
 
-//const val HEADER_PATH = "header/header.jpg"
-const val HEADER_PATH = "header.jpg"
 const val DOWNLOAD_ACTIVE = "download_active"
 const val LOAD_DATA_ACTIVE = "work_active"
 const val DATA_CACHED = "data_cached"
@@ -32,15 +30,11 @@ const val ORDER_BY = "order_by"
 
 const val PDF_TYPE = ".pdf"
 
-const val FILE_PREFIX = "file://"
-const val NO_FILE = "no_file"
 const val PDF_FILE_NAME = "pdf_file_name"
 const val NO_DOWNLOAD = -1
-const val STORAGE_PERMISSION_CODE = 100
 const val NO_PROGRESS = -1
 
 const val WRITE_EXTERNAL_STORAGE_PERMISSION_CODE = 100
-const val READ_EXTERNAL_STORAGE_PERMISSION_CODE = 101
 const val SELECT_IMAGE_CODE = 1
 const val SELECT_FILE_CODE = 2
 const val UPLOAD_CODE = 3
@@ -49,9 +43,6 @@ const val PLAY_STORE = "market://details?id="
 const val PACKAGE_NAME = "com.ssquare.myapplication.monokrome"
 const val WEB_SITE = "https://www.monokromemag.com/"
 const val FACEBOOK_BROWSER = "https://www.facebook.com/Monokromemag"
-const val FACEBOOK_APP = "fb://facewebmodal/f?href="
-const val FACEBOOK_PACKAGE = "com.facebook.katana"
-const val FACEBOOK_ID = "1816635888599066"
 const val INSTAGRAM_App = "http://instagram.com/_u/monokromemag"
 const val INSTAGRAM_PACKAGE = "com.instagram.android"
 const val INSTAGRAM_BROWSER = "http://instagram.com/monokromemag"

@@ -250,7 +250,6 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             "Success",
             "issue uploaded successfully.",
             "Ok", dismissFun = {
-                viewModel.loadAndCacheData()
                 navigateUp()
             }
         )

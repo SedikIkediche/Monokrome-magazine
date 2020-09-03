@@ -23,5 +23,8 @@ class RegisterViewModel @ViewModelInject constructor(
         }
     }
 
+    fun abortRegister() {
+        authRepository.cancelNetworkOperations()
+    }
 
 }

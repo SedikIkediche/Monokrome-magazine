@@ -39,8 +39,9 @@ class RepositoryModule {
     @Provides
     fun provideAuthRepository(
         @ApplicationContext context: Context,
-        network: MonokromeApiService
-    ): AuthRepository = AuthRepository(context, network)
+        network: MonokromeApiService,
+        client: OkHttpClient
+    ): AuthRepository = AuthRepository(context, network, client)
 
 
 }

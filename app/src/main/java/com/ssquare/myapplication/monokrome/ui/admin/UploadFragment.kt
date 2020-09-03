@@ -248,6 +248,15 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             error.message == getString(R.string.software_connection_abort) -> {
                 showErrorDialog(getString(R.string.network_down))
             }
+
+            error.message == getString(R.string.error_connection_timed_out) || error.message == getString(
+                R.string.error_timeout
+            ) -> {
+                viewModel.abortUpload()
+                showErrorDialog(getString(R.string.failed_connect_to_server))
+            }
+
+
             else -> {
                 showErrorDialog(getString(R.string.internal_server_error))
             }

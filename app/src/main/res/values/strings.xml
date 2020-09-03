@@ -120,4 +120,7 @@
     <string name="wrong_format">Wrong Image/File format.</string>
     <string name="software_connection_abort">Software caused connection abort</string>
     <string name="error_entries_null">All entries must not be null.</string>
+    <string name="error_connection_timed_out">connect timed out</string>
+    <string name="error_timeout">timeout</string>
+    <string name="failed_connect_to_server">Failed to connect to the server.</string>
 </resources>

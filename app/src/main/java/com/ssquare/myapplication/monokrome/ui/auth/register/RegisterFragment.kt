@@ -29,11 +29,12 @@ import javax.inject.Inject
  * A simple [Fragment] subclass.
  */
 @AndroidEntryPoint
-class RegisterFragment : Fragment() {
+class RegisterFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener {
 
     private lateinit var binding: FragmentRegisterBinding
-    private val registerViewModel: RegisterViewModel by viewModels()
+    private val viewModel: RegisterViewModel by viewModels()
     private lateinit var alertDialog: AlertDialog
+    private var isRegistering = false
 
     @Inject
     lateinit var provider: ConnectivityProvider
@@ -47,7 +48,7 @@ class RegisterFragment : Fragment() {
         binding = FragmentRegisterBinding.inflate(inflater)
         setUpToolbar()
 
-        registerViewModel.userState.observe(viewLifecycleOwner, Observer { isUserCreated ->
+        viewModel.userState.observe(viewLifecycleOwner, Observer { isUserCreated ->
             isUserCreated?.let {
                 if (it.authToken != null && it.error == null) {
                     navigateToMainActivity()
@@ -74,9 +75,31 @@ class RegisterFragment : Fragment() {
         return binding.root
     }
 
+    override fun onStart() {
+        super.onStart()
+        provider.addListener(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        provider.removeListener(this)
+    }
+
     private fun handleError(error: Error) {
-        when (error.code) {
-            400 -> showError(getString(R.string.custom_error_email_registered))
+        isRegistering = false
+        when {
+            error.code == 400 -> showError(getString(R.string.custom_error_email_registered))
+            error.message == getString(R.string.software_connection_abort) -> {
+                showError(getString(R.string.network_down))
+            }
+
+            error.message == getString(R.string.error_connection_timed_out) || error.message == getString(
+                R.string.error_timeout
+            ) -> {
+                viewModel.abortRegister()
+                showError(getString(R.string.failed_connect_to_server))
+            }
+
             else -> showError(getString(R.string.internal_server_error))
         }
     }
@@ -210,7 +233,8 @@ class RegisterFragment : Fragment() {
                 alertDialog.showLoading(requireContext(), R.string.register_dialog_text)
                 binding.registerButton.isClickable = false
                 //registeringUser ****************
-                registerViewModel.registerUser(email, passWord)
+                isRegistering = true
+                viewModel.registerUser(email, passWord)
             } else {
                 binding.registerRepeatPassword.error = getString(R.string.invalid_repeated_password)
             }
@@ -236,6 +260,12 @@ class RegisterFragment : Fragment() {
 
             android.R.id.home -> this.findNavController().navigateUp()
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onStateChange(state: ConnectivityProvider.NetworkState) {
+        if (!state.hasInternet() && isRegistering) {
+            viewModel.abortRegister()
         }
     }
 

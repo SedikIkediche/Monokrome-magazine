@@ -28,12 +28,13 @@ import javax.inject.Inject
  * A simple [Fragment] subclass.
  */
 @AndroidEntryPoint
-class LoginFragment : Fragment() {
+class LoginFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener {
 
     @Inject
     lateinit var provider: ConnectivityProvider
     private lateinit var binding: FragmentLoginBinding
-    private val loginViewModel: LoginViewModel by viewModels()
+    private val viewModel: LoginViewModel by viewModels()
+    private var isLoggingIn = false
     private lateinit var alertDialog: AlertDialog
 
     override fun onCreateView(
@@ -43,7 +44,7 @@ class LoginFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentLoginBinding.inflate(inflater)
 
-        loginViewModel.userState.observe(viewLifecycleOwner, Observer { isUserSignedIn ->
+        viewModel.userState.observe(viewLifecycleOwner, Observer { isUserSignedIn ->
             Timber.d("authTokenOrException: $isUserSignedIn")
             isUserSignedIn?.let {
                 if (it.authToken != null && it.error == null) {
@@ -78,9 +79,20 @@ class LoginFragment : Fragment() {
     }
 
     private fun handleError(error: Error) {
-        when (error.code) {
-            400 -> showError(getString(R.string.custom_invalid_password))
-            404 -> showError(getString(R.string.custom_error_email_does_not_exist))
+        isLoggingIn = false
+        when {
+            error.code == 400 -> showError(getString(R.string.custom_invalid_password))
+            error.code == 404 -> showError(getString(R.string.custom_error_email_does_not_exist))
+            error.message == getString(R.string.software_connection_abort) -> {
+                showError(getString(R.string.network_down))
+            }
+            error.message == getString(R.string.error_connection_timed_out) || error.message == getString(
+                R.string.error_timeout
+            ) -> {
+                viewModel.abortLogin()
+                showError(getString(R.string.failed_connect_to_server))
+            }
+
             else -> showError(getString(R.string.internal_server_error))
         }
     }
@@ -88,14 +100,14 @@ class LoginFragment : Fragment() {
     private fun showError(errorMessage: String?) {
         binding.loginButton.isClickable = true
         alertDialog.hideDialog()
-      showOneButtonDialog(
-           activity as AuthActivity,
-           message = errorMessage ?: getString(R.string.credentials_error_massage),
-           positiveButtonText = getString(
-               R.string.retry
-           ),
-           title = getString(R.string.oops)
-       )
+        showOneButtonDialog(
+            activity as AuthActivity,
+            message = errorMessage ?: getString(R.string.credentials_error_massage),
+            positiveButtonText = getString(
+                R.string.retry
+            ),
+            title = getString(R.string.oops)
+        )
 
     }
 
@@ -162,7 +174,8 @@ class LoginFragment : Fragment() {
             val passWord = binding.password.editText?.text.toString().trim()
 
             //login user
-            loginViewModel.logInUser(email, passWord)
+            isLoggingIn = true
+            viewModel.logInUser(email, passWord)
 
         } else {
             showOneButtonDialog(
@@ -180,6 +193,12 @@ class LoginFragment : Fragment() {
         Intent(context, MainActivity::class.java).apply {
             startActivity(this)
             (activity as AuthActivity).finish()
+        }
+    }
+
+    override fun onStateChange(state: ConnectivityProvider.NetworkState) {
+        if (!state.hasInternet() && isLoggingIn) {
+            viewModel.abortLogin()
         }
     }
 

@@ -7,11 +7,13 @@ import com.ssquare.myapplication.monokrome.network.loginUser
 import com.ssquare.myapplication.monokrome.network.registerUser
 import com.ssquare.myapplication.monokrome.util.deleteAuthToken
 import com.ssquare.myapplication.monokrome.util.storeAuthToken
+import okhttp3.OkHttpClient
 import timber.log.Timber
 
 class AuthRepository(
     private val context: Context,
-    private val network: MonokromeApiService
+    private val network: MonokromeApiService,
+    private val client: OkHttpClient
 ) {
 
 
@@ -34,6 +36,10 @@ class AuthRepository(
 
     fun logoutUser() {
         deleteAuthToken(context)
+    }
+
+    fun cancelNetworkOperations() {
+        client.dispatcher.cancelAll()
     }
 
 

@@ -24,4 +24,8 @@ class LoginViewModel @ViewModelInject constructor(
         }
     }
 
+    fun abortLogin() {
+        authRepository.cancelNetworkOperations()
+    }
+
 }

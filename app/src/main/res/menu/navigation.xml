@@ -8,68 +8,68 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/home"
-            android:title="Home"
+            android:title="@string/home"
             android:icon="@drawable/ic_home"/>
         <item
             android:id="@+id/about_us"
-            android:title="About Us"
+            android:title="@string/about_us"
             android:icon="@drawable/ic_info"/>
         <item
             android:id="@+id/rate_us"
-            android:title="Rate Us"
+            android:title="@string/rate_us"
             android:icon="@drawable/ic_rate"/>
     </group>
 
     <item
         android:id="@+id/admin"
-        android:title="Admin">
-         <menu>
-             <group
-                 android:id="@+id/admin_group"
-                 android:checkableBehavior="single">
-                 <item
-                     android:id="@+id/upload"
-                     android:title="Upload"
-                     android:icon="@drawable/ic_upload"/>
-             </group>
-         </menu>
+        android:title="@string/admin">
+        <menu>
+            <group
+                android:id="@+id/admin_group"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/upload"
+                    android:icon="@drawable/ic_upload"
+                    android:title="@string/upload" />
+            </group>
+        </menu>
     </item>
 
-   <item
-       android:id="@+id/communication"
-       android:title="communication">
+    <item
+        android:id="@+id/communication"
+        android:title="@string/communication">
 
-       <menu>
-           <group
-               android:id="@+id/communication_group"
-               android:checkableBehavior="single">
-               <item
-                   android:id="@+id/web_site"
-                   android:title="Web Site"
-                   android:icon="@drawable/ic_web_site"/>
-               <item
-                   android:id="@+id/facebook"
-                   android:title="Facebook"
-                   android:icon="@drawable/ic_facebook"/>
-               <item
-                   android:id="@+id/instagram"
-                   android:title="Instagram"
-                   android:icon="@drawable/ic_instagram"/>
-               <item
-                   android:id="@+id/contact_us"
-                   android:title="Contact Us"
-                   android:icon="@drawable/ic_contact"/>
-           </group>
-       </menu>
+        <menu>
+            <group
+                android:id="@+id/communication_group"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/web_site"
+                    android:icon="@drawable/ic_web_site"
+                    android:title="@string/website" />
+                <item
+                    android:id="@+id/facebook"
+                    android:icon="@drawable/ic_facebook"
+                    android:title="@string/facebook" />
+                <item
+                    android:id="@+id/instagram"
+                    android:icon="@drawable/ic_instagram"
+                    android:title="@string/instagram" />
+                <item
+                    android:id="@+id/contact_us"
+                    android:icon="@drawable/ic_contact"
+                    android:title="@string/contact_us" />
+            </group>
+        </menu>
 
-   </item>
+    </item>
 
     <group
         android:id="@+id/settings_group"
         android:checkableBehavior="single">
         <item
             android:id="@+id/logout"
-            android:title="Log Out"
+            android:title="@string/log_out"
             android:icon="@drawable/ic_logout"/>
     </group>
 

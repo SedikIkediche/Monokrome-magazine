@@ -66,7 +66,8 @@ class AppMessagingService : FirebaseMessagingService() {
 
         remoteMessage?.data?.let {
             Timber.d("Message data payload: $it")
-            val title = it[TITLE_KEY]
+            val title =
+                if (it[TITLE_KEY] == getString(R.string.new_edition)) getString(R.string.new_edition_title) else null
             val content = it[DESCRIPTION_KEY]
             if (title != null && content != null) {
                 sendNotification(title, content)
@@ -106,7 +107,7 @@ class AppMessagingService : FirebaseMessagingService() {
             .setRequiredNetworkType(NetworkType.CONNECTED).build()
 
         val cacheWorkRequest = OneTimeWorkRequest.Builder(RefreshDataWorker::class.java)
-            // .setConstraints(constraints)
+            .setConstraints(constraints)
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.HOURS)
             .build()
         WorkManager.getInstance(applicationContext)

@@ -141,7 +141,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
 
     private fun deleteTempImageFile() {
         requireContext().cacheDir.listFiles()?.forEach { file ->
-            if (file.name == "compressor") {
+            if (file.name == getString(R.string.file_name_compressor)) {
                 file.delete()
                 Timber.d("Deleted file image: ${file.name}")
             }
@@ -150,7 +150,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
 
     private fun deleteTempCachedFile() {
         requireContext().cacheDir.listFiles()?.forEach { file ->
-            if (file.name == "temp_PDF") {
+            if (file.name == getString(R.string.file_name_temp_pdf)) {
                 file.delete()
                 Timber.d("Deleted file pdf: ${file.name}")
             }
@@ -225,7 +225,9 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             positiveButtonText = getString(
                 R.string.retry
             ),
-            negativeButtonText = "Cancel",
+            negativeButtonText = getString(
+                R.string.cancel
+            ),
             negativeFun = {
                 navigateUp()
             }
@@ -279,9 +281,9 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
         binding.buttonUpload.isClickable = true
         showOneButtonDialog(
             requireContext(),
-            "Success",
-            "issue uploaded successfully.",
-            "Ok", dismissFun = {
+            getString(R.string.success),
+            getString(R.string.issue_uploaded_successfully),
+            getString(R.string.ok), dismissFun = {
                 navigateUp()
             }
         )
@@ -303,8 +305,6 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
                 UPLOAD_CODE -> upload()
             }
 
-        } else {
-            toast(requireContext(), "Storage Permission Denied")
         }
     }
 
@@ -348,7 +348,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
 
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            type = "application/pdf"
+            type = FileUtils.MIME_TYPE_PDF
         }
 
         if (intent.resolveActivity(requireActivity().packageManager) != null) {
@@ -397,7 +397,7 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
         if (fileType == FileUtils.MIME_TYPE_PDF) {
             viewModel.setFile(path)
         } else {
-            showErrorDialog("Document format must be pdf")
+            showErrorDialog(getString(R.string.document_format))
         }
 
     }

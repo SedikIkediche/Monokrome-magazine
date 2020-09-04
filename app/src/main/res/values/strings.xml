@@ -2,13 +2,12 @@
     <string name="app_name">Monokrome</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="download">download</string>
-    <string name="preview">preview</string>
-    <string name="read">read</string>
-    <string name="resume">resume</string>
-    <string name="delete">delete</string>
-    <string name="loading">loading</string>
+    <string name="download">Download</string>
+    <string name="preview">Preview</string>
+    <string name="read">Read</string>
+    <string name="resume">Resume</string>
+    <string name="delete">Delete</string>
+    <string name="loading">Loading</string>
     <string name="terms_of_usage"><u>By joining you agree to the Terms of Service and Privacy Policy</u></string>
     <string name="search">Search</string>
     <string name="filter_list">Filter</string>
@@ -18,11 +17,11 @@
     <string name="close">CLOSE</string>
     <string name="no_internet_connection">No Internet Connection</string>
     <string name="back_online">Back Online</string>
-    <string name="free">FREE</string>
-    <string name="title">TITLE</string>
-    <string name="category">CATEGORY</string>
+    <string name="free">Free</string>
+    <string name="title">Title</string>
+    <string name="category">Category</string>
     <string name="art">Art</string>
-    <string name="description">DESCRIPTION</string>
+    <string name="description">Description</string>
     <string name="log_in_dialog_text">Logging in…</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -46,39 +45,22 @@
     <string name="most_recent">Most Recent</string>
     <string name="a_to_z">A to Z</string>
     <string name="z_to_a">Z to A</string>
-    <string name="home">Home</string>
-    <string name="message_subscribe_failed">Failed to subscribe to topic</string>
-    <string name="message_subscribed">Subscribed to topic</string>
+    <string name="message_subscribe_failed" translatable="false">Failed to subscribe to topic</string>
+    <string name="message_subscribed" translatable="false">Subscribed to topic</string>
     <string name="new_edition_notification_channel_id" translatable="false">fcm_default_channel</string>
     <string name="new_edition_notification_channel_name" translatable="true">New edition</string>
     <string name="new_edition_notification_channel_description" translatable="true">This channel holds the notification that gets sent whenever a new magazine edition is released.</string>
     <string name="new_edition_title">New edition is released</string>
     <string name="new_edition_description">Go check it out!</string>
-    <string name="upload">upload</string>
-    <string name="uploading">Uploading. . .</string>
-    <string name="drawer_message_error">you can\'t perform this action!</string>
-    <string name="ok">ok</string>
+    <string name="upload">Upload</string>
+    <string name="uploading">Uploading…</string>
+    <string name="drawer_message_error">you can\'t perform this action.</string>
+    <string name="ok">OK</string>
     <string name="general_error">Something Wrong Happened.</string>
 
     <!--backend error messages-->
     <string name="internal_server_error">Internal Server Error.</string>
-    <string name="error_no_image_uploaded">No images were uploaded.</string>
-    <string name="error_image_format">Image should be png/jpeg format.</string>
-    <string name="error_no_file_uploaded">No files were uploaded.</string>
-    <string name="error_no_file_format">file should be pdf format.</string>
-    <string name="error_uploading_image">error uploading image to wanted directory.</string>
-    <string name="error_uploading_file">error uploading file to wanted directory.</string>
-    <string name="error_user_already_registered">User already registered.</string>
-    <string name="error_access_denied">Access denied.</string>
-    <string name="error_invalid_email_or_password">Invalid email or password.</string>
-    <string name="error_no_valid_token">Access denied. No token provided.</string>
-
-    <string name="error_password_length">"password" length must be at least 5 characters long</string>
-    <string name="error_password_empty">"password" is not allowed to be empty</string>
-    <string name="error_email_empty">"email" is not allowed to be empty</string>
-    <string name="error_email_length">"email" length must be at least 5 characters long</string>
-    <string name="error_email_format">"email" must be a valid email</string>
-    <string name="error_connection_abort">Software caused connection abort</string>
+    <string name="error_connection_abort" translatable="false">Software caused connection abort</string>
     <string name="password_length_error_message">Password must be at least 5 characters long</string>
     <string name="repeated_password_match_error">Does not match password</string>
 
@@ -89,38 +71,58 @@
     <string name="custom_invalid_password">invalid password</string>
 
 
-    <string name="download_error_message">A download error happened try again!</string>
-    <string name="waiting">Waiting...</string>
-    <string name="pause">PAUSE</string>
+    <string name="download_error_message">A download error happened.</string>
+    <string name="waiting">Waiting…</string>
+    <string name="pause">Pause</string>
     <string name="monokrome_art_magazine">MONOKROME Art Magazine</string>
-    <string name="monokrome_art_magazine_le_chez_soi_des_artistes">MONOKROME Art Magazine le chez-soi des artistes.</string>
+    <string name="monokrome_art_magazine_le_chez_soi_des_artistes">MONOKROME Art Magazine the home of artists.</string>
     <string name="publisheb_by">Published by MONOKROME</string>
     <string name="about">About</string>
-    <string name="about_text">Monokrome est un magazine culturel numérique algérien indépendant qui entend démocratiser l’Art dans sa pluralité et auprès de tous.
-        Fondé en 2018 à l’initiative de Nour Taieb Ezzraimi et d’Idris Felfoul, le magazine rassemble aujourd’hui 7 chefs de rubriques permanants et touche sur les réseaux sociaux près de 7000 individus résidants dans le monde entier.
-        Fort de ses publications trimestrielles sur des thématiques définis en collégialité, le magazine publie également régulièrement dans les rubriques portfolio et interviews et dans le blog dans quatre langues (anglais, arabe, espagnol, français), des articles œuvrant à la promotion d’artistes et projets afin de leur donner accès à un espace de publication et d’offrir la possibilité au plus grand nombre d’accéder à des informations quant à la culture et l’art actuel.</string>
+    <string name="about_text">Monokrome is an independent Algerian digital cultural magazine that intends to democratize Art in its plurality and among all.
+ Founded in 2018 on the initiative of Nour Taieb Ezzraimi and Idris Felfoul, the magazine now brings together 7 permanent column heads and reaches on social networks nearly 7,000 individuals living around the world. With its quarterly publications on languages offered in collegiality, the magazine also regularly publishes in the portfolio and interviews sections and in the blog in four (English, Arabic, Spanish, French), articles working to promote artists and projects in order to give them access to a publication space and offer the greatest number of people the possibility of obtaining information about culture and current art.</string>
     <string name="developers">Developers</string>
     <string name="developers_name">This app was developed by Sedik Ikediche and Soheib Bettahar.</string>
     <string name="contact">Contact</string>
-    <string name="sedik_email">ikediche08@gmail.com</string>
-    <string name="soheib_email">soheibbett@gmail.com</string>
-    <string name="write_title_here">write title here</string>
-    <string name="write_description_here">write description here</string>
+    <string name="sedik_email" translatable="false">ikediche08@gmail.com</string>
+    <string name="soheib_email" translatable="false">soheibbett@gmail.com</string>
+    <string name="write_title_here">Write title here</string>
+    <string name="write_description_here">Write description here</string>
     <string name="edition">EDITION</string>
     <string name="click_here_to_add_edition">Click here to add edition</string>
-    <string name="_13_sep_219">13 Sep 219</string>
-    <string name="version">Version : 1.0.0</string>
+    <string name="_13_sep_219" translatable="false">13 Sep 219</string>
+    <string name="version" translatable="false">Version : 1.0.0</string>
     <string name="intall_file_manager">You need to install a file manager app.</string>
     <string name="install_gallery_app">You need to install a gallery app.</string>
     <string name="no_issues_available">No issues available</string>
     <string name="error_wait_for_download">You can\'t Upload Data from the server while downloading files.</string>
-    <string name="loading_from_server">Tou can\'t download while loading data from the server.</string>
+    <string name="loading_from_server">You can\'t download while loading data from the server.</string>
     <string name="do_not_have_enough_space">Sorry you d\'ont have enough space!</string>
     <string name="failed_to_upload">Failed to upload Image/File.</string>
     <string name="wrong_format">Wrong Image/File format.</string>
-    <string name="software_connection_abort">Software caused connection abort</string>
+    <string name="software_connection_abort" translatable="false">Software caused connection abort</string>
     <string name="error_entries_null">All entries must not be null.</string>
-    <string name="error_connection_timed_out">connect timed out</string>
-    <string name="error_timeout">timeout</string>
+    <string name="error_connection_timed_out" translatable="false">connect timed out</string>
+    <string name="error_timeout" translatable="false">timeout</string>
     <string name="failed_connect_to_server">Failed to connect to the server.</string>
+
+    <string name="home">Home</string>
+    <string name="about_us">About Us</string>
+    <string name="rate_us">Rate Us</string>
+    <string name="website">Website</string>
+    <string name="contact_us">Contact Us</string>
+    <string name="admin">Admin</string>
+    <string name="communication">Communication</string>
+    <string name="facebook" translatable="false">Facebook</string>
+    <string name="instagram" translatable="false">Instagram</string>
+    <string name="log_out">Log Out</string>
+    <string name="monokrome_email" translatable="false">monokromemag@gmail.com</string>
+    <string name="team_greetings">Hey team,\n</string>
+    <string name="question_for_team">Question for Monokrome team</string>
+    <string name="cancel">Cancel</string>
+    <string name="success">Success</string>
+    <string name="issue_uploaded_successfully">issue uploaded successfully.</string>
+    <string name="document_format">Document format must be pdf.</string>
+    <string name="file_name_compressor" translatable="false">compressor</string>
+    <string name="file_name_temp_pdf" translatable="false">temp_PDF</string>
+    <string name="new_edition" translatable="false">New edition</string>
 </resources>

@@ -2,8 +2,6 @@ package com.ssquare.myapplication.monokrome.util
 
 import android.content.res.ColorStateList
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.TransitionDrawable
-import android.net.Uri
 import android.text.format.DateFormat
 import android.util.Log
 import android.widget.ImageView
@@ -16,9 +14,7 @@ import com.bumptech.glide.GenericTransitionOptions
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.model.GlideUrl
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.transition.TransitionFactory
 import com.google.android.material.button.MaterialButton
 import com.makeramen.roundedimageview.RoundedImageView
 import com.mikhaellopez.circularprogressbar.CircularProgressBar
@@ -31,12 +27,19 @@ import java.util.*
 @BindingAdapter("imageUrl")
 fun loadImage(view: ImageView, url: GlideUrl?) {
     url?.let {
-     val reqopts = RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.ALL)
-          .override(view.width,view.height)
+        val request = RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.ALL)
+            .override(view.width, view.height)
         Glide.with(view.context)
             .load(url)
-            .apply(reqopts)
-            .placeholder(ColorDrawable(ContextCompat.getColor(view.context, R.color.image_place_holder_color)))
+            .apply(request)
+            .placeholder(
+                ColorDrawable(
+                    ContextCompat.getColor(
+                        view.context,
+                        R.color.image_place_holder_color
+                    )
+                )
+            )
             .centerCrop()
             .transition(GenericTransitionOptions.with(R.anim.fade_in))
             .into(view)

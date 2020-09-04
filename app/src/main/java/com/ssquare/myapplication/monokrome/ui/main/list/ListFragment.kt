@@ -119,7 +119,6 @@ class ListFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener 
             viewModel.toDownloadMagazine?.let { downloadMagazine(it) }
         } else {
             viewModel.setToDownload(null)
-            toast(requireContext(), "Storage Permission Denied")
         }
     }
 

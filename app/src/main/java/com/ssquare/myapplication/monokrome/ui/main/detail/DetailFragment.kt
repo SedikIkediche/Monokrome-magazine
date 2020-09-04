@@ -103,7 +103,6 @@ class DetailFragment : Fragment(), DetailClickListener,
             viewModel.toDownloadMagazine?.let { downloadMagazine(it) }
         } else {
             viewModel.setToDownload(null)
-            showErrorDialog("Storage Permission Denied")
         }
 
     }

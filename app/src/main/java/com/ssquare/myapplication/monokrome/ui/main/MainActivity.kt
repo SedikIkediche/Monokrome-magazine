@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
     @Inject
     lateinit var downloadUtils: DownloadUtils
 
-    var selectedItem = 0
+    private var selectedItem = 0
 
     @Inject
     lateinit var authRepository: AuthRepository
@@ -68,10 +68,10 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
 
     private fun openContact() {
         val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_EMAIL, arrayOf("monokromemag@gmail.com"))
-            putExtra(Intent.EXTRA_SUBJECT, "Question from the app")
-            putExtra(Intent.EXTRA_TEXT, "Hey team,\n")
+            type = FileUtils.MIME_TYPE_TEXT_PLAIN
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.monokrome_email)))
+            putExtra(Intent.EXTRA_SUBJECT, getString(R.string.question_for_team))
+            putExtra(Intent.EXTRA_TEXT, getString(R.string.team_greetings))
         }
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)

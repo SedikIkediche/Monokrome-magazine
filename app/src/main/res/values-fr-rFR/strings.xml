@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Monokrome</string>
+
+    <string name="download">Telecharger</string>
+    <string name="preview">Aperçu</string>
+    <string name="read">Lire</string>
+    <string name="resume">Reprendre</string>
+    <string name="delete">Supprimer</string>
+    <string name="loading">Chargement</string>
+
+    <string name="terms_of_usage"><u>En vous joignant, vous acceptez les conditions d\'utilisation et la politique de confidentialité</u></string>
+    <string name="search">Chercher</string>
+    <string name="filter_list">Filtrer</string>
+    <string name="network_down">Connection Perdu.</string>
+    <string name="banner_text">Impossible de se connecter au serveur, veuillez vérifier votre connexion Internet.</string>
+    <string name="try_again">RÉESSAYER</string>
+    <string name="close">FERMER</string>
+    <string name="no_internet_connection">No Internet Connection</string>
+    <string name="back_online">Retour Online</string>
+    <string name="free">Gratuit</string>
+    <string name="title">Titre</string>
+    <string name="category">Category</string>
+    <string name="art">Art</string>
+    <string name="description">Description</string>
+    <string name="log_in_dialog_text">Se Connecter…</string>
+    <string name="email">Email</string>
+    <string name="password">Mot de passe</string>
+    <string name="forget_password">Mot de pass oublier?</string>
+    <string name="login">Se connecter</string>
+    <string name="not_a_member">Pas un membre ?</string>
+    <string name="join_now">créer un compte</string>
+    <string name="repeat_password">Répéter le mot de passe</string>
+    <string name="sign_up">S\'inscrire</string>
+    <string name="have_an_account">Vous avez déjà un compte?</string>
+    <string name="credentials_error_massage">Une erreur s\'est produite, veuillez vérifier vos informations d\'identification et réessayer.</string>
+    <string name="retry">Réessayer</string>
+    <string name="oops">Oops!</string>
+    <string name="connectivity_error_message">veuillez vérifier votre connection Internet</string>
+    <string name="email_error_message">Veuillez saisir un e-mail valide</string>
+    <string name="password_empty_error_message">Veuillez entrer un mot de passe</string>
+    <string name="repeat_password_error_message">Veuillez répéter le mot de passe</string>
+    <string name="register_dialog_text">Inscription…</string>
+    <string name="invalid_repeated_password">Le mot de passe répété n\'est pas valide</string>
+    <string name="most_recent">Le plus récent</string>
+    <string name="a_to_z">A à Z</string>
+    <string name="z_to_a">Z à A</string>
+    <string name="new_edition_notification_channel_name">Nouvelle édition</string>
+    <string name="new_edition_notification_channel_description">Ce canal contient la notification qui est envoyée chaque fois qu\'une nouvelle édition de magazine est publiée.</string>
+    <string name="new_edition_title">Une nouvelle édition est sortie</string>
+    <string name="new_edition_description">Allez le vérifier!</string>
+    <string name="upload">Télécharger</string>
+    <string name="uploading">Téléchargerement…</string>
+    <string name="drawer_message_error">vous ne pouvez pas effectuer cette action.</string>
+    <string name="ok">Ok</string>
+    <string name="general_error">Quelque chose s\'est mal passé.</string>
+
+
+    <string name="internal_server_error">Erreur Interne du Serveur.</string>
+    <string name="password_length_error_message">Le mot de passe doit contenir au moins 5 caractères</string>
+    <string name="repeated_password_match_error">Ne correspond pas au mot de passe</string>
+
+    <!--custom error messages-->
+
+    <string name="custom_error_email_registered">Il existe déjà un compte avec cet e-mail.</string>
+    <string name="custom_error_email_does_not_exist">Aucun compte avec email donné.</string>
+    <string name="custom_invalid_password">Mot de passe incorrect</string>
+
+
+    <string name="download_error_message">Une erreur de téléchargement s\'est produite</string>
+    <string name="waiting">Attendre…</string>
+    <string name="pause">PAUSE</string>
+    <string name="monokrome_art_magazine">Magazine d\'art MONOKROME</string>
+    <string name="monokrome_art_magazine_le_chez_soi_des_artistes">MONOKROME Art Magazine le chez-soi des artistes.</string>
+    <string name="publisheb_by">Publié par MONOKROME</string>
+    <string name="about">À propos</string>
+    <string name="about_text">Monokrome est un magazine culturel numérique algérien indépendant qui entend démocratiser l’Art dans sa pluralité et auprès de tous.
+        Fondé en 2018 à l’initiative de Nour Taieb Ezzraimi et d’Idris Felfoul, le magazine rassemble aujourd’hui 7 chefs de rubriques permanants et touche sur les réseaux sociaux près de 7000 individus résidants dans le monde entier.
+        Fort de ses publications trimestrielles sur des thématiques définis en collégialité, le magazine publie également régulièrement dans les rubriques portfolio et interviews et dans le blog dans quatre langues (anglais, arabe, espagnol, français), des articles œuvrant à la promotion d’artistes et projets afin de leur donner accès à un espace de publication et d’offrir la possibilité au plus grand nombre d’accéder à des informations quant à la culture et l’art actuel.</string>
+    <string name="developers">Développeurs</string>
+    <string name="developers_name">Cette application a été développée par Sedik Ikediche and Soheib Bettahar.</string>
+    <string name="contact">Contacter</string>
+    <string name="write_title_here">Écrivez le titre ici</string>
+    <string name="write_description_here">Écrivez la description ici</string>
+    <string name="edition">Édition</string>
+    <string name="click_here_to_add_edition">Cliquez ici pour ajouter une édition</string>
+    <string name="intall_file_manager">Vous devez installer une application de gestion de fichiers.</string>
+    <string name="install_gallery_app">Vous devez installer une application de galerie.</string>
+    <string name="no_issues_available">Aucune édition disponible</string>
+
+    <string name="error_wait_for_download">Vous ne pouvez pas charger des  données vers le serveur lors du téléchargement des fichiers.</string>
+    <string name="loading_from_server">Vous ne pouvez pas télécharger des fichiers lors du chargement des données depuis le serveur.</string>
+
+    <string name="do_not_have_enough_space">Désolé, vous n \'avez pas assez d \'espace.</string>
+    <string name="failed_to_upload">Échec du téléchargement de l\'image / du fichier.</string>
+    <string name="wrong_format">Mauvais format d\'image/fichier.</string>
+    <string name="error_entries_null">Toutes les entrées ne doivent pas être nulles.</string>
+    <string name="failed_connect_to_server">Impossible de se connecter au serveur.</string>
+
+    <string name="home">Accueil</string>
+    <string name="about_us">À propos de nous</string>
+    <string name="rate_us">Évaluez nous</string>
+    <string name="website">Site web</string>
+    <string name="contact_us">Nous Contacter</string>
+    <string name="admin">Admin</string>
+    <string name="communication">Communication</string>
+    <string name="facebook">Facebook</string>
+    <string name="instagram">Instagram</string>
+    <string name="log_out">Se Déconnecter</string>
+
+    <string name="team_greetings">Salut l\'équipe, \ n</string>
+    <string name="question_for_team">Question pour l\'équipe de Monokrome</string>
+    <string name="cancel">Annuler</string>
+    <string name="success">Succès</string>
+    <string name="issue_uploaded_successfully">Édition téléchargée avec succès.</string>
+    <string name="document_format">Le format du document doit être PDF.</string>
+
+</resources>

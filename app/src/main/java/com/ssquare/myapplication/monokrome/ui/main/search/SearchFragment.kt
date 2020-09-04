@@ -127,7 +127,6 @@ class SearchFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
             downloadMagazine(viewModel.toDownloadMagazine!!)
         } else {
             viewModel.setToDownload(null)
-            toast(requireContext(), "Storage Permission Denied")
         }
     }
 

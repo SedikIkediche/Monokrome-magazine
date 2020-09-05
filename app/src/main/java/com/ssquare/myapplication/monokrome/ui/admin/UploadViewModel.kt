@@ -1,18 +1,26 @@
 package com.ssquare.myapplication.monokrome.ui.admin
 
+import android.content.Context
 import android.net.Uri
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
+import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.network.Error
 import com.ssquare.myapplication.monokrome.network.MagazineOrError
+import com.ssquare.myapplication.monokrome.util.FileUtils
+import com.ssquare.myapplication.monokrome.util.JPEGTYPE
+import com.ssquare.myapplication.monokrome.util.PNGTYPE
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.File
 
 class UploadViewModel @ViewModelInject constructor(
     private val repository: Repository,
-    @Assisted private val savedStateHandle: SavedStateHandle
+    @Assisted private val savedStateHandle: SavedStateHandle,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _title = MutableLiveData<String>()
@@ -66,21 +74,28 @@ class UploadViewModel @ViewModelInject constructor(
     fun upload(callback: () -> Unit = {}) {
         Timber.tag("Upload").d("viewModel.upload() called")
         if (!title.value.isNullOrEmpty() && !description.value.isNullOrEmpty() && _image.value != null && _file.value != null) {
-            callback()
-            viewModelScope.launch {
-                val magazineOrException = repository.uploadIssue(
-                    title.value!!,
-                    description.value!!,
-                    _image.value!!,
-                    _file.value!!,
-                    releaseDate.value!!
-                )
-                _uploadState.value = magazineOrException
+            when(FileUtils.getTypeFromPath(FileUtils.getPath(context,image.value!!))){
+                JPEGTYPE, PNGTYPE -> {
+                    callback()
+                    viewModelScope.launch {
+                        val magazineOrException = repository.uploadIssue(
+                            title.value!!,
+                            description.value!!,
+                            _image.value!!,
+                            _file.value!!,
+                            releaseDate.value!!
+                        )
+                        _uploadState.value = magazineOrException
+                    }
+                }else -> {
+                _uploadState.value =
+                    MagazineOrError(null, Error(code = 415))
             }
+            }
+
         } else {
             Timber.d("empty entry is: title: ${title.value.isNullOrEmpty()}, description: ${description.value.isNullOrEmpty()}, image: ${_image.value == null}, file: ${_file.value == null}")
-            _uploadState.value =
-                MagazineOrError(null, Error(code = 404))
+            _uploadState.value = MagazineOrError(null, Error(code = 404))
         }
     }
 

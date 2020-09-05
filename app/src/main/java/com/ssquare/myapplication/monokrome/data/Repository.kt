@@ -33,40 +33,41 @@ class Repository constructor(
         get() = _networkError
 
 
-    fun loadAndCacheData(): Boolean {
+   suspend fun loadAndCacheData(): Boolean {
         var resultState = false
-        scope.launch {
-            val authToken = getAuthToken(context)
-            val result = network.loadFromServer(authToken)
-            Timber.d("load from server: $result")
-            withContext(Dispatchers.IO) {
-                commitLoadDataActive(context, true)
-                resultState =
-                    if (result.header != null && result.error == null) {
-                        if (!result.magazineList.isNullOrEmpty()) {
-                            val databaseMagazines = result.magazineList.toMagazines(context)
-                            cache.refresh(databaseMagazines, result.header)
-                            _networkError.postValue(null)
-                            commitCacheData(context)
-                            true
-                        } else {
-                            Timber.d("loadAndCacheData() called magazineList=${result.magazineList}, header = ${result.header}")
-                            _networkError.postValue(
-                                Error(
-                                    message = context.getString(R.string.no_issues_available),
-                                    code = 404
-                                )
-                            )
-                            true
-                        }
+        val authToken = getAuthToken(context)
+        val result = network.loadFromServer(authToken)
+        Timber.d("load from server: $result")
+        withContext(Dispatchers.IO) {
+            commitLoadDataActive(context, true)
+            resultState =
+                if (result.header != null && result.error == null) {
+                    if (!result.magazineList.isNullOrEmpty()) {
+                        val databaseMagazines = result.magazineList.toMagazines(context)
+                        cache.refresh(databaseMagazines, result.header)
+                        _networkError.postValue(null)
+                        commitCacheData(context)
+                        Timber.d("passed from true")
+                        true
                     } else {
+                        Timber.d("loadAndCacheData() called magazineList=${result.magazineList}, header = ${result.header}")
                         _networkError.postValue(
-                            result.error
+                            Error(
+                                message = context.getString(R.string.no_issues_available),
+                                code = 404
+                            )
                         )
-                        false
+                        Timber.d("passed from true second")
+                        true
                     }
-                commitLoadDataActive(context, false)
-            }
+                } else {
+                    _networkError.postValue(
+                        result.error
+                    )
+                    Timber.d("passed from false")
+                    false
+                }
+            commitLoadDataActive(context, false)
         }
         Timber.d("value : $resultState")
         return resultState

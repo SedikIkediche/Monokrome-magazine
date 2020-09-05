@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.ssquare.myapplication.monokrome.R
 import com.ssquare.myapplication.monokrome.databinding.FragmentAboutBinding
 
 /**
@@ -21,6 +23,8 @@ class AboutFragment : Fragment() {
     ): View? {
 
         binding = FragmentAboutBinding.inflate(inflater)
+
+        binding.root.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.list_item_container_background))
 
         setupCloseButtonClickListener()
 

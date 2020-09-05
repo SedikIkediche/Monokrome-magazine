@@ -2,13 +2,11 @@ package com.ssquare.myapplication.monokrome.ui.main.list
 
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.ssquare.myapplication.monokrome.data.DomainMagazine
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.util.OrderBy
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
@@ -29,7 +27,11 @@ class ListViewModel @ViewModelInject constructor(
 
     fun delete(magazine: DomainMagazine) = repository.delete(magazine)
 
-    fun loadAndCacheData() = repository.loadAndCacheData()
+    fun loadAndCacheData() {
+        viewModelScope.launch {
+            repository.loadAndCacheData()
+        }
+    }
 
 
     fun setToDownload(magazine: DomainMagazine?) {

@@ -40,6 +40,9 @@ const val SELECT_IMAGE_CODE = 1
 const val SELECT_FILE_CODE = 2
 const val UPLOAD_CODE = 3
 
+const val JPEGTYPE  = "image/jpeg"
+const val PNGTYPE =  "image/png"
+
 const val PLAY_STORE = "market://details?id="
 const val PACKAGE_NAME = "com.ssquare.myapplication.monokrome"
 const val WEB_SITE = "https://www.monokromemag.com/"

@@ -14,6 +14,9 @@ import com.bumptech.glide.GenericTransitionOptions
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.model.GlideUrl
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.button.MaterialButton
 import com.makeramen.roundedimageview.RoundedImageView
@@ -31,6 +34,7 @@ fun loadImage(view: ImageView, url: GlideUrl?) {
             .override(view.width, view.height)
         Glide.with(view.context)
             .load(url)
+            .transition(DrawableTransitionOptions.withCrossFade())
             .apply(request)
             .placeholder(
                 ColorDrawable(
@@ -40,8 +44,7 @@ fun loadImage(view: ImageView, url: GlideUrl?) {
                     )
                 )
             )
-            .centerCrop()
-            .transition(GenericTransitionOptions.with(R.anim.fade_in))
+            .transform(CenterCrop(), RoundedCorners(10))
             .into(view)
 
     }

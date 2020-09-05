@@ -5,6 +5,7 @@ import com.ssquare.myapplication.monokrome.data.AuthRepository
 import com.ssquare.myapplication.monokrome.data.Repository
 import com.ssquare.myapplication.monokrome.db.LocalCache
 import com.ssquare.myapplication.monokrome.network.MonokromeApiService
+import com.ssquare.myapplication.monokrome.ui.admin.UploadFragment
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

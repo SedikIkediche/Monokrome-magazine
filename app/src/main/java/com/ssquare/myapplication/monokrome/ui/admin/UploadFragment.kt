@@ -330,7 +330,6 @@ class UploadFragment : Fragment(), ConnectivityProvider.ConnectivityStateListene
         val intent = Intent().apply {
             action = Intent.ACTION_PICK
             type = "image/*"
-            putExtra(Intent.EXTRA_MIME_TYPES, MIMETYPES)
         }
         if (intent.resolveActivity(requireActivity().packageManager) != null) {
             startActivityForResult(intent, SELECT_IMAGE_CODE)

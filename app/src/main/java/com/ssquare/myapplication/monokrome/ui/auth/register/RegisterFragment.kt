@@ -59,7 +59,14 @@ class RegisterFragment : Fragment(), ConnectivityProvider.ConnectivityStateListe
         })
 
         setTextFieldsListeners()
+        setupButtonClickListeners()
+        setHasOptionsMenu(true)
+        setUpAlertDialog()
 
+        return binding.root
+    }
+
+    private fun setupButtonClickListeners() {
         binding.registerButton.setOnClickListener {
             createNewUser()
         }
@@ -68,11 +75,9 @@ class RegisterFragment : Fragment(), ConnectivityProvider.ConnectivityStateListe
             this.findNavController().navigateUp()
         }
 
-        setHasOptionsMenu(true)
-
-        setUpAlertDialog()
-
-        return binding.root
+        binding.termsOfUsage.setOnClickListener {
+            findNavController().navigate(R.id.conditionsFragment)
+        }
     }
 
     override fun onStart() {

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Monokrome</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -125,4 +125,37 @@
     <string name="file_name_compressor" translatable="false">compressor</string>
     <string name="file_name_temp_pdf" translatable="false">temp_PDF</string>
     <string name="new_edition" translatable="false">New edition</string>
+    <!-- TODO: Remove or change this placeholder text -->
+
+
+    <string name="general_terms_and_conditions">GENERAL TERMS AND CONDITIONS</string>
+    <string name="general_terms_and_conditions_introduction">By installing the app, you agree to be bound by these terms of use. Please review them carefully before installation and/or Signing-in.</string>
+    <string name="definitions">1. Definitions</string>
+    <string name="definitions_text">The App shall mean Monokrome Magazine, to offer services related to reading and purchasing digital content, to be used on Android devices and any upgrades from time to time and any other software documentation which ebables the use of the app.</string>
+    <string name="data_protection">2. Data Protection</string>
+    <string name="data_protection_text">Any Personal information you supply to Monokrome Magazine when using the App will be used by Monokrome Magazine in accordance with its Privacy Policy.</string>
+    <string name="the_app">3. The App</string>
+    <string name="the_app_text">The App may allow you to access certain functionnalities available on Monokrome Magazine website. Such access will be governed by the Monokrome Magazine Website Terms of Use.</string>
+    <string name="proprietary_rights_and_licence">4. Proprietary Rights and Licence</string>
+    <string name="proprietary_rights_and_licence_text">All trade marks, content, images, and other intellectual property rights of any nature in the App are owned directly either by Monokrome Magazine or Monokrome Magazine\'s licensors.</string>
+    <string name="conditions_of_use">6. Conditions of Use</string>
+    <string name="conditions_of_use_text_1">6.1. You will not, nor allow third parties on your behalf to:</string>
+    <string name="conditions_of_use_text_2">a- make and distribute copies of the App.\nb- attempt to copy, reproduce, alter, modify, reverse, engineer, of translate the App.\nc- Create derivative works of the App of any kind whatsoever.</string>
+    <string name="conditions_of_use_text_3">6.2. The App is currently made available to you free of charge for your personal, non-commercial use.</string>
+    <string name="conditions_of_use_text_4">Monokrome Magazine reserves the right to amend or withdraw the App or charge for the App or service provided to you in accordance with these Terms of Use at any time and for any reason.</string>
+    <string name="availability">6. Availability</string>
+    <string name="availability_text">7.1 This App is available to handheld mobile devices running Android.</string>
+    <string name="availability_text_2">Monokrome Magazine will use reasonable efforts to make the App available at all times. However you acknowledge the app is provided on the internet and on mobile networks, so the quality and availability of the app may be affected by factors outside Monokrome\'s reasonable control.</string>
+    <string name="availability_text_3" tools:ignore="Typos">7.2 Monokrome Magazine does not take any responsibility whatsoever:</string>
+    <string name="availability_text_4">for unavailability of the App or any difficulty or inability to download of access content or any other communication system failure which may result in the App being unavailable.</string>
+    <string name="privacy_policy">PRIVACY POLICY</string>
+    <string name="privacy_policy_text">This page is used to inform the app users regarding our policies with the collection, use, and disclosure of Personal information. If you choose to use our service, then you agree to the collection and use of information in relation to this policy.</string>
+    <string name="information_and_collection_use">Information and collection use</string>
+    <string name="information_and_collection_use_text">For a better experience, The app uses following third party services that may collect general usage information:\nGoogle Play Services\nFirebase</string>
+    <string name="security">Security</string>
+    <string name="security_text">We value your trust in providing us your personal information, thus we are striving to use acceptable means of protecting it. But remember that no method of transmission over the internet, of method of electronic storage is 100% secure and reliable, and we can\'t guarantee its absolute security.</string>
+    <string name="links_to_other_sites">Links to other sites</string>
+    <string name="links_to_other_sites_text">These services may contain links to other sites. If you click on a third-party link, you will be directed to that site. Note that these external sites are not operated by us. Therefore, we strongly advise you to review the Privacy Policy of these websites. We have no control over and assume no responsibility for the content, privacy policies, or the practices of any third party sites or services.</string>
+    <string name="changes_to_privacy_policy">Changes to privacy policy</string>
+    <string name="changes_to_privacy_policy_text">We may upgrade our Privacy Policy from time to time. Thus you are advised to review this page periodically for any for any changes. We will notify you on any changes by posting the new Privacy Policy on this page. These changes are effective immediately after they are posted on this page.</string>
 </resources>

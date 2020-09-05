@@ -16,4 +16,8 @@
         android:name="com.ssquare.myapplication.monokrome.ui.auth.register.RegisterFragment"
         android:label="fragment_register"
         tools:layout="@layout/fragment_register" />
+    <fragment
+        android:id="@+id/conditionsFragment"
+        android:name="com.ssquare.myapplication.monokrome.ui.auth.termesAndConditions.ConditionsFragment"
+        android:label="ConditionsFragment" />
 </navigation>

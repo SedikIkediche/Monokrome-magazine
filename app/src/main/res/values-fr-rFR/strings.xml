@@ -49,8 +49,8 @@
     <string name="new_edition_notification_channel_description">Ce canal contient la notification qui est envoyée chaque fois qu\'une nouvelle édition de magazine est publiée.</string>
     <string name="new_edition_title">Une nouvelle édition est sortie</string>
     <string name="new_edition_description">Allez le vérifier!</string>
-    <string name="upload">Télécharger</string>
-    <string name="uploading">Téléchargerement…</string>
+    <string name="upload">Publier</string>
+    <string name="uploading">Publication…</string>
     <string name="drawer_message_error">vous ne pouvez pas effectuer cette action.</string>
     <string name="ok">Ok</string>
     <string name="general_error">Quelque chose s\'est mal passé.</string>
@@ -88,20 +88,20 @@
     <string name="install_gallery_app">Vous devez installer une application de galerie.</string>
     <string name="no_issues_available">Aucune édition disponible</string>
 
-    <string name="error_wait_for_download">Vous ne pouvez pas charger des  données vers le serveur lors du téléchargement des fichiers.</string>
+    <string name="error_wait_for_download">Vous ne pouvez pas publier des  données vers le serveur lors du téléchargement des fichiers.</string>
     <string name="loading_from_server">Vous ne pouvez pas télécharger des fichiers lors du chargement des données depuis le serveur.</string>
 
     <string name="do_not_have_enough_space">Désolé, vous n \'avez pas assez d \'espace.</string>
-    <string name="failed_to_upload">Échec du téléchargement de l\'image / du fichier.</string>
+    <string name="failed_to_upload">Échec du publication de l\'image / du fichier.</string>
     <string name="wrong_format">Mauvais format d\'image/fichier.</string>
     <string name="error_entries_null">Toutes les entrées ne doivent pas être nulles.</string>
     <string name="failed_connect_to_server">Impossible de se connecter au serveur.</string>
 
     <string name="home">Accueil</string>
     <string name="about_us">À propos de nous</string>
-    <string name="rate_us">Évaluez nous</string>
+    <string name="rate_us">Évaluez-nous</string>
     <string name="website">Site web</string>
-    <string name="contact_us">Nous Contacter</string>
+    <string name="contact_us">Contactez-Nous</string>
     <string name="admin">Admin</string>
     <string name="communication">Communication</string>
     <string name="facebook">Facebook</string>
@@ -112,7 +112,47 @@
     <string name="question_for_team">Question pour l\'équipe de Monokrome</string>
     <string name="cancel">Annuler</string>
     <string name="success">Succès</string>
-    <string name="issue_uploaded_successfully">Édition téléchargée avec succès.</string>
+    <string name="issue_uploaded_successfully">Édition publié avec succés.</string>
     <string name="document_format">Le format du document doit être PDF.</string>
+
+
+    <string name="general_terms_and_conditions">CONDITIONS GÉNÉRALES</string>
+    <string name="general_terms_and_conditions_introduction">
+En en vous inscrivant à l\'application, vous acceptez les conditions d\'utilisation présentes .
+Veuillez les lire attentivement avant l\'inscription.</string>
+    <string name="definitions">1. Définitions</string>
+    <string name="definitions_text">L\'Application  désignée par  Monokrome Magazine, offre des services liés
+à la lecture et à l\'achat de contenu numérique à utiliser sur les appareils Android et toutes les mises à jour, et tout autre logiciel ou documentation qui permet l\'utilisation de l\'application.</string>
+    <string name="data_protection">2. protection des données</string>
+    <string name="data_protection_text">Toute information personnelle que vous fournissez à Monokrome Magazine lors de l\'utilisation l\'application sera utilisée par Monokrome Magazine conformément à sa Politique de confidentialité.</string>
+    <string name="the_app">3. L\'application</string>
+    <string name="the_app_text">L\'application peut vous permettre d\'accéder à certaines fonctionnalités disponibles sur le site Web de Monokrome Magazine. Cet accès sera régit par les Conditions d\'utilisation du site Web de Monokrome Magazine.</string>
+    <string name="proprietary_rights_and_licence">4. Proprietary Rights and Licence</string>
+    <string name="proprietary_rights_and_licence_text">Toutes les marques, contenus, images, autres propriétés intellectuelles et  droits de toute nature sur l\'Application  sont détenus directement soit par Monokrome Concédants de licence de Magazine ou Monokrome Magazine</string>
+    <string name="conditions_of_use">6. Conditions d\'utilisation</string>
+    <string name="conditions_of_use_text_1">6.1 Vous n\'autoriserez ni vous ni des tiers en votre nom à :</string>
+    <string name="conditions_of_use_text_2">a- faire et distribuer des copies de l\'application.\nb- tenter de copier, reproduire, altérer, modifier, inverser, concevoir, traduire l\'application.\nc- Créer des œuvres dérivées de l’Application de quelque nature que ce soit.</string>
+    <string name="conditions_of_use_text_3">6.2.  L\'application est actuellement mise à votre disposition, gratuitement pour votre usage personnel et non commercial.</string>
+    <string name="conditions_of_use_text_4">Monokrome Magazine se réserve le droit de modifier ou de retirer l\'application ou facturer l\'application ou le service qui vous est fourni conformément à ces Conditions d\'utilisation à tout moment et pour quelque raison que ce soit.</string>
+    <string name="availability">6. Disponibilité</string>
+    <string name="availability_text">7.1 Cette application est disponible pour les appareils mobiles portables exécutant Android.</string>
+    <string name="availability_text_2">Monokrome Magazine déploiera des efforts raisonnables pour rendre l\'application disponible de tout temps. Cependant, vous reconnaissez que l\'application est fournie sur le réseau
+internet et sur les réseaux mobiles, donc la qualité et la disponibilité de l\'application peut être affectée par des facteurs extérieurs à la volonté de Monokrome.
+</string>
+    <string name="availability_text_3">7.2 Monokrome Magazine n\'assume aucune responsabilité de quelque nature que ce soit:</string>
+    <string name="availability_text_4">pour l\'indisponibilité de l\'Application ou pour toute difficulté ou incapacité pour télécharger du contenu d\'accès ou toute autre cause ou défaillance du système pouvant entraîner l\'indisponibilité de l\'application.</string>
+    <string name="privacy_policy">POLITIQUE DE CONFIDENTIALITÉ</string>
+    <string name="privacy_policy_text">Cette page est utilisée pour informer les utilisateurs sur l\'application de nos politiques avec la collecte, l\'utilisation et la divulgation des renseignements personnels.Si vous choisissez d\'utiliser notre service, vous acceptez la collecte et utilisation des informations relatives à cette politique.</string>
+    <string name="information_and_collection_use">Collecte et utilisation des informations</string>
+    <string name="information_and_collection_use_text">Pour une meilleure expérience, l\'application utilise les services tiers suivants qui peuvent collecter des informations d\'utilisation générale :\nGoogle Play Services\nFirebase</string>
+    <string name="security">Sécurité</string>
+    <string name="security_text">Nous apprécions votre confiance en nous fournissant vos informations personnelles, ainsi nous nous efforçons d\'utiliser des moyens acceptables pour les protéger. Mais rappelez-vous qu\'aucune méthode de transmission sur Internet ou de stockage est 100% sécurisée et fiable, et nous ne pouvons pas garantir une sécurité absolue.</string>
+    <string name="links_to_other_sites">Liens vers d’autres sites</string>
+    <string name="links_to_other_sites_text">Ces services peuvent contenir des liens vers d\'autres sites. Si vous cliquez sur un lien tiers, vous serez dirigé vers ce site. Notez que ces sites externes ne sont pas exploités par nous. Par conséquent, nous vous conseillons de consulter la politique de confidentialité de ces sites Web. Nous n\'avons aucun contrôle et n\'assumons aucune responsabilité pour le contenu, la confidentialité, les politiques ou les pratiques de tout site ou service tiers.</string>
+    <string name="changes_to_privacy_policy">Modification de la politique de confidentialité</string>
+    <string name="changes_to_privacy_policy_text">Nous pouvons mettre à jour notre politique de confidentialité de temps à autre. Ainsi il est conseillé de revoir cette page périodiquement pour tout changement. Nous vous informerons de tout changement en publiant la nouvelle politique de confidentialité sur cette page.
+Ces modifications seront effectives immédiatement après leur publication.
+</string>
+
 
 </resources>

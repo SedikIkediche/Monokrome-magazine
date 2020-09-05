@@ -1,4 +1,4 @@
-package com.ssquare.myapplication.monokrome.ui.main.about
+package com.ssquare.myapplication.monokrome.ui.auth.termesAndConditions
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,22 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.ssquare.myapplication.monokrome.databinding.FragmentAboutBinding
+import com.ssquare.myapplication.monokrome.databinding.FragmentConditionsBinding
 
-/**
- * A simple [Fragment] subclass.
- */
-class AboutFragment : Fragment() {
+class ConditionsFragment : Fragment() {
 
-    private lateinit var binding: FragmentAboutBinding
-
+    private lateinit var binding: FragmentConditionsBinding
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        binding = FragmentAboutBinding.inflate(inflater)
-
+        binding = FragmentConditionsBinding.inflate(inflater)
         setupCloseButtonClickListener()
 
         return binding.root
@@ -32,5 +26,4 @@ class AboutFragment : Fragment() {
             this.findNavController().navigateUp()
         }
     }
-
 }

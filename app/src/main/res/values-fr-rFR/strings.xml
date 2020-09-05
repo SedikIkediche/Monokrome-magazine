@@ -36,7 +36,7 @@
     <string name="credentials_error_massage">Une erreur s\'est produite, veuillez vérifier vos informations d\'identification et réessayer.</string>
     <string name="retry">Réessayer</string>
     <string name="oops">Oops!</string>
-    <string name="connectivity_error_message">veuillez vérifier votre connection Internet</string>
+    <string name="connectivity_error_message">Veuillez vérifier votre connection Internet.</string>
     <string name="email_error_message">Veuillez saisir un e-mail valide</string>
     <string name="password_empty_error_message">Veuillez entrer un mot de passe</string>
     <string name="repeat_password_error_message">Veuillez répéter le mot de passe</string>
@@ -51,7 +51,7 @@
     <string name="new_edition_description">Allez le vérifier!</string>
     <string name="upload">Publier</string>
     <string name="uploading">Publication…</string>
-    <string name="drawer_message_error">vous ne pouvez pas effectuer cette action.</string>
+    <string name="drawer_message_error">Vous ne pouvez pas effectuer cette action.</string>
     <string name="ok">Ok</string>
     <string name="general_error">Quelque chose s\'est mal passé.</string>
 
@@ -143,13 +143,13 @@ internet et sur les réseaux mobiles, donc la qualité et la disponibilité de l
     <string name="availability_text_4">pour l\'indisponibilité de l\'Application ou pour toute difficulté ou incapacité pour télécharger du contenu d\'accès ou toute autre cause ou défaillance du système pouvant entraîner l\'indisponibilité de l\'application.</string>
     <string name="privacy_policy">POLITIQUE DE CONFIDENTIALITÉ</string>
     <string name="privacy_policy_text">Cette page est utilisée pour informer les utilisateurs sur l\'application de nos politiques avec la collecte, l\'utilisation et la divulgation des renseignements personnels.Si vous choisissez d\'utiliser notre service, vous acceptez la collecte et utilisation des informations relatives à cette politique.</string>
-    <string name="information_and_collection_use">Collecte et utilisation des informations</string>
+    <string name="information_and_collection_use">1. Collecte et utilisation des informations</string>
     <string name="information_and_collection_use_text">Pour une meilleure expérience, l\'application utilise les services tiers suivants qui peuvent collecter des informations d\'utilisation générale :\nGoogle Play Services\nFirebase</string>
-    <string name="security">Sécurité</string>
+    <string name="security">2. Sécurité</string>
     <string name="security_text">Nous apprécions votre confiance en nous fournissant vos informations personnelles, ainsi nous nous efforçons d\'utiliser des moyens acceptables pour les protéger. Mais rappelez-vous qu\'aucune méthode de transmission sur Internet ou de stockage est 100% sécurisée et fiable, et nous ne pouvons pas garantir une sécurité absolue.</string>
-    <string name="links_to_other_sites">Liens vers d’autres sites</string>
+    <string name="links_to_other_sites">3. Liens vers d’autres sites</string>
     <string name="links_to_other_sites_text">Ces services peuvent contenir des liens vers d\'autres sites. Si vous cliquez sur un lien tiers, vous serez dirigé vers ce site. Notez que ces sites externes ne sont pas exploités par nous. Par conséquent, nous vous conseillons de consulter la politique de confidentialité de ces sites Web. Nous n\'avons aucun contrôle et n\'assumons aucune responsabilité pour le contenu, la confidentialité, les politiques ou les pratiques de tout site ou service tiers.</string>
-    <string name="changes_to_privacy_policy">Modification de la politique de confidentialité</string>
+    <string name="changes_to_privacy_policy">4. Modification de la politique de confidentialité</string>
     <string name="changes_to_privacy_policy_text">Nous pouvons mettre à jour notre politique de confidentialité de temps à autre. Ainsi il est conseillé de revoir cette page périodiquement pour tout changement. Nous vous informerons de tout changement en publiant la nouvelle politique de confidentialité sur cette page.
 Ces modifications seront effectives immédiatement après leur publication.
 </string>

@@ -150,12 +150,12 @@
     <string name="availability_text_4">for unavailability of the App or any difficulty or inability to download of access content or any other communication system failure which may result in the App being unavailable.</string>
     <string name="privacy_policy">PRIVACY POLICY</string>
     <string name="privacy_policy_text">This page is used to inform the app users regarding our policies with the collection, use, and disclosure of Personal information. If you choose to use our service, then you agree to the collection and use of information in relation to this policy.</string>
-    <string name="information_and_collection_use">Information and collection use</string>
+    <string name="information_and_collection_use">1. Information and collection use</string>
     <string name="information_and_collection_use_text">For a better experience, The app uses following third party services that may collect general usage information:\nGoogle Play Services\nFirebase</string>
-    <string name="security">Security</string>
+    <string name="security">2. Security</string>
     <string name="security_text">We value your trust in providing us your personal information, thus we are striving to use acceptable means of protecting it. But remember that no method of transmission over the internet, of method of electronic storage is 100% secure and reliable, and we can\'t guarantee its absolute security.</string>
-    <string name="links_to_other_sites">Links to other sites</string>
+    <string name="links_to_other_sites">3. Links to other sites</string>
     <string name="links_to_other_sites_text">These services may contain links to other sites. If you click on a third-party link, you will be directed to that site. Note that these external sites are not operated by us. Therefore, we strongly advise you to review the Privacy Policy of these websites. We have no control over and assume no responsibility for the content, privacy policies, or the practices of any third party sites or services.</string>
-    <string name="changes_to_privacy_policy">Changes to privacy policy</string>
+    <string name="changes_to_privacy_policy">4. Changes to privacy policy</string>
     <string name="changes_to_privacy_policy_text">We may upgrade our Privacy Policy from time to time. Thus you are advised to review this page periodically for any for any changes. We will notify you on any changes by posting the new Privacy Policy on this page. These changes are effective immediately after they are posted on this page.</string>
 </resources>

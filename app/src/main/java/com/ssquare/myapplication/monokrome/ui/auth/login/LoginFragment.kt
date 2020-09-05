@@ -56,8 +56,13 @@ class LoginFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener
         })
 
         setTextFieldsListeners()
+        setButtonClickListeners()
+        setUpAlertDialog()
 
+        return binding.root
+    }
 
+    private fun setButtonClickListeners() {
         binding.loginButton.setOnClickListener {
             signInUser()
         }
@@ -65,10 +70,6 @@ class LoginFragment : Fragment(), ConnectivityProvider.ConnectivityStateListener
         binding.joinTextView.setOnClickListener {
             this.findNavController().navigate(R.id.registerFragment)
         }
-
-        setUpAlertDialog()
-
-        return binding.root
     }
 
     override fun onStop() {

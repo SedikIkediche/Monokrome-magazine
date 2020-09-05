@@ -1,4 +1,4 @@
-package com.ssquare.myapplication.monokrome.ui.auth.termesAndConditions
+package com.ssquare.myapplication.monokrome.ui.auth.termsAndConditions
 
 import android.os.Bundle
 import android.view.LayoutInflater

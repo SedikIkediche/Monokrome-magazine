@@ -131,9 +131,12 @@ class RegisterFragment : Fragment(), ConnectivityProvider.ConnectivityStateListe
         binding.registerEmail.editText?.requestFocus()
 
         binding.registerEmail.editText?.setOnFocusChangeListener { _, isFocused ->
-            if (!isFocused && !isEmailValid(binding.registerEmail.editText!!.text!!.trim())) {
-                binding.registerEmail.error = getString(R.string.email_error_message)
+            if (binding.registerPassword.editText!!.isFocused || binding.registerRepeatPassword.editText!!.isFocused) {
+                if (!isFocused && !isEmailValid(binding.registerEmail.editText!!.text!!.trim())) {
+                    binding.registerEmail.error = getString(R.string.email_error_message)
+                }
             }
+
         }
         binding.registerPassword.editText?.setOnFocusChangeListener { _, isFocused ->
             if (!isFocused) {

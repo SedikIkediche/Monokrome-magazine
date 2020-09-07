@@ -5,11 +5,12 @@ import com.ssquare.myapplication.monokrome.data.User
 import com.ssquare.myapplication.monokrome.util.AUTH_HEADER_KEY
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import retrofit2.http.*
 import timber.log.Timber
 
-const val BASE_URL = "http://192.168.1.45:3000/api/"
+const val BASE_URL = "http://192.168.1.4:3000/api/"
 const val HEADER_PATH = "header.jpg"
 const val HEADER_URL = "${BASE_URL}images/$HEADER_PATH"
 
@@ -97,9 +98,8 @@ suspend fun MonokromeApiService.uploadIssue(
 }
 
 private fun createPartFromString(text: String): RequestBody {
-    return RequestBody.create(
-        MultipartBody.FORM, text
-    )
+    return text
+        .toRequestBody(MultipartBody.FORM)
 }
 
 fun Throwable.convertToError(): Error {
